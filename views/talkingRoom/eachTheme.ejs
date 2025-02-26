@@ -1,0 +1,125 @@
+<% layout('layouts/boilerplate') %>
+<div class="d-flex gap-3 justify-content-center">
+    <h5 class="text-center m-0">
+        <%= talkTheme.title %>
+    </h5>
+    <span class="text-secondary" style="font-size:10px;line-height:20px;">アクセス数<%=talkTheme.accessCount%></span>
+</div>
+
+<div class="row d-flex flex-column flex-grow-1">
+    <p class="m-0 text-center text-secondary" style="font-size:10px;">
+        ※リアルタイム通信ではないため必要に応じ更新してください
+    </p>
+    <div class="col-lg-8 offset-lg-2 flex-grow-1 d-flex flex-column p-0">
+
+        <% if(currentUser){ %>
+            <div>
+                <form action="/talkingRoom/<%=talkTheme._id%>/newTalk" method="POST" class="needs-validation m-1" novalidate>
+                    <textarea 
+                        class="rounded p-2 position-relative" 
+                        placeholder="Enter message" 
+                        name="content" 
+                        style="width:100%;height:120px;position:relative;" 
+                        required
+                    ></textarea>
+                    <div class="text-center my-1">
+                        <button class="btn btn-outline-primary btn-sm">
+                            送信
+                        </button>
+                        <a href="/talkingRoom" class="btn btn-outline-secondary btn-sm">前画面に戻る</a>
+                    </div>
+                </form>
+            </div>
+        <% } else { %>        
+            <div class="text-center my-2">
+                <a href="/loginForm" class="btn btn-success btn-sm">ログイン</a>
+                <a class="btn btn-warning btn-sm" data-bs-toggle="collapse" href="#forGuest" role="button" aria-expanded="false" aria-controls="forGuest">
+                    ログインせず投稿
+                </a>
+                <a href="/talkingRoom" class="btn btn-secondary btn-sm">前画面に戻る</a>
+            </div>
+            <div class="collapse border border-3 border-warning rounded mx-2" id="forGuest">
+                <div class="m-2">
+                    <form action="/talkingRoom/<%=talkTheme._id%>/guestNewTalk" method="POST" class="needs-validation m-1" novalidate>
+                        <div class="input-group mb-1">
+                            <span class="input-group-text" id="guestName">
+                                ペンネーム
+                            </span>
+                            <input type="text" class="form-control"  aria-label="guestName" aria-describedby="guestName" name="guestName" required>
+                          </div>
+                        <textarea 
+                            class="rounded p-2" 
+                            placeholder="Enter message" 
+                            name="content" 
+                            style="width:100%;height:120px;" 
+                            required
+                            ></textarea>
+                        <div class="text-center my-0">
+                            <div class="d-flex justify-content-center">
+                                <%- captcha %>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm" type="submit">
+                                ゲストとして投稿
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+        
+        <div class="flex-grow-1 overflow-x-visible overflow-y-auto pt-2" style="max-height:70vh;">
+            <% talkTheme.talks.forEach((talk, index)=>{ %>
+                <% if(talk.loggedInUser){ %>
+                    <div class="card mb-2">
+                        <div class="card-header py-0 px-2 d-flex justify-content-between" style="background:<%=talk.deleted?'white':bgcolors[talk.loggedInUser.num];%>">
+                            <p class="m-0" style="font-size:12px;">
+                                <%= talkTheme.talks.length - index %>: 
+                                <a href="/othersPage/<%=talk.loggedInUser._id%>" class="text-black">
+                                    <%= talk.deleted?'':talk.loggedInUser.penName||talk.loggedInUser.username%>
+                                </a>
+                                <span class="m-0 text-secondary" style="font-size:10px;">
+                                    <%= talk.deleted?'':talk.madeAt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) %>
+                                </span>
+                            </p>
+                            <% if(currentUser&&(currentUser.equals(talk.loggedInUser._id)||currentUser.equals(ownerId))&&!talk.deleted){ %>
+                                <form action="/talkingRoom/<%=talkTheme._id%>/<%=talk._id%>?_method=DELETE" method="POST">
+                                    <button class="btn btn-sm btn-danger">削除</button>
+                                </form>
+                            <% } %>
+                        </div>
+                        <div class="card-body py-0 px-2">
+                            <%= talk.deleted?'削除されました':talk.content %>
+                        </div>  
+                    </div>
+                <% } else { %>
+                    <div class="card mb-2">
+                        <div class="card-header py-0 px-2 d-flex justify-content-between" style="background:<%=talk.deleted?'white':bgcolors[0];%>">
+                            <p class="m-0" style="font-size:12px;">
+                                <%= talkTheme.talks.length - index %>: 
+                                <% if(!talk.deleted){ %>
+                                    <span>
+                                        <%= talk.guestName %>(ゲスト投稿)
+                                    </span>
+                                <% } %>
+                                <span class="m-0 text-secondary" style="font-size:10px;">
+                                    <%= talk.deleted?'':talk.madeAt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) %>
+                                </span>
+                            </p>
+                            <% if(currentUser&&currentUser.equals(ownerId)&&!talk.deleted){ %>
+                                <form action="/talkingRoom/<%=talkTheme._id%>/<%=talk._id%>/forGuest?_method=DELETE" method="POST">
+                                    <button class="btn btn-sm btn-danger">削除</button>
+                                </form>
+                            <% } %>
+                        </div>
+                        <div class="card-body py-0 px-2">
+                            <%= talk.deleted?'削除されました':talk.content %>
+                        </div>  
+                    </div>
+                <% } %>
+   
+            <% }) %>
+        </div>
+        
+    </div>
+</div>
+

@@ -1,0 +1,27 @@
+<% layout('layouts/boilerplate') %>
+<div class="container mb-3">
+    <p>
+        総アクセス数 <%= viewCount %>
+    </p>
+
+    <hr>
+    
+    <%- include('partials/adminReview') %>
+    
+    <hr>
+
+    <%- include('partials/adminResponse') %>
+
+    <hr>
+
+    <%- include('partials/adminForm') %>
+
+    <hr>
+
+    <%- include('partials/adminFeedback') %>
+
+    <hr>
+
+    <%- include('partials/adminLink') %>
+
+</div>

@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col-lg-8 offset-lg-2 mb-3 text-center">
+        <h1>
+            <%= hospital.hospitalname %>
+        </h1>
+        <p class="mt-3">
+            アクセス: <%= hospital.location %>
+        </p>
+        <p>
+            公式WEB: <a href="<%= hospital.url %>" target="_blank"><%= hospital.url %></a>
+        </p>
+        
+        <% if(currentUser && (ownerId == currentUser._id)){ %>
+            <div class="d-flex column gap-2 justify-content-center">
+                <a href="/hospital/<%= hospital._id %>/edit"  class="btn btn-primary">編集</a>
+                <form action="/hospital/<%=hospital._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-danger">削除</button>
+                </form>
+                <a href="/hospital" class="btn btn-warning">病院一覧へ戻る</a>
+            </div>
+        <% } else { %>
+            <div>
+                <a href="/hospital" class="btn btn-warning">病院一覧へ戻る</a>
+            </div>
+        <% } %>
+    </div>
+</div>

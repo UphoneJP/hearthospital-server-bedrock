@@ -1,0 +1,40 @@
+
+<% if(contactPersons.length){ %>
+    <div class="d-flex">
+        <button class="btn btn-info position-relative" data-bs-toggle="collapse" href="#collapseDirectMessage" role="button" aria-expanded="false" aria-controls="collapseDirectMessage">
+            ダイレクトメッセージを見る
+            <span class="material-symbols-outlined align-bottom">
+                forward_to_inbox
+            </span>
+            <% if(unreadCount && unreadCount !== 0){ %>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  <%=unreadCount%>
+                  <span class="visually-hidden">unread messages</span>
+                </span>
+            <% } %>
+        </button>
+
+    </div>
+    
+    <div class="collapse" id="collapseDirectMessage">
+        <div class="card card-body">
+            <% for(let person of contactPersons){ %>
+                <div class="d-flex">
+                    <a href="/messages/<%=user._id%>/<%=person._id%>" class="position-relative">
+                        <%=person.penName||person.username%>さんとのメッセージやりとり
+                        <% for(let sender of senders){ %>
+                            <% if(person._id.equals(sender._id) && sender.count !== 0){ %>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    <%=sender.count%>
+                                    <span class="visually-hidden">unread messages</span>
+                                </span>
+                            <% } %>
+                        <% } %>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+<% } %>
+        

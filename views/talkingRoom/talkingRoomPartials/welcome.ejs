@@ -1,0 +1,22 @@
+<div id="frame" class="talkingRoomFrame">
+    <img src="/css/pictures/01.png" width="100" alt="talkingRoomImage" id="talkingRoomImage">
+    <div class="animate">
+        <span>お</span><span>し</span><span>ゃ</span><span>べ</span><span>り</span><span>場</span>
+    </div>
+</div>
+
+<script nonce="<%=nonce%>">
+    const images = [
+        '01.png',
+        '02.jpg',
+        '03.png',
+        '04.png',
+        '05.png',
+        '06.png',
+        '07.jpg',
+        '08.png',
+    ];
+    const randomImage = images[Math.floor(Math.random() * images.length)];
+    const imgElement = document.querySelector('#talkingRoomImage');
+    imgElement.src = `/css/pictures/${randomImage}`;
+</script>

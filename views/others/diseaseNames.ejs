@@ -1,0 +1,122 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row mb-3">
+    <div class="text-center mb-3">
+        <p>
+            【病名別口コミ検索】
+        </p>
+        <form action="/diseaseNames">
+            <input type="text" name="diseaseName" class="rounded align-bottom">
+            <button class="btn btn-primary btn-sm">検索</button>
+        </form>
+    </div>
+    <div class="col-lg-8 offset-lg-2 p-2 border rounded border-5 overflow-auto" style="max-height: 30vh;">
+        <% if(diseaseNames.length){ %>
+            <% for(let diseaseName of diseaseNames){ %>
+                <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-outline-primary btn-sm m-1">
+                    #<%= diseaseName %>
+                </a>    
+            <% } %>
+        <% } %>
+    </div>
+</div>
+
+<div class="row">
+    <% if(limitedReviews){ %>
+        <h5 class="text-center text-secondary my-2 align-bottom">
+            ■フィルター：<%= diseaseName %>■
+            <a href="/diseaseNames" class="btn btn-warning btn-sm">全表示に戻す</a>
+        </h5>
+        <div class="p-2 d-flex flex-wrap gap-2 justify-content-around">
+            <% for(let review of limitedReviews){ %>
+                <div class="card" style="width:22rem">
+                    <div class="card-body">
+                        <h3 class="card-title mb-1">
+                            <a href="/hospital/<%=review.hospital%>/review/<%=review._id%>"><%= review.title %></a>
+                        </h3>
+                        <p class="card-text text-secondary my-1">
+                            <small>治療時期：</small><%= review.treatmentTiming %>
+                        </p>
+    
+                        <p class="card-text overflow-auto" style="max-height:5rem">
+                            <% for(let diseaseName of review.diseaseNames){ %>
+                                <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-outline-primary btn-sm m-1">
+                                    #<%= diseaseName %>
+                                </a>    
+                            <% } %>
+                        </p>
+                        
+                        <p class="card-text overflow-auto" style="max-height:10rem">
+                            <%= review.comment %>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <p class="text-secondary m-0">
+                            <small><%= review.tweetDate %></small>
+                        </p>
+                        <p class="mb-1">
+                            <small class="text-secondary">投稿者：</small>
+                            <a href="/othersPage/<%=review.author._id%>">
+                                <%= review.author.penName?review.author.penName:review.author.username %>
+                            </a>
+                        </p>
+                        <% if(review.url){ %>
+                            <div class="m-2">
+                                <a href="<%=review.url %>" class="btn btn-sm btn-success" target="_blank">
+                                    <%=review.author.penName||review.author.username%>さんのSNSへGO!!
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+        </div> 
+    <% } else { %>
+        <div class="p-2 d-flex flex-wrap gap-1 justify-content-around">
+            <% for(let review of reviews){ %>
+                <div class="card" style="width:22rem">
+                    <div class="card-body">
+                        <h3 class="card-title mb-1">
+                            <a href="/hospital/<%=review.hospital%>/review/<%=review._id%>"><%= review.title %></a>
+                        </h3>
+                        <p class="card-text text-secondary my-1">
+                            <small>治療時期：</small><%= review.treatmentTiming %>
+                        </p>
+    
+                        <p class="card-text overflow-auto" style="max-height:5rem">
+                            <% for(let diseaseName of review.diseaseNames){ %>
+                                <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-outline-primary btn-sm m-1">
+                                    #<%= diseaseName %>
+                                </a>    
+                            <% } %>
+                        </p>
+                        
+                        <p class="card-text overflow-auto" style="max-height:10rem">
+                            <%= review.comment %>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <p class="text-secondary m-0">
+                            <small><%= review.tweetDate %></small>
+                        </p>
+                        <p class="mb-1">
+                            <small class="text-secondary">投稿者：</small>
+                            <a href="/othersPage/<%=review.author._id%>">
+                                <%= review.author.penName?review.author.penName:review.author.username %>
+                            </a>
+                        </p>
+                        <% if(review.url){ %>
+                            <div class="m-2">
+                                <a href="<%=review.url %>" class="btn btn-sm btn-success" target="_blank">
+                                    <%=review.author.penName??review.author.username%>さんのSNSへGO!!
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+        </div>
+    <% } %>
+        
+</div>

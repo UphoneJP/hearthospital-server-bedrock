@@ -1,0 +1,15 @@
+<% if(!currentUser){ %>
+    <div class="bg-secondary w-100 h-100 position-absolute z-2 opacity-75 rounded-4 d-flex flex-column justify-content-center">
+    </div>
+    <div class="text-center position-absolute top-50 start-50 translate-middle z-3">
+        <div>
+            <h5 class="mb-4"><b>病院の手術情報を掲載しています。<br>閲覧にはログインが必要です。</b></h5>
+        </div>
+        <a href="/loginForm" class="btn btn-success">
+            ログイン
+        </a>
+        <a href="/register" class="btn btn-warning">
+            新規登録
+        </a>
+    </div>
+<% } %>

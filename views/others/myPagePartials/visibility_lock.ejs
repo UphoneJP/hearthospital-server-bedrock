@@ -1,0 +1,48 @@
+<div class="mt-3">
+    <legend class="fs-6 m-0">
+        <span class="material-symbols-outlined align-bottom">
+            visibility_lock
+        </span>
+        非公開情報
+    </legend>
+    <fieldset class="border rounded border-3 px-2 px-xl-5 pt-2 me-lg-5">
+        <p class="mb-1">会員ID: <%= user._id %></p>
+        <% if(user.username){ %>
+            <p class="mb-1">お名前: <%= user.username %></p>
+        <% } %>
+        <p class="mb-1">E-mailアドレス: <%= user.email %></p>
+
+        <div>
+            <span class="mt-2">パスワード: </span>
+            <% if(user.googleId){ %>
+                <button class="btn btn-sm btn-outline-success mb-0" disabled>
+                    Googleアカウントでログイン中
+                </button>
+            <% } else { %>
+                <button class="btn btn-sm btn-outline-primary mb-0" id="sendEmail">
+                    変更フォームを上記E-mailアドレスに送信する
+                    <span class="visually-hidden spinner-border spinner-border-sm text-primary" id="spinner"></span>
+                </button>
+            <% } %>
+            
+        </div>
+
+        <div class="mb-1">
+            <span>ダイレクトメッセージ受信したら: </span>
+            <div class="form-check ms-3">
+                <input class="form-check-input" type="radio" name="notify" id="notifyTrue" <%=user.notify? 'checked':''%>>
+                <label class="form-check-label" for="notifyTrue">
+                    メールで通知する
+                </label>
+            </div>
+            <div class="form-check ms-3">
+                <input class="form-check-input" type="radio" name="notify" id="notifyFalse" <%=!user.notify? 'checked':''%>>
+                <label class="form-check-label" for="notifyFalse">
+                    通知しない
+                </label>
+            </div>
+        </div>
+        
+    </fieldset>
+</div>
+

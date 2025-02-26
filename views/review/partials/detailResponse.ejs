@@ -1,0 +1,50 @@
+<div class="row px-md-5 m-auto">
+    <% review.responses.filter(response => response.ownerCheck).forEach((response, index)=>{ %>
+        <div class="card mt-1 p-0">
+            <div class="card-body">
+                <p class="card-text"><%= response.comment %></p>
+            </div>
+                
+            <div class="card-footer">
+                <div class="row">
+
+                    <div class="col-7">
+                        <p class="m-0">
+                            <small style="font-size:12px;">投稿者:</small>
+                            <a href="/othersPage/<%=response.author._id%>">
+                                <%= response.author.penName?response.author.penName:response.author.username %>
+                            </a>
+                        </p>
+                        <p class="m-0">
+                            <small style="font-size:12px;"><%=response.responseDate%>投稿</small>
+                        </p>
+                        
+                    </div>
+
+                    <div class="col-5 d-flex justify-content-around">
+                        <div>
+                            <div class="tooltip-container mt-1">
+                                <img id="responseIcon<%=index%>" class="icon <%=currentUser? '' : 'cannotClick'%> <%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'thumb_up_red.png':'thumb_up.png'%>" alt="good" width="29" height="29">
+                                <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="responseText<%=index%>">
+                                    高評価
+                                </span>
+                            </div>
+                            <span id="responseGoodCounter<%=index%>" class="<%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'text-danger':''%>">
+                                <%= response.goodPushedUser.filter(user=>!user.isDeleted).length %>
+                            </span>
+                        </div>
+                        <% if(currentUser && (response.author.equals(currentUser._id) || ownerId == currentUser._id)){ %>
+                            <form action="/hospital/<%=review.hospital._id%>/review/<%=review._id%>/<%=response._id%>?_method=DELETE" method="POST">
+                                <button class="btn btn-outline-danger btn-sm mt-1">
+                                    削除
+                                </button>
+                            </form>
+                        <% } %>     
+                    </div>
+
+                </div>
+            </div>
+                     
+        </div>
+    <% }) %>
+</div>

@@ -1,0 +1,51 @@
+<div class="d-flex">         
+    <div class="flex-grow-1 d-flex justify-content-center gap-4 mb-3">
+        <% if(currentUser){ %>
+            <div clas="d-flex" style="height:2rem;">
+                <div class="positon-relative tooltip-container">
+                    <img id="favorite" class="icon <%=currentUser.favorites.includes(review._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser.favorites.includes(review._id)?'heart_plus.png':'heart.png'%>" alt="favorite" width="37" height="37">
+                    <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser.favorites.includes(review._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="favoriteText">
+                        お気に入り設定
+                    </span>
+                </div>
+            </div>
+        <% } %>
+
+        <div clas="d-flex" style="height:2rem;">
+            <div class="position-relative tooltip-container">
+                <img id="icon" class="icon <%=currentUser? '' : 'cannotClick'%> <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'thumb_up_red.png':'thumb_up.png'%>" alt="good" width="37" height="37">
+                <span class="position-absolute top-0 start-75 translate-middle badge rounded-pill <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'bg-danger':'bg-primary-subtle'%>" id="goodCounter">
+                    <%= review.goodPushedUser.filter(user=>!user.isDeleted).length %>
+                    <span class="visually-hidden">unread messages</span>
+                </span>
+                <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="iconText">
+                    高評価
+                </span>
+            </div>
+        </div>
+
+        <div clas="d-flex" style="height:2rem;">
+            <div class="position-relative tooltip-container">
+                <img id="response" class="icon cannotClick" src="/css/pictures/comment.png" alt="comment" width="37" height="37">
+                <span class="position-absolute top-0 start-75 translate-middle badge rounded-pill bg-primary-subtle" id="responseCounter">
+                    <%= review.responses.filter(response => response.ownerCheck).length %>
+                    <span class="visually-hidden">unread messages</span>
+                </span>
+                <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill text-primary" style="font-size:8px">
+                    コメント数
+                </span>
+            </div>
+        </div>
+
+        <div clas="d-flex" style="height:2rem;">
+            <div class="position-relative tooltip-container">
+                <img id="newResponse" class="icon" src="/css/pictures/add_comment.png" alt="comment" width="37" height="37" data-bs-toggle="collapse" href="#collapseNewResponse" role="button" aria-expanded="false" aria-controls="collapseNewResponse">
+
+                <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill text-primary" style="font-size:8px">
+                    コメントする
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>

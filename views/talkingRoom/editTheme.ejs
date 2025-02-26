@@ -1,0 +1,37 @@
+<% layout('layouts/boilerplate') %>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title">
+                    以下のおしゃべりテーマを編集します
+                </h6>
+            </div>
+            <div class="card-body">
+                <form action="/talkingRoom/<%=talkTheme._id%>?_method=PATCH" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <span class="text-secondary">
+                            <small>トークテーマ名</small>
+                        </span>
+                        <input type="text" class="form-control" id="title" name="title" value="<%=talkTheme.title%>" required>
+                    </div>
+                    <div class="mb-5">
+                        <span class="text-secondary">
+                            <small>詳細・説明</small>
+                        </span>
+                        <textarea class="form-control" id="detail" rows="6" name="detail" required><%=talkTheme.detail%></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary">
+                            トークテーマを変更する
+                        </button>
+                        <a href="/talkingRoom" class="btn btn-secondary">
+                            戻る
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>

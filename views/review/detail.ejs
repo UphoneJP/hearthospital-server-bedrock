@@ -1,0 +1,34 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row px-md-5">
+    <div class="card mb-2">
+        <div class="row card-body m-md-2 mb-1">
+            <div class="col-md-4 text-center p-0 pe-md-3">
+                <%- include('partials/detailInfo') %>
+            </div>
+
+            <div class="col-md-8 text-center card p-0 d-flex flex-column">
+                <div class="card-body px-2 px-md-3 flex-glow-1">
+                    <p class="card-text">
+                        <%= review.comment %>
+                    </p>
+                </div>
+                <%- include('partials/detailGood') %>
+            </div>
+            
+            <%- include('partials/detailButtons') %>
+                    
+        </div>
+    </div>
+    <%- include('partials/detailResponseForm') %>
+    
+    <%- include('partials/detailResponse')%>
+</div>
+
+
+<script nonce="<%= nonce %>">
+    const review = <%- JSON.stringify(review) %>;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/goodCountForDetail.js"></script>
+<script src="/js/favoriteForDetail.js"></script>

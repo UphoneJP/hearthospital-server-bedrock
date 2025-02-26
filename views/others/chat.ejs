@@ -1,0 +1,105 @@
+<% layout('layouts/boilerplate') %>
+<div class="row d-flex flex-column flex-grow-1">
+    <p class="m-0 text-center text-secondary">※頻繁なやりとりは想定していないため、リアルタイム通信ではありません。更新ボタンを必要に応じ使用してください。</p>
+    <div class="col-lg-8 offset-lg-2 card card-body flex-grow-1 d-flex flex-column">
+        <h2>宛先:<%=reciever.penName?reciever.penName:reciever.username%></h2>
+
+        <div class="flex-grow-1 overflow-x-visible overflow-y-auto" style="max-height:50vh;" id="messages"> </div>
+        
+        <div>
+            <p class="text-end mb-0">送信者: <%=sender.penName?sender.penName:sender.username%></p>
+            <form action="/messages/<%=sender._id%>/<%=reciever._id%>" method="POST">
+                <textarea class="align-bottom rounded p-2" id="messageInput" placeholder="Enter message" name="content" style="width:100%;height:90px;position:relative;" autofocus></textarea>
+                <button class="material-symbols-outlined text-primary p-2 m-2 btn" id="sendButton">
+                        send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script nonce="<%=nonce%>">
+    const messages = <%- JSON.stringify(messages)%>;
+    const sender = <%- JSON.stringify(sender)%>;
+
+    function createAndDisplayCheck(messages, sender){
+        messages.forEach(message =>{
+            const pElement = document.createElement('p');
+            const spanElement1 = document.createElement('span');
+            const spanElement2 = document.createElement('span');
+            const smallElement1 = document.createElement('small');
+            
+            function removeLastReturn(content) {
+                while(content.slice(-4) === '<br>'){
+                    content = content.slice(0, -4);
+                }
+                return content;
+            }
+            function formatTimestamp(timestamp) {
+                const now = new Date();
+                const receivedDate = new Date(timestamp);
+            
+                if (receivedDate.toDateString() === now.toDateString()) {
+                    const hours = receivedDate.getHours().toString().padStart(2, '0');
+                    const minutes = receivedDate.getMinutes().toString().padStart(2, '0');
+                    return `${hours}:${minutes}`;
+                } else {
+                    const month = receivedDate.getMonth() + 1;
+                    const day = receivedDate.getDate();
+                    return `${month}月${day}日`;
+                }
+            }
+            function appendChildElement(){
+                const messagesWindow = document.querySelector('#messages');
+                messagesWindow.appendChild(pElement);
+                pElement.appendChild(spanElement1);
+                pElement.appendChild(spanElement2);
+                spanElement2.appendChild(smallElement1);
+            }
+            function displayCheck(message, sender){
+                const observer = new IntersectionObserver((entries)=>{
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // 要素が表示領域に入った場合の処理
+                            if(sender._id !== message.sender._id && message.shown === false){
+                                axios.post('/readReceipt', {id: message._id})
+                            }
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                observer.observe(pElement);
+            }
+    
+            spanElement1.innerHTML = removeLastReturn(message.content.replace(/\r\n/g, '<br>').trim());
+            smallElement1.innerHTML = formatTimestamp(message.timestamp);
+    
+            if(message.sender._id === sender._id){
+                pElement.classList.add('d-flex', 'flex-row-reverse');
+                spanElement1.classList.add('sender', 'me-md-5', 'me-3');
+                spanElement2.classList.add('timestampSender');
+                appendChildElement()
+                if(message.shown === true){
+                    const smallElement2 = document.createElement('small');
+                    smallElement2.textContent = '既読';
+                    spanElement2.appendChild(smallElement2);            
+                }
+            } else {
+                pElement.classList.add('d-flex');
+                spanElement1.classList.add('reciever', 'ms-md-5', 'ms-3');
+                appendChildElement()
+                spanElement2.classList.add('timestampReciever');
+                if(message.shown === false){
+                    const smallElement2 = document.createElement('small');
+                    smallElement2.textContent = '●';
+                    smallElement2.classList.add('text-success');
+                    spanElement2.appendChild(smallElement2);
+                }
+            }
+            displayCheck(message, sender)
+        })
+    }
+    createAndDisplayCheck(messages, sender);
+    
+</script>

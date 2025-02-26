@@ -1,0 +1,42 @@
+<h6 class="card-subtitle mb-3 text-body-secondary">
+    <%= review.hospital.hospitalname %><br>
+    <small><%= review.hospital.location %><br></small>
+    <small><a href="<%= review.hospital.url %>" target="_blank"><%= review.hospital.url %></a></small>
+</h6>
+
+<h5 class="card-title mb-4">
+    <%= review.title %>
+</h5>
+
+<p>
+    <small>
+        - 投稿者： 
+        <a href="/othersPage/<%=review.author._id%>">
+            <%= review.author.penName?review.author.penName:review.author.username %>
+        </a><br>
+        (投稿日: <%= review.tweetDate %>)
+    </small>
+</p>
+<% if(review.url){ %>
+    <div class="m-2">
+        <a href="<%=review.url %>" class="btn btn-sm btn-success" target="_blank">
+            <%=review.author.penName||review.author.username%>さんのSNSへGO!!
+        </a>
+    </div>
+<% } %>
+
+<p class="card-text">
+    <small>
+        <% for(let diseaseName of review.diseaseNames){ %>
+            <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-outline-primary btn-sm m-1">
+                #<%=diseaseName%>
+            </a>
+        <% } %>
+    </small>
+</p>
+
+<p class="text-body-secondary">
+    <small>
+        治療時期:<%= review.treatmentTiming %>
+    </small>
+</p>

@@ -1,0 +1,49 @@
+<% for(let hospital of hospitals){ %>
+    <div class="p-5 collapse colEle text-white" id="Collapse<%=hospital._id%>">
+        <div class="d-flex justify-content-between">
+            <h6><%=hospital.hospitalname%></h6>
+            <button type="button" class="btn-close" data-bs-toggle="collapse" data-bs-target="#Collapse<%=hospital._id%>" aria-label="Close"></button>
+        </div>
+        <% if(hospital.R3DPC){ %>
+            <div class="text-end pe-3">
+                <a href="<%=hospital.R3DPC%>" target="_blank">
+                    <small>R3年度病院指標</small>
+                </a>
+            </div>
+        <% } %>
+        <% if(hospital.R4DPC){ %>
+            <div class="text-end pe-3">
+                <a href="<%=hospital.R4DPC%>" target="_blank">
+                    <small>R4年度病院指標</small>
+                </a>
+            </div>
+        <% } %>
+        <% if(hospital.R5DPC){ %>
+            <div class="text-end pe-3">
+                <a href="<%=hospital.R5DPC%>" target="_blank">
+                    <small>R5年度病院指標</small>
+                </a>
+            </div>
+        <% } %>
+       
+        <hr>
+
+        <div>
+            <!-- DPCcode  -->
+            <legend class="text-success"><small>
+                ■診断群分類別患者数の抜粋
+            </small></legend>
+
+            <canvas id="DPCcodeChartPC<%=hospital._id%>" class="my-4 bg-white"></canvas>
+
+            <hr>
+
+            <!-- Kcode  -->
+            <legend class="text-primary"><small>
+                ■主要手術別患者数の抜粋
+            </small></legend>
+
+            <canvas id="KcodeChartPC<%=hospital._id%>" class="my-4 bg-white"></canvas>
+        </div>
+    </div>
+<% } %>

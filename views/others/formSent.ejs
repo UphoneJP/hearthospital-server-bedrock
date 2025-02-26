@@ -1,0 +1,47 @@
+<% layout('layouts/boilerplate') %>
+
+<% if(nonAccount){ %>
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <div class="card card-body">
+                <h5>お問い合わせいただきありがとうございます。</h5>
+                <h3>問い合わせ番号: <%=nonAccount._id%></h3>
+            
+                <p class="mt-3">
+                    自動返信メールを<b class="underline"><%=nonAccount.email%></b>に送信しました。<br>お問い合わせ内容に対する返答も同様に<b><%=nonAccount.email%></b>に致します。
+                </p>
+                <p>
+                    通常返答には数日を要しますので、しばらくお待ちください。
+                </p>
+                <hr>
+                <p class="fs-sm text-secondary">
+                    【氏名】<br><%= nonAccount.username %>
+                </p>
+                <p class="fs-sm text-secondary">
+                    【お問い合わせ内容】<br><%= nonAccount.formContent %>
+                </p>
+                <div>
+                    <a href="/" class="btn btn-primary mt-5">ホームへ戻る</a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+<% } else { %>
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <div class="card card-body">
+                <h5 class="text-danger">認証番号が違うか、認証番号有効期限(10分間)が終了しています。</h5>
+                <p>恐れ入りますがもう一度お問い合わせください。</p>
+                <p class="fs-sm text-secondary">
+                    【お問い合わせ内容】<br><%= formContent %>
+                </p>
+                <div>
+                    <a href="/" class="btn btn-primary mt-5">ホームへ戻る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+

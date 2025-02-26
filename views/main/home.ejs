@@ -1,0 +1,88 @@
+<%- include('../layouts/partials/head') %>
+<body class="d-flex flex-column vh-100">
+    <div class="container-fluid flex-grow-1 d-flex flex-column" id="mainSpace">
+
+        <%- include('../layouts/partials/navbar') %>
+        <div class="flex-grow-1 d-flex flex-column">
+            <%- include('../layouts/partials/flash') %>
+            <div class="row flex-grow-1 px-lg-5">
+                
+                <div class="col-lg-8 text-center d-flex flex-column justify-content-center">
+                    <div class="row flex-grow-1 px-lg-5">
+                        <div class="col-lg-6 flex-grow-1 d-flex flex-column justify-content-center">
+                            <h4 class="text-center mt-3">
+                                <small class="fs-6">～先天性心疾患専用 病院口コミアプリ～</small><br>
+                                HeartHospitalへようこそ
+                            </h4>
+                            <p class="p-2 text-center fs-6">
+                                『先天性心疾患』で手術が必要な子供たちへ<br>先天性心疾患に特化した<br>病院口コミアプリを作りました。<br>このアプリが病院選択のモノサシとなって<br>未来の幸せに繋がることを願っています。
+                            </p>
+                        </div>
+                        <div class="col-lg-6 flex-grow-1 d-flex flex-column justify-content-center">
+                            <h4 class="text-center mt-3">幸せのバトンをつなげよう</h4>
+                            <p class="p-2 text-center fs-6">
+                                このサイトは利用者の善意で成り立ちます。<br>ここは患者側の経験を蓄積する場。<br>あなたの投稿が誰かを救うかもしれません。
+                            </p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a href="/hospital" class="btn btn-outline-success">病院一覧</a>
+                                <a href="/talkingRoom" class="btn btn-outline-primary position-relative">
+                                    おしゃべり場
+                                    <!-- <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                                        <span class="visually-hidden">New alerts</span>
+                                    </span> -->
+                                </a>
+                            </div>
+                            <div class="mt-3 d-flex gap-3 justify-content-center">
+                                <a href="/hospitalData" class="btn btn-outline-dark">数字で見る病院データ</a>
+                                
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#movieModal">
+                                    使い方1分動画
+                                </button>
+                            </div>
+                        </div>
+                        
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="movieModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content p-0 float-center">
+                                    <div class="modal-body px-0" style="background:url('css/pictures/night-light.jpg') no-repeat top/cover;">
+                                        <video id="introVideo" class="float-center m-0" width="320" height="550" controls>
+                                            <source src="css/pictures/HeartHospital_intro_movie.mp4" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <div>
+                                            <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <%- include('whatsNew') %>
+
+            </div>
+        </div>
+        <%- include('../layouts/partials/foot') %>
+    </div>
+</body>
+    <%- include('opening') %>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script nonce="<%=nonce%>">
+        const movieModal = document.getElementById('movieModal');
+        const video = document.getElementById('introVideo');
+        movieModal.addEventListener('hide.bs.modal', function () {
+            video.pause();
+            video.currentTime = 0;
+        });
+    </script>
+</html>
+
+

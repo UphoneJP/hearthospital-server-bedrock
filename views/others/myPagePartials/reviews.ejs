@@ -1,0 +1,43 @@
+<h5>■投稿したレビュー(<%=user.reviews.length%>件)</h5>
+<% if(user.reviews.length){ %>
+    <div id="carouselReviewsIndicators" class="carousel slide">
+        <div class="carousel-indicators mb-0">
+            <% for(let i = 0; i < user.reviews.length; i++){ %>
+                <button type="button" style="border-top:10px solid blue;" data-bs-target="#carouselReviewsIndicators" data-bs-slide-to="<%=i%>" class="<%=i===0?'active':''%>" <%=i===0?'aria-current="true"':''%> aria-label="Slide <%=i+1%>"></button>
+            <% } %>
+        </div>
+        <div class="carousel-inner">
+            <% user.reviews.forEach((review, i)=>{ %>
+                <div class="carousel-item <%=i===0?'active':''%>">
+                    <div class="card card-body px-5 pb-5<%=i===0?'active':''%>" style="height: 30vh;overflow:auto;">
+                        <div class="card-text px-4">
+                            <p>
+                                <a href="/hospital/<%=review.hospital._id%>/review/<%=review._id%>">
+                                    <%= review.title %>
+                                </a>
+                                <small>
+                                    - <%= review.tweetDate %>
+                                </small>
+                                <% if(review.ownerCheck === false){ %>
+                                    <b class="text-danger">■未承認のため未掲載■</b>
+                                <% } %>
+                            </p>
+                            <p>
+                                <%= review.hospital.hospitalname %>
+                            </p>
+                            <p>
+                                <%= review.comment %>
+                            </p>
+                        </div>
+                    </div>    
+                </div>
+            <% }) %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselReviewsIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true" style="color:blue;">◀</span>
+        </button>
+        <button class="carousel-control-next" typ◀e="button" data-bs-target="#carouselReviewsIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true" style="color:blue;">▶</span>
+        </button>
+    </div>
+<% } %>

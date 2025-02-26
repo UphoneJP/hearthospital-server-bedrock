@@ -1,0 +1,28 @@
+<% layout('layouts/boilerplate') %>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h3>口コミ編集</h3>
+        <form action="/admin/review/<%=review._id%>?_method=PUT" method="POST" class="needs-validation" novalidate>
+            <div class="input-group mb-1">
+                <span class="input-group-text">題名　</span>
+                <input type="text" class="form-control" placeholder="title" name="title" value="<%=review.title%>" required>
+            </div>
+            <div class="input-group mb-1">
+                <span class="input-group-text">病名　</span>
+                <input type="text" class="form-control" placeholder="diseaseNames" name="diseaseNames" value="<%=review.diseaseNames%>">
+            </div>
+            <div class="input-group mb-1">
+                <span class="input-group-text">治療時期　</span>
+                <input type="text" class="form-control" placeholder="treatmentTiming" name="treatmentTiming" value="<%=review.treatmentTiming%>">
+            </div>
+
+            <div class="input-group mb-1">
+                <span class="input-group-text">コメント</span>
+                <textarea class="form-control" placeholder="comment" name="comment" required><%=review.comment%></textarea>
+            </div>
+
+            <button class="btn btn-success mb-3">再投稿</button>
+            <a class="btn btn-success mb-3" href="/admin/hospital">戻る</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+<%- include('../layouts/partials/head') %>
+<body class="d-flex flex-column vh-100">
+    <div class="container-fluid flex-grow-1 d-flex flex-column" id="mainSpace">
+        
+        <%- include('../layouts/partials/navbar') %>
+        <%- include('../layouts/partials/flash') %>
+        
+        <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
+
+                <%- body -%>
+
+        </div>
+
+        <%- include('../layouts/partials/foot') %>
+
+    </div>
+</body>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/script.js"></script>
+</html>
+
+

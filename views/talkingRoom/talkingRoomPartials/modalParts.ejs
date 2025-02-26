@@ -1,0 +1,72 @@
+<% if(currentUser){ %>
+
+<!-- Button trigger modal -->
+<div class="d-flex gap-1 my-2">
+    <button 
+    class="btn btn-primary flex-grow-1" 
+    data-bs-toggle="modal" 
+    data-bs-target="#createTalkThemeModal">
+
+        トークテーマを新しく作る
+    </button>
+    <a href="/" class="btn btn-secondary">
+        ホームへ
+    </a>
+</div>
+
+
+
+<!-- Modal -->
+<div
+     class="modal fade" 
+     id="createTalkThemeModal" 
+     tabindex="-1" 
+     aria-labelledby="createTalkThemeModalLabel" 
+     aria-hidden="true">
+    
+     <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createTalkThemeModalLabel">
+                    トークテーマを新しく作る
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form action="/talkingRoom/new" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            トークテーマ名
+                        </label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="detail" class="form-label">
+                            詳細・説明
+                        </label>
+                        <textarea class="form-control" id="detail" rows="6" name="detail" required></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary">
+                            トークテーマを作る
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<% } else { %>
+    <div class="text-center">
+        <a href="/loginForm" class="btn btn-success mb-4">
+            ログインする
+        </a>
+    </div>
+<% } %>

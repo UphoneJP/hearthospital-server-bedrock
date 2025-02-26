@@ -1,0 +1,38 @@
+<!-- Modal -->
+<div class="modal fade" id="explanationOfFilter" tabindex="-1" aria-labelledby="explanationOfFilterLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h1 class="modal-title fs-5" id="explanationOfFilterLabel">
+                    病院指標の特性とフィルタリング内容
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-1">
+                <div>
+                    <h6>病院指標の特徴</h6>
+                    <ol>
+                        <li>病院指標では、<b class="text-danger">上位5位までの診療科別患者数や手術別患者数が公表</b>されますが、<b class="text-danger">10例未満はハイフンで表記される場合があり</b>、全てが数字として公表されるわけではありません。</li>
+                        <li>小児心臓血管外科の有無が指標に大きく影響を与えます。例えば、成人診療を行う病院に小児心臓血管外科が無い場合では、成人医療に対して先天性心疾患の手術件数が相対的に少なくなります。その結果、<b class="text-danger">先天性心疾患の手術件数が指標に表れない場合があります。</b></li>
+                        <li>難易度の高い手術が成功していたとしても、全体から見て相対的に件数が少なければ指標に反映されません。<b class="text-danger">主にどの年齢層をどの頻度でどういった手術をしているかがわかるものです。</b></li>
+                    </ol>
+                </div>
+                <div>
+                    <h6>独自フィルタリング</h6>
+                    <ol>
+                        <li>先天性心疾患専用のため、手術患者の<b class="text-danger">平均年齢が40歳を超える場合は除外</b>しています。</li>
+                        <li>先天性心疾患に関する外科手術のみを抽出し、<b class="text-danger">カテーテルや検査関連の手術・処置は除外</b>しています。</li>
+                        <li><b class="text-danger">ハイフンで表記された10例未満の項目は正確な数字がわからないため除外</b>しています。</li>
+                        <li>動脈管開存症に対する手術を除外しています。</li>
+                    </ol>
+                </div>
+                <div>
+                    <p class="mb-0 text-decoration-underline"><b>病院指標が全てを表しきれていない点や、独自フィルタリングを適用している点をよく理解してご利用ください。</b></p>
+                </div>
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

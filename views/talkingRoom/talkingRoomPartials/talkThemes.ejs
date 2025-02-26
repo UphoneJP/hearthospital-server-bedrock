@@ -1,0 +1,52 @@
+<div class="w-100 d-flex flex-wrap">
+    
+    <div class="talk overflow-y-auto d-flex flex-column text-center border border-5"  style="background:linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)),url('css/pictures/05.png') no-repeat center/cover;">
+        <div class="p-2 d-flex flex-column justify-content-center flex-grow-1">
+            <span class="text-danger">
+                2024/10/08
+            </span>
+            <h5 class="m-0">
+                おしゃべり場<br>誕生しました!!
+            </h5>
+            <p class="text-secondary m-0"><small>
+                どんどん書き込んでね
+            </small></p>
+        </div>
+    </div>
+
+    <% talkThemes.sort((a,b)=>b.touchAt - a.touchAt).forEach((talkTheme)=>{ %>
+        <a 
+            href="/talkingRoom/<%=talkTheme._id%>"
+            class="talk overflow-y-auto d-flex flex-column" 
+            style="background:url('css/pictures/<%=colors[talkTheme.colorNum]%>') no-repeat top/cover;">
+
+            <div class="p-2 d-flex flex-column justify-content-center flex-grow-1">
+                <h5 class="m-0">
+                    <%= talkTheme.title %>
+                </h5>
+                <span class="<%= new Date() - talkTheme.touchAt < 1000 * 60 * 60 * 24 * 3 ?'text-danger':'d-none'%>">
+                    <%=talkTheme.touchAt.toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' }) %>更新
+                </span>
+                <p class="text-secondary m-0"><small>
+                    <%= talkTheme.detail %>
+                </small></p>
+            </div>
+
+            <% if(currentUser&&(currentUser.equals(talkTheme.author)||currentUser.equals(ownerId))){ %>
+                <div class="d-flex gap-2 justify-content-center mb-1">
+                    <form action="/talkingRoom/<%=talkTheme._id%>/edit" method="GET">
+                        <button class="btn btn-info btn-sm">
+                            編集
+                        </button>
+                    </form>
+                    <form action="/talkingRoom/<%=talkTheme._id%>/delete" method="GET">
+                        <button class="btn btn-danger btn-sm">
+                            削除
+                        </button>
+                    </form>    
+                </div>
+            <% } %>
+        </a>                
+    <% }) %>
+    
+</div>

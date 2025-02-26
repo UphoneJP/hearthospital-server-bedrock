@@ -1,0 +1,275 @@
+<!-- ページネーション -->
+<div class="row">
+    <div class="col-10 offset-1 text-center col-lg-8 offset-lg-0">
+        <span class="fs-4">口コミ <%=allReviewsLength%>件</span>
+        <% if(allReviewsLength){ %>
+            <span class="m-1">(<%=skip + 1%>~<%=skip + limit > allReviewsLength?allReviewsLength:skip + limit%>件を表示中)</span>
+        <% } %>
+    </div>
+
+    <% if(allReviewsLength){ %>
+        <nav class="col-lg-4 d-flex flex-grow-1 justify-content-center">
+            <ul class="pagination">
+                <li class="page-item <%=currentPage===1?'disabled':''%>">
+                    <a class="page-link" href="/hospital/<%=hospital._id%>?page=<%=currentPage - 1%>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <% for(let i=1; i<=totalPage; i++){ %>
+                    <% if(i===currentPage){ %>
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" tabindex="-1">
+                                <%=i%>
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item">
+                            <a href="/hospital/<%=hospital._id%>?page=<%=i%>" class="page-link">
+                                <%=i%>
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+
+                <li class="page-item <%=currentPage===totalPage?'disabled':''%>">
+                    <a class="page-link" href="/hospital/<%=hospital._id%>?page=<%=currentPage + 1%>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <% } %>
+
+</div>
+
+<% reviews.forEach((review, index) =>{ %>
+
+    <!-- reviewを並べる -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <h3 class="card-title">
+                <%= review.title %>
+            </h3>
+            
+            <h6 class="card-subtitle mb-0 text-body-secondary">
+                -<small>投稿者： </small>
+                <% if(currentUser&&currentUser._id.equals(review.author._id)){ %>
+                    <span><%= review.author.penName?review.author.penName:review.author.username %></span>
+                <% } else { %>
+                    <a href="/othersPage/<%=review.author._id%>">
+                        <%= review.author.penName?review.author.penName:review.author.username %>
+                    </a>
+                <% } %>
+                <div>
+                    <small>
+                        -投稿日： <%= review.tweetDate %>
+                    </small>
+                </div>
+                
+            </h6>
+            <% if(review.url){ %>
+                <div class="m-2">
+                    <a href="<%=review.url %>" class="btn btn-sm btn-success" target="_blank">
+                        <%=review.author.penName||review.author.username%>さんのSNSへGO!!
+                    </a>
+                </div>
+            <% } %>
+            
+            <div class="card-text overflow-auto my-1" style="max-height:5rem">
+                <small>
+                    <% for(let diseaseName of review.diseaseNames){ %>
+                        <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-sm btn-outline-primary">#<%=diseaseName%></a>
+                    <% } %>
+                </small>
+            </div>
+            <p class="text-body-secondary mb-2">
+                <small>
+                    治療時期:<%= review.treatmentTiming %>
+                </small>
+            </p>
+
+            <p class="card-text overflow-y-auto" style="max-height: 5rem;">
+                <%= review.comment %>
+            </p>
+            
+            <!-- ボタン類 -->
+            <div class="d-flex">
+                
+                <a href="/hospital/<%= hospital._id %>/review/<%=review._id%>" class="btn btn-primary">詳細</a>
+                
+                <div class="flex-grow-1 d-flex justify-content-end gap-3">
+                    
+                    <% if(currentUser){ %>
+                        <div class="positon-relative tooltip-container">
+                            <img id="favorite<%=index%>" class="icon <%=currentUser.favorites.includes(review._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser.favorites.includes(review._id)?'heart_plus.png':'heart.png'%>" alt="favorite" width="37" height="37">
+
+                            <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser.favorites.includes(review._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="favoriteText<%=index%>">
+                                お気に入り設定
+                            </span>
+                        </div>
+                    <% } %>
+
+                    <div clas="d-flex" style="height:2rem;">
+                        <div class="position-relative tooltip-container">
+                            <img id="icon<%=index%>" class="icon <%=currentUser? '' : 'cannotClick'%> <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'thumb_up_red.png':'thumb_up.png'%>" alt="good" width="37" height="37">
+                            <span class="position-absolute top-0 start-75 translate-middle badge rounded-pill <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'bg-danger':'bg-primary-subtle'%>" id="goodCounter<%=index%>">
+                                <%= review.goodPushedUser.filter(user=>!user.isDeleted).length %>
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                            <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser&&review.goodPushedUser.includes(currentUser._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="iconText<%=index%>">
+                                高評価
+                            </span>
+                        </div>
+                    </div>
+
+                    <div clas="d-flex" style="height:2rem;">
+                        <div class="position-relative tooltip-container">
+                            <img id="response<%=index%>" class="icon <%=review.responses.filter(response => response.ownerCheck).length===0?'cannotClick':''%>" src="/css/pictures/comment.png" alt="comment" width="37" height="37" data-bs-toggle="collapse" href="#collapseResponse<%=index%>" role="button" aria-expanded="false" aria-controls="collapseResponse<%=index%>">
+                            <span class="position-absolute top-0 start-75 translate-middle badge rounded-pill bg-primary-subtle" id="responseCounter<%=index%>">
+                                <%= review.responses.filter(response => response.ownerCheck).length %>
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                            <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill text-primary" style="font-size:8px">
+                                コメント閲覧
+                            </span>
+                        </div>                   
+                    </div>
+
+                    <div clas="d-flex" style="height:2rem;">
+                        <div class="position-relative tooltip-container">
+                            <img id="newResponse<%=index%>" class="icon" src="/css/pictures/add_comment.png" alt="comment" width="37" height="37" data-bs-toggle="collapse" href="#collapseNewResponse<%=index%>" role="button" aria-expanded="false" aria-controls="collapseNewResponse<%=index%>">
+
+                            <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill text-primary" style="font-size:8px">
+                                コメントする
+                            </span>
+                        </div>
+                    </div>
+                      
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- レビューのレスを並べる -->
+    
+    <div class="collapse" id="collapseResponse<%=index%>">
+        <% review.responses.filter(response => response.ownerCheck).sort((a, b)=>b.goodPushedUser.filter(user=>!user.isDeleted).length - a.goodPushedUser.filter(user=>!user.isDeleted).length).forEach((response, i) =>{%>
+            <div class="card ms-3 mt-1">
+
+                <p class="card-body"><%= response.comment %></p>
+                
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="row">
+                                <p class="m-0">
+                                    <small class="text-secondary" style="font-size:12px;">
+                                        投稿者: 
+                                    </small>
+                                    <a href="/othersPage/<%=response.author._id%>">
+                                        <%= response.author.penName?response.author.penName:response.author.username %>
+                                    </a>
+                                </p> 
+
+                                <p class="m-0 text-secondary" style="font-size:12px;">
+                                    <%= response.responseDate %>
+                                </p>
+                            </div>
+                        </div>                        
+                         
+                        <div class="col-5 d-flex justify-content-around">
+                            <div class="mt-1">
+                                <div class="position-relative tooltip-container">
+                                    <img id="response<%=index%>Icon<%=i%>" class="icon <%=currentUser? '' : 'cannotClick'%> <%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'goodPushed':''%>" src="/css/pictures/<%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'thumb_up_red.png':'thumb_up.png'%>" alt="good" width="29" height="29">
+                                     
+                                    <span class="pb-0 position-absolute top-100 start-50 translate-middle badge rounded-pill <%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'text-danger':'text-primary'%>" style="font-size:8px" id="responseText<%=index%>Icon<%=i%>">
+                                         高評価
+                                    </span>
+                                </div>
+                                <span id="response<%=index%>GoodCounter<%=i%>" class="<%=currentUser&&response.goodPushedUser.includes(currentUser._id)?'text-danger':''%>">
+                                     <%= response.goodPushedUser.filter(user=>!user.isDeleted).length %>
+                                </span>
+                            </div>
+                     
+                            <% if(currentUser && (response.author.equals(currentUser._id) || ownerId == currentUser._id)){ %>
+                                <form action="/hospital/<%=hospital._id%>/review/<%=review._id%>/<%=response._id%>?_method=DELETE" method="POST" class="mt-1">
+                                     <button class="btn btn-outline-danger btn-sm mt-0">
+                                         削除
+                                     </button>
+                                </form>
+                            <% } %>     
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        <% }) %>
+    </div>
+
+
+    <!-- 新規レビューフォーム -->
+    <div class="collapse" id="collapseNewResponse<%=index%>">
+        <div class="card card-body p-2 ms-5 mt-1">
+    
+            <form action="/hospital/<%=hospital._id%>/review/<%=review._id%>/createResponse" method="POST" class="needs-validation" novalidate>
+                <div class="input-group">
+                    <span class="input-group-text">コメント</span>
+                    <textarea class="form-control" placeholder="comment" name="comment" required></textarea>
+                </div>
+    
+                <div class=" d-flex column justify-content-end">
+                    <button class="btn btn-outline-primary btn-sm mt-1">
+                        投稿
+                    </button>
+                </div>
+            </form>
+    
+        </div>
+    </div>
+
+<% }) %>
+
+<!-- ページネーション -->
+<% if(allReviewsLength){ %>
+    <div class="row mt-3">
+        <div class="col-10 offset-1 text-center col-lg-8 offset-lg-0">
+            <span class="m-1">口コミ <%=skip +1%>~<%=skip + limit > allReviewsLength?allReviewsLength:skip + limit%>件を表示中</span>
+        </div>
+    
+        <nav class="col-lg-4 d-flex flex-grow-1 justify-content-center">
+            <ul class="pagination">
+                <li class="page-item <%=currentPage===1?'disabled':''%>">
+                    <a class="page-link" href="/hospital/<%=hospital._id%>?page=<%=currentPage - 1%>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+    
+                <% for(let i=1; i<=totalPage; i++){ %>
+                    <% if(i===currentPage){ %>
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" tabindex="-1">
+                                <%=i%>
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item">
+                            <a href="/hospital/<%=hospital._id%>?page=<%=i%>" class="page-link">
+                                <%=i%>
+                            </a>
+                        </li>
+                    <% } %>
+                <% } %>
+    
+                <li class="page-item <%=currentPage===totalPage?'disabled':''%>">
+                    <a class="page-link" href="/hospital/<%=hospital._id%>?page=<%=currentPage + 1%>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+    </div>
+<% } %>
+

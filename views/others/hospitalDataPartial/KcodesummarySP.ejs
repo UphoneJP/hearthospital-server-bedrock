@@ -1,0 +1,30 @@
+<div class="accordion mb-2" id="KcodeAccordionSummary">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#KcodeCollapseSummary" aria-expanded="false" aria-controls="KcodeCollapseSummary">
+                <div>
+                    <p class="m-0 fw-bold text-center">
+                        主要手術別患者数 全体まとめ
+                    </p>
+                </div>
+            </button>
+        </h2>
+        
+        <div id="KcodeCollapseSummary" class="accordion-collapse collapse colEle overflow-auto d-md-none" data-bs-parent="#KcodeAccordionSummary">
+            <div class="accordion-body p-0" style="width:640px;">
+                <div class="mx-2 my-2 d-flex gap-3">
+                    <select name="selectedYear" class="border-primary form-select form-select-sm KcodeSelectedYear" style="max-width:7rem;">
+                        <option value="R3">令和3年度</option>
+                        <option value="R4">令和4年度</option>
+                        <option value="R5" selected>令和5年度</option>
+                    </select>
+                </div>
+                
+                <canvas id="KcodeSummarySP" height="400"></canvas>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+

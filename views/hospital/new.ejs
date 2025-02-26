@@ -1,0 +1,42 @@
+<% layout('layouts/boilerplate') %>
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">新規病院登録</h5>
+                <form action="/hospital/new" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="hospitalname" class="form-label">病院名:</label>
+                        <input type="text" class="form-control" id="hospitalname" name="hospitalname">
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">所在地（住所）</label>
+                        <input type="text" class="form-control" id="location" aria-label="location" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="area" class="form-label">地方</label>
+                        <select class="form-select" aria-label="Default select example" id="area" name="area">
+                            <option value="北海道" selected>北海道</option>
+                            <option value="東北">東北</option>
+                            <option value="関東">関東</option>
+                            <option value="中部">中部</option>
+                            <option value="関西">関西</option>
+                            <option value="中国">中国</option>
+                            <option value="四国">四国</option>
+                            <option value="九州・沖縄">九州・沖縄</option>
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="text" class="form-control" id="url" aria-label="url" name="url" required>
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <button class="btn btn-success">登録する</button>
+                        <a class="btn btn-warning" href="/">ホームへ戻る</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+<% if(currentUser && (ownerId == currentUser._id || review.author._id.equals(currentUser._id))) {%>
+    <div class="d-flex column gap-2 justify-content-center mt-3">
+        <form action="/hospital/<%=review.hospital._id%>/review/<%=review._id%>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">削除</button>
+        </form>
+        <a href="/hospital/<%= review.hospital._id %>"  class="btn btn-primary">病院情報へ戻る</a>
+        
+    </div>
+<% } else { %>
+    <div class="d-flex justify-content-center mt-3">
+        <a href="/hospital/<%= review.hospital._id %>"  class="btn btn-primary">病院情報へ戻る</a>
+    </div>
+<% } %>

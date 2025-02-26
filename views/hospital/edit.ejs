@@ -1,0 +1,20 @@
+<% layout('layouts/boilerplate') %>
+
+<form action="/hospital/<%= hospital._id %>?_method=PUT" method="POSt" class="needs-validation" novalidate>
+    <h3 class="mb-3">病院情報編集</h3>
+    <div class="input-group mb-3">
+        <span class="input-group-text">病院名</span>
+        <input type="text" class="form-control" placeholder="Hospitalname" name="hospitalname" value="<%=hospital.hospitalname%>" required>
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text">住所</span>
+        <input type="text" class="form-control" placeholder="location" name="location" value="<%=hospital.location%>" required>
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text">公式WEB URL</span>
+        <input type="text" class="form-control" placeholder="url" name="url" value="<%=hospital.url%>" required>
+    </div>
+
+    <button class="btn btn-success">更新</button>
+    <a href="/hospital/<%= hospital._id %>"  class="btn btn-primary">戻る</a>
+</form>

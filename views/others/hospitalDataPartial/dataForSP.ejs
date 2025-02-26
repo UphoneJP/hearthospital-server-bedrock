@@ -1,0 +1,100 @@
+<% for(let area of areas){ %>
+
+    <div class="accordion mb-2 ps-4" id="accordion<%= area %>">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <!-- 地方ボタン -->
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= area %>" aria-expanded="false" aria-controls="collapse<%= area %>">
+                    <%= area %>
+                </button>
+            </h2>
+            <div id="collapse<%= area %>" class="accordion-collapse collapse colEle" data-bs-parent="#accordion<%= area %>">
+                <div class="accordion-body" id="accordion<%= area %>">
+                    <% for(let hospital of hospitals){ %>
+                        <% if(hospital.area === area){ %>
+                            <!-- 病院ボタン -->
+                            <button 
+                                class="btn btn-sm mb-1 
+                                    <%=hospital.R3Kcode||
+                                    hospital.R3DPCcode||
+                                    hospital.R4Kcode||
+                                    hospital.R4DPCcode||
+                                    hospital.R5Kcode||
+                                    hospital.R5DPCcode?'btn-outline-success':
+                                    'd-none'%>" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#Collapse<%=hospital._id%>" 
+                                role="button" 
+                                aria-expanded="false" 
+                                aria-controls="Collapse<%=hospital._id%>">
+                            
+                                <%= hospital.hospitalname %>
+                            </button>
+                        <% } %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- スマホ用collapse -->
+    <% for(let hospital of hospitals){ %>
+        <% if(hospital.area === area){ %>
+            <div class="collapse colEle d-md-none" id="Collapse<%=hospital._id%>" data-bs-parent="#collapse<%= area %>">
+    
+                <div class="card border-5 border-black card-body mt-1 mb-3 px-0 pb-0">
+
+                    <div class="d-flex justify-content-between px-3">
+                        <h6><%=hospital.hospitalname%></h6>
+                        <button type="button" class="btn-close" data-bs-toggle="collapse" data-bs-target="#Collapse<%=hospital._id%>" aria-label="Close"></button>
+                    </div>
+                    <% if(hospital.R3DPC){ %>
+                        <div class="ms-auto pe-3">
+                            <a href="<%=hospital.R3DPC%>" target="_blank">
+                                <small>R3年度病院指標</small>
+                            </a>
+                        </div>
+                    <% } %>
+                    <% if(hospital.R4DPC){ %>
+                        <div class="ms-auto pe-3">
+                            <a href="<%=hospital.R4DPC%>" target="_blank">
+                                <small>R4年度病院指標</small>
+                            </a>
+                        </div>
+                    <% } %>
+                    <% if(hospital.R5DPC){ %>
+                        <div class="ms-auto pe-3">
+                            <a href="<%=hospital.R5DPC%>" target="_blank">
+                                <small>R5年度病院指標</small>
+                            </a>
+                        </div>
+                    <% } %>
+                        
+
+                    <hr>
+
+                    <!-- DPCcode -->
+                    <legend class="text-success"><small>
+                        ■診断群分類別患者数の抜粋
+                    </small></legend>
+                    
+                    <canvas id="DPCcodeChartSP<%=hospital._id%>" height="400" class="my-4"></canvas>
+
+                    <hr>
+
+                    <!-- Kcode -->
+                    <legend class="text-primary"><small>
+                        ■主要手術別患者数の抜粋
+                    </small></legend>
+                        
+                    <canvas id="KcodeChartSP<%=hospital._id%>" height="400" class="my-4"></canvas>
+
+                </div>
+
+            </div>
+        <% } %>
+    <% } %>
+<% } %>
+
+

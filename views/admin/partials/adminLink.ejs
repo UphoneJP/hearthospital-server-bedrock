@@ -1,0 +1,51 @@
+<h1>新規リンク先入力</h1>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <form action="/admin/link" method="POST">
+            <div class="d-flex gap-3 mb-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="category" value="group" id="group"checked>
+                    <label class="form-check-label" for="group">
+                      group
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="category" value="personal" id="personal">
+                    <label class="form-check-label" for="personal">
+                        personal
+                    </label>
+                </div>
+            </div>
+        
+            <div class="input-group mb-2">
+                <span class="input-group-text" id="DateOfPermission">
+                    DateOfPermission
+                </span>
+                <input type="date" class="form-control" placeholder="掲載許可日" aria-describedby="DateOfPermission" name="DateOfPermission">
+            </div>
+            <div class="input-group mb-2">
+                <span class="input-group-text" id="linkName">
+                    linkName
+                </span>
+                <input type="text" class="form-control" placeholder="リンク先の名前" aria-describedby="linkName" name="linkName">
+            </div>
+            <div class="input-group mb-2">
+                <span class="input-group-text" id="linkUrl">
+                    linkUrl
+                </span>
+                <input type="text" class="form-control" placeholder="URL" aria-describedby="linkUrl" name="linkUrl">
+            </div>
+            <div class="input-group mb-2">
+                <span class="input-group-text" id="manager">
+                    manager
+                </span>
+                <input type="text" class="form-control" placeholder="担当者名" aria-describedby="manager" name="manager">
+            </div>
+        
+            <button class="btn btn-primary">
+                掲載
+            </button>
+        </form>
+    </div>
+</div>

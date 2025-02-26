@@ -1,0 +1,40 @@
+<% layout('layouts/boilerplate') %>
+
+<%- include('partials/detailHospital') %>
+
+<hr>
+
+<div class="row">
+    
+    <div class="col-md-6 order-2 order-md-1">
+        <%- include('partials/tweets') %>
+    </div>
+
+    <div class="col-md-6 order-1 order-md-2 mb-3">
+        <div id="map" class="map mb-5"></div>
+
+        <% if(currentUser){ %>
+
+            <%- include('partials/tweetForm') %>
+
+        <% } else { %>
+                <div class=" d-flex column justify-content-center">
+                    <a href="/loginForm" class="btn btn-primary mb-4">口コミ投稿のためログイン</a>
+                </div>
+
+        <% } %>
+    </div>
+
+</div>
+
+<script nonce="<%= nonce %>" src="https://cdn.jsdelivr.net/npm/@googlemaps/js-api-loader/dist/index.umd.min.js"></script>
+<script nonce="<%= nonce %>">
+    const hospital = <%- JSON.stringify(hospital) %>;
+    const reviews = <%- JSON.stringify(reviews) %>;
+</script>
+<script src="/js/showdetail.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/js/goodCount.js"></script>
+<script src="/js/favorite.js"></script>
+
+

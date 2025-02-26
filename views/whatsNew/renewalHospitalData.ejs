@@ -1,0 +1,62 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title my-4">
+                    2024年9月30日<br><a href="/hospitalData">『数字で見る病院データ』</a>を更新しました！
+                </h5>
+                <div class="card-text">
+                    <p>
+                        令和5年度（2023/04/01～2024/03/31）の最新の病院指標が大多数が公表されました！より見やすくて使えるデータにするために、かなり力を入れました。個人的には他のどのサイトよりも見やすく掲載したつもりです。今回は会員のみ閲覧可能という制限をつけましたので、この機会にアカウント新規登録（無料）と口コミ投稿をよろしくお願いいたします。
+                    </p>
+                    <!-- Button trigger modal -->
+                    <div class="text-center mb-4">
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#movieModal">
+                            新機能説明動画
+                        </button>
+                    </div>
+                    <legend class="text-center">■今回の更新のポイント■</legend>
+                    <ol>
+                        <li>約半年前までを表した最新データであること</li>
+                        <li>表とグラフを使用し、文字ではなく直感的に視覚でとらえられる仕様にしたこと</li>
+                        <li>令和3年度、令和4年度、令和5年度という3年間の時間軸を切り替えできること</li>
+                    </ol>
+                    
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="movieModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content p-0 float-center">
+                                <div class="modal-body px-0 text-center" style="background:url('../css/pictures/night-light.jpg') no-repeat top/cover;">
+                                    <video id="hospitalDataVideo" class="float-center" width="320" height="550" controls>
+                                        <source src="../css/pictures/hospitalData.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <div>
+                                        <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5 mb-3">
+                    <a href="/" class="btn btn-primary">ホームへ戻る</a>
+                </div>
+            </div>
+          </div>
+        
+    </div>
+</div>
+
+<script nonce="<%=nonce%>">
+    const movieModal = document.getElementById('movieModal');
+    const video = document.getElementById('hospitalDataVideo');
+    movieModal.addEventListener('hide.bs.modal', function () {
+        video.pause();
+        video.currentTime = 0;
+    });
+</script>

@@ -1,0 +1,68 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row flex-grow-1">
+
+    <div class="col-md-9 p-0" style="min-height: 30vh;">
+        <div id="map" class="h-100"></div>
+    </div>
+    
+    <div class="col-md-3 d-flex flex-column overflow-hidden">
+        <div class="d-md-none">　</div>
+        <h1 class="m-0">病院一覧</h1>
+        <p class="text-secondary m-0">
+            <small>
+                ※小児心臓外科手術ができる施設一覧<br>
+                (出典: <a href="http://chssj.org/index.html" target="_blank">日本小児心臓外科医会</a>)
+            </small>
+        </p>
+        <div class="container-fluid overflow-y-auto" style="max-height:60vh;">
+            <% for(let area of areas){ %>
+                <div>
+                    <button class="btn btn-secondary mt-2 dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#<%=area%>" role="button" aria-expanded="false" aria-controls="<%=area%>" id="btn<%=area%>">
+                        <%=area%>
+                    </button>
+                    <div class="collapse mt-2 colEle" id="<%=area%>">
+                        <% for(let hospital of hospitals){ %>
+                            <% if(hospital.area === area){ %>
+                                <p>
+                                    <a href="/hospital/<%=hospital._id%>">
+                                        <%= hospital.hospitalname %>
+                                    </a>
+                                </p>
+                            <% } %>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+            
+            <div>
+                <button class="btn btn-info mt-2 dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#ranking" role="button" aria-expanded="false" aria-controls="ranking">
+                    口コミ数ランキング
+                </button>
+                <div class="collapse mt-2" id="ranking">
+                    <% for(let hospital of top10Hospitals){ %>
+                        <p>
+                            <a href="/hospital/<%=hospital._id%>">
+                                <%= hospital.hospitalname %>
+                            </a>
+                             - <%= hospital.filteredReviewsCount %>件
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+       
+
+<script nonce="<%= nonce %>" src="https://cdn.jsdelivr.net/npm/@googlemaps/js-api-loader/dist/index.umd.min.js"></script>
+<script nonce="<%= nonce %>" src="https://maps-tools-242a6.firebaseapp.com/clusterer/markers/markerclusterer.js"></script>
+<script nonce="<%= nonce %>">
+    const hospitals = <%- JSON.stringify(hospitals) %>;
+    const areas = <%- JSON.stringify(areas) %>;
+</script>
+<script nonce="<%= nonce %>" src="/js/showlist.js"></script>
+            

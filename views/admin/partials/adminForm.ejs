@@ -1,0 +1,95 @@
+<h1>問合せ一覧</h1>
+<div class="d-flex flex-wrap gap-2">
+    <% for(let form of forms){ %>
+        <div class="card mb-2 flex-grow-1" style="min-width: 18rem;max-width: 20rem;">
+            <div class="card-body">
+                <p class="card-text m-0"><small class="text-primary">問合せ日時: </small><%= form.timestamp.toLocaleString() %></p>
+                <p class="card-title"><small class="text-primary">コメント: </small><%= form.formContent %></p>
+            </div>
+            <div class="card-footer p-2">
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        _id: 
+                    </small>
+                    <%= form.author._id %>
+                </p>
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        googleId: 
+                    </small>
+                    <%= form.author.googleId?form.author.googleId:'' %>
+                </p>
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        penName: 
+                    </small>
+                    <%= form.author.penName %>
+                </p>
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        username: 
+                    </small>
+                    <a href="/myPage/<%=form.author._id%>">
+                        <%= form.author.username?form.author.username: '' %>
+                    </a>
+                </p>
+                <p class="card-text m-0">
+                    <small  class="text-primary">
+                        email: 
+                    </small>
+                    <%= form.author.email %>
+                </p>
+            </div>
+            <div class="card-body d-flex gap-2">
+                <a href="/messages/<%=ownerId%>/<%=form.author._id%>" class="btn btn-primary">
+                    返答する
+                </a>
+                <form action="/admin/form/<%= form._id %>?_method=PATCH" method="POST">
+                    <button class="btn btn-danger">対応済みにする</button>
+                </form>
+            </div>
+        </div>
+    <% } %>
+
+    <% for(let form of nonAccountForms){ %>
+        <div class="card mb-2 flex-grow-1" style="min-width: 18rem;max-width: 20rem;">
+            <div class="card-body">
+                <p class="card-text m-0"><small class="text-primary">問合せ日時: </small><%= form.timestamp.toLocaleString() %></p>
+                <p class="card-title"><small class="text-primary">コメント: </small><%= form.formContent %></p>
+            </div>
+            <div class="card-footer p-2">
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        問い合わせ番号: 
+                    </small>
+                    <%= form._id %>
+                </p>
+                <p class="card-text m-0">
+                    <small class="text-primary">
+                        username: 
+                    </small>
+                    <%= form.username %>
+                </p>
+                <p class="card-text m-0">
+                    <small  class="text-primary">
+                        email: 
+                    </small>
+                    <%= form.email %>
+                </p>
+                <button class="btn btn-primary" data-bs-toggle="collapse" href="#nonAccountFormCollapse<%= form._id %>" role="button" aria-expanded="false" aria-controls="nonAccountFormCollapse<%= form._id %>">
+                    返答フォームを開く
+                </button>
+            </div>
+
+            <div class="collapse" id="nonAccountFormCollapse<%= form._id %>">
+                <form action="/admin/nonAccountForm/<%= form._id %>" method="POST" class="needs-validation" novalidate>
+                    <textarea name="formContent" class="w-100 align-bottom" rows="10" required placeholder="HeartHospitalにお問い合わせいただきありがとうございます。返答までお待たせいたしました。(＊＊この中身だけを記入＊＊)またご質問・ご意見・ご要望等ございましたら、再度お問い合わせフォームにてお問合せ下さい。"></textarea>
+                    <button class="btn btn-primary">送信</button>
+                </form>
+            </div>
+
+        </div>
+    <% } %>
+
+</div>
+

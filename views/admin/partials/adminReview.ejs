@@ -1,0 +1,86 @@
+<h1>評価一覧</h1>
+<div class="d-flex flex-wrap gap-2">
+    <% for(let review of reviews){ %>
+        <div class="card mb-2 flex-grow-1" style="min-width: 18rem;max-width: 20rem;">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <%= review.title %>
+                </h5>
+                <p class="card-text m-0">
+                    <small>
+                        <%= review.hospital.hospitalname %>
+                    </small>
+                </p>
+                <% for(let diseaseName of review.diseaseNames){ %>
+                    <a href="/diseaseNames?diseaseName=<%=diseaseName%>" class="btn btn-sm btn-outline-primary">
+                        <%=diseaseName%>
+                    </a>    
+                <% } %>
+                <p class="card-text">
+                    <%= review.comment %>
+                </p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <% if(review.author.penName){ %>
+                        <p class="m-0">ペンネーム:
+                            <a href="/othersPage/<%=review.author._id%>">
+                                <%= review.author.penName %>
+                            </a>
+                        </p> 
+                    <% } else {%>
+                        <p class="m-0">氏名:
+                            <a href="/othersPage/<%=review.author._id%>">
+                                <%= review.author.username %>
+                            </a>
+                        </p> 
+                    
+                    <% } %>
+                </li>
+                <li class="list-group-item">
+                    <%= review.author.email %>
+                </li>
+                <li class="list-group-item">
+                    <%= review.url %>
+                </li>
+            </ul>
+            <div class="card-footer d-flex gap-2">
+                <form action="/admin/review/<%= review._id %>?_method=PATCH" method="POST">
+                    <button class="btn btn-success">承認</button>
+                </form>
+                <div>
+                    <a href="/admin/review/<%= review._id %>/edit" class="btn btn-info">変更</a>
+                </div>
+                <div>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reviewDelete<%= review._id %>">
+                        削除
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="reviewDelete<%= review._id %>" tabindex="-1" aria-labelledby="reviewDelete<%= review._id %>Label" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="reviewDelete<%= review._id %>Label">＞＞警告＜＜</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    口コミの登録を拒否し、削除しますか？
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <form action="/admin/review/<%= review._id %>?_method=DELETE" method="POST">
+                                        <button class="btn btn-danger">削除</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+
+    <% } %>
+
+</div>

@@ -1,0 +1,87 @@
+<% layout('layouts/boilerplate') %>
+<div class="row">
+
+    <div class="col-lg-5 offset-lg-1">
+        <div>
+            <h3>
+                マイページ
+            </h3>
+            <%- include('myPagePartials/messageBox') %>
+        </div>
+        <%- include('myPagePartials/visibility_lock') %>
+        <%- include('myPagePartials/visibility') %>
+        <button class="btn btn-danger mb-3" id="deleteBtn">
+            投稿を全て消してアカウント削除
+        </button>
+    </div>
+
+    <div class="col-lg-5">
+        <%- include('myPagePartials/reviews') %>
+        <%- include('myPagePartials/responses') %>     
+        <%- include('myPagePartials/favorite') %>     
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script nonce="<%=nonce%>">
+    const user = <%- JSON.stringify(user)%>;
+
+    // メールを送る
+    const sendEmailBtn = document.querySelector('#sendEmail');
+    const spinner = document.querySelector('#spinner');
+    sendEmailBtn.addEventListener('click', ()=>{
+        spinner.classList.remove('visually-hidden');
+        sendEmailBtn.disabled = true;
+        axios.post('/resetPassword', {email: user.email})
+        .then(response =>{
+            if(response.data.sent){
+                sendEmailBtn.textContent = response.data.message;
+                sendEmailBtn.classList.add('btn-outline-primary', 'pe-none');
+                sendEmailBtn.classList.remove('btn-primary');             
+            } else {
+                sendEmailBtn.textContent = 'エラーが発生しました';
+                sendEmailBtn.classList.add('btn-outline-danger', 'pe-none');
+                sendEmailBtn.classList.remove('btn-primary');
+            }
+        })
+        .catch(e =>{
+            sendEmailBtn.textContent = 'エラーが発生しました。再度お試しになるかお問い合わせフォームにてお知らせください。';
+            sendEmailBtn.classList.add('btn-outline-danger', 'pe-none');
+            sendEmailBtn.classList.remove('btn-primary');
+        })
+    });
+
+    // メール通知設定
+    const notifyTrue = document.querySelector('#notifyTrue');
+    const notifyFalse = document.querySelector('#notifyFalse');
+    notifyTrue.addEventListener('click', ()=>{
+        axios.get(`/notifyTrue/${user._id}`)
+    })
+    notifyFalse.addEventListener('click',()=>{
+        axios.get(`/notifyFalse/${user._id}`)
+    })
+
+
+    // アカウント削除
+    const deleteBtn = document.querySelector('#deleteBtn');
+    deleteBtn.addEventListener('click', ()=>{
+        const inputForDelete = prompt('アカウントを削除します。削除する場合は"delete"と入力してください');
+        if(inputForDelete === 'delete'){
+            axios.delete(`/${user._id}`)
+            .then(response =>{
+                if(response.data.delete){
+                    alert('アカウントを削除しました。');
+                    window.location.href = '/';
+                } else {
+                    alert('エラーが発生しました。もう一度実行するか、問い合わせフォームにてご依頼ください。');
+                }
+            })
+            .catch(e =>{
+                alert('エラーが発生しました。もう一度実行するか、問い合わせフォームにてご依頼ください。');
+            })
+        } else {
+            alert('入力された文字が「delete」ではありません。');
+        }
+    }); 
+</script>

@@ -1,0 +1,43 @@
+<% layout('layouts/boilerplate') %>
+<div class="row flex-grow-1">
+    
+    <div class="col-md-3 d-flex flex-column">
+        <% articles.forEach((article, index)=>{ %>
+            <button class="btn btn-<%= article.color %> my-2" type="button" data-bs-toggle="collapse" data-bs-target="#Collapse<%=index%>" role="button" aria-expanded="false" aria-controls="Collapse<%=index%>">
+                <%= article.title %>
+            </button>
+            <div class="collapse colEle d-md-none" id="Collapse<%=index%>">
+                <div class="card card-body mb-3">
+                    <div class="d-flex justify-content-between">
+                        <h3 class="p-3 text-center">
+                            <%= article.title %>
+                        </h3>
+                        <button type="button" class="btn-close" data-bs-toggle="collapse" data-bs-target="#Collapse<%=index%>" aria-label="Close"></button>
+                    </div>
+                    <p class="p-3">
+                        <%- article.content.replace(/\r\n\r\n/g, '<br><br>').replace(/　X/g,'<br>→').replace(/　W/g, '') %>
+                    </p>
+                </div>
+            </div>
+        <% }) %>
+    </div> 
+    
+    <div class="col-md-9 d-flex flex-column h-100 d-none d-md-block">
+        <div class="h-100 rounded-5" id="startPage">
+            <% articles.forEach((article, index)=>{ %>
+        
+                <div class="p-5 collapse colEle text-white" id="Collapse<%=index%>">
+                    <h3 class="p-3 mt-2">
+                        <%= article.title %>
+                    </h3>
+                    <p class="p-3">
+                        <%- article.content.replace(/\r\n/g, '<br>').replace(/X/g, '').replace(/W/g, '') %>
+                    </p>
+                </div>
+        
+            <% }) %>
+        </div>
+    </div>
+</div>
+
+

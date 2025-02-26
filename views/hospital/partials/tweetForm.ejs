@@ -1,0 +1,86 @@
+<h5 class="text-center">口コミ投稿</h5>
+<form action="/hospital/<%=hospital._id%>/review/new" method="POST" class="needs-validation" novalidate>
+    <div class="card card-body">
+        <div class="input-group mb-2">
+            <span class="input-group-text">題名</span>
+            <input type="text" class="form-control" placeholder="title" name="title" required>
+        </div>
+
+        <div class="input-group overflow-auto">
+            <span class="input-group-text">病名</span>
+            <textarea class="form-control" rows="2" oninput="auto_height(this)" placeholder="病名を選択するか入力してください" name="diseaseNames" id="diseaseInput"></textarea>
+        </div>
+        <p class="mb-1 fs-sm text-secondary text-center"><small>※病名が複数の場合は全角スペースまたは半角スペースを区切りとしてお使いください。</small></p>
+        <div id="diseaseList" class="border border-5 rounded mb-2" style="display:none;"></div>
+
+        <div class="input-group mb-2">
+            <span class="input-group-text">治療時期</span>
+            <input type="month" class="form-control" placeholder="treatment timing" name="treatmentTiming">
+        </div>
+
+        <div class="input-group mb-2">
+            <span class="input-group-text">コメント</span>
+            <textarea class="form-control" rows="10" placeholder="客観的事実もしくは医療従事者への感謝の想いを書き込んでください。" name="comment" required></textarea>
+        </div>
+
+        <div class="input-group">
+            <span class="input-group-text">外部サイトURL</span>
+            <input type="text" class="form-control" placeholder="(任意入力)" name="url">
+        </div>
+
+    </div>
+    <p class="m-1 text-secondary"><small>
+        投稿までに時間を要した場合、下の投稿ボタンを押すとエラーが発生する場合がございます。投稿ボタンを押す前に、コメント内容を<b class="text-decoration-underline text-danger">コピー＆ペーストでどこかに保存</b>しておくことをおすすめします。
+    </small></p>
+    <div class=" d-flex column justify-content-center">
+        <button class="btn btn-primary mt-2 mb-3">投稿</button>
+    </div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script nonce="<%=nonce%>">
+    function auto_height(elem) {
+        elem.style.height = '1px';
+        elem.style.height = `${elem.scrollHeight}px`;
+    }
+
+    const diseaseInput = document.querySelector('#diseaseInput');
+    const diseaseList = document.querySelector('#diseaseList');
+
+    diseaseInput.addEventListener('click', function(){
+        try {
+            axios.get('/allDiseases')
+            .then(response=>{
+                const allDiseases = response.data;
+                diseaseList.innerHTML = '<h6>病名選択肢一覧</h6>';
+                allDiseases.forEach(disease => {
+                    const div = document.createElement('div');
+                    div.textContent = disease;
+                    div.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mt-1', 'ms-1');
+                    div.addEventListener('click', ()=>{
+                        if(!diseaseInput.value){
+                            diseaseInput.value = disease;
+                        } else {
+                            diseaseInput.value = diseaseInput.value + ' ' + disease;
+                        }
+                    });
+                    diseaseList.appendChild(div);
+                });
+    
+                const rect = this.getBoundingClientRect();
+                diseaseList.style.left = `${rect.left}px`;
+                diseaseList.style.top = `${rect.bottom}px`;
+                diseaseList.style.display = 'block';
+            })
+
+        } catch (error) {
+            console.error('Error fetching diseases:', error);
+        }
+    });
+
+    document.addEventListener('click', event=> {
+        if (!event.target.closest('#diseaseInput') && !event.target.closest('#diseaseList')) {
+            diseaseList.style.display = 'none';
+        }
+    });
+</script>

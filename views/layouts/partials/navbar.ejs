@@ -1,0 +1,104 @@
+<div class="navbar navbar-expand-xl d-flex px-sm-4 py-3">
+  <div class="container-fluid m-0 p-0">
+    <a href="/" class="navbar-brand py-0 user-select-none">
+      <img src="/css/pictures/HeartHospital-wide-throw.png" width="180" alt="HearHospital">
+    </a>
+
+    <button class="navbar-toggler position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      <!-- <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+        <span class="visually-hidden">New alerts</span>
+      </span> -->
+      <% if(unreadCount && unreadCount !== 0){ %>
+        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+          <span class="visually-hidden">New alerts</span>
+        </span>
+      <% } %>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div class="nav nav-underline gap-0">
+        <div class="nav-item px-1">
+          <a class="nav-link <%=page&&page==='aboutUs'?'active':''%>" href="/aboutUs">
+            はじめに
+          </a>
+        </div>
+        <div class="nav-item px-1">
+          <a class="nav-link <%=page&&page==='list'?'active':''%>" href="/hospital">
+            病院一覧
+          </a>
+        </div>
+        <div class="nav-item px-1">
+          <a class="nav-link <%=page&&page==='diseaseNames'?'active':''%>" href="/diseaseNames">
+            病名別検索
+          </a>
+        </div>
+        <div class="nav-item px-1">
+          <a class="nav-link <%=page&&page==='hospitalData'?'active':''%>" href="/hospitalData">
+            数字で見る病院データ
+          </a>
+        </div>
+        <div class="nav-item px-1">
+          <a class="nav-link <%=page&&page==='talkingRoom'?'active':''%>" href="/talkingRoom">
+            おしゃべり場
+            <!-- <span class="badge text-bg-danger ms-1">New</span> -->
+          </a>
+        </div>
+      </div>
+            
+      <div class="nav nav-underline ms-auto gap-0">
+          <% if(currentUser){ %>
+            <% if(ownerId == currentUser._id){ %>
+              <div class="nav-item px-1">
+                <a class="nav-link <%=page&&page==='admin'?'active':''%>" href="/admin">
+                  管理者用ページ
+                </a>
+              </div>
+              <div class="nav-item px-1">
+                <a class="nav-link <%=page&&page==='newhospital'?'active':''%>" href="/hospital/new">
+                新規病院登録
+                </a>
+              </div>
+            <% } %>
+              <div class="nav-item px-1 d-flex">
+                <a class="nav-link position-relative <%=page==='myPage'?'active':''%>" href="/myPage/<%=currentUser._id%>">
+                  <%= currentUser.penName || currentUser.username %>さんのマイページ
+                  <% if(unreadCount && unreadCount !== 0){ %>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      <%=unreadCount%>
+                      <span class="visually-hidden">unread messages</span>
+                    </span>
+                  <% } %>
+                </a>
+              </div>
+              <div class="nav-item px-1">
+                <a class="nav-link" href="/logout">
+                  ログアウト
+                </a>
+              </div>
+              
+          <%} else { %>
+
+            <!-- Button trigger modal -->
+              <div class="nav-item px-1">
+              <a class="nav-link <%=page&&page==='login'?'active':''%>" data-bs-toggle="modal" data-bs-target="#loginModal">
+                ログイン
+              </a>
+              </div>
+            
+
+            <!-- Modal -->
+            <%- include('loginModal') %>
+            <div class="nav-item px-1">
+              <a class="nav-link <%=page&&page==='register'?'active':''%>" href="/register">
+                ユーザー登録
+              </a>
+            </div>
+              
+          <% } %>
+        
+      </div>
+            
+    </div>
+  </div>
+</div>

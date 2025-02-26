@@ -1,0 +1,12 @@
+name: Keep Render Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # 10分ごとに実行
+
+jobs:
+  curl-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send request to Render app
+        run: curl -s https://hearthospital-server-bedrock.onrender.com > /dev/null

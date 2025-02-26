@@ -194,7 +194,7 @@ module.exports.checkApiKeyIni = async (req, res, next) => {
     })
     await badUser.save()
     console.log("bad user detected")
-    return res.status(403).json({ message: "Access denied: Invalid API key" })
+    return res.status(403).json({ message: "Access denied. Saved your Info." })
   }
   console.log("good user")
   next()

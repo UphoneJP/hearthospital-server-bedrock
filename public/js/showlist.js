@@ -7,7 +7,7 @@ const mapOptions = {
 const initMap = async() => {
     try{
         const loader = new google.maps.plugins.loader.Loader({ 
-            apiKey: "AIzaSyBxUS03MOJYS4Gj8aDIpmWuNDO_ztjNOCg",
+            apiKey: "AIzaSyBh4A_h5-xu0jKSf72kOK5y7F7BbKHPEbY",
             version: "weekly",
             libraries: ["places"],
         });

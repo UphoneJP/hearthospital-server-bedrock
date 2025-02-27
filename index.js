@@ -71,7 +71,8 @@ app.use(rateLimit({
 }))
 app.use((req, res, next) => {
   const userAgent = req.headers['user-agent'] || ''
-  if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {
+  if (!userAgent || userAgent.includes('curl') || 
+      (userAgent.includes('bot') && !userAgent.includes('UptimeRobot'))) {
       return res.status(403).send('Access denied')
   }
   next()

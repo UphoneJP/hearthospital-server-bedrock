@@ -71,8 +71,10 @@ app.use(rateLimit({
 }))
 app.use((req, res, next) => {
   const userAgent = req.headers['user-agent'] || ''
-  if (!userAgent || userAgent.includes('curl') || 
-      (userAgent.includes('bot') && !userAgent.includes('UptimeRobot'))) {
+  if (userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)"){
+    return next()
+  }
+  if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {
       return res.status(403).send('Access denied')
   }
   next()

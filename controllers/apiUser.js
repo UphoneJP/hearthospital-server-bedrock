@@ -60,7 +60,7 @@ module.exports.register = async (req, res) => {
 }
 
 module.exports.localLogin = async (req, res) => {
-  const { email, password, expoPushToken } = req.body
+  const { email, password } = req.body
   try  {
     const user = await User.findOne({email})
     if(!user || user.isDeleted){
@@ -69,12 +69,6 @@ module.exports.localLogin = async (req, res) => {
     const isValidPassword = await user.authenticate(password)
     if (!isValidPassword){
       return res.status(401).json({ message: "Invalid email or password" })
-    }
-    if(expoPushToken){
-      if(!user.expoPushToken || (user.expoPushToken&&user.expoPushToken !== expoPushToken)){
-        user.expoPushToken = expoPushToken
-        await user.save()
-      }
     }
 
     const accessToken = generateAccessToken(user)
@@ -93,7 +87,7 @@ module.exports.localLogin = async (req, res) => {
 }
 
 module.exports.googleLogin = async (req, res) => {
-  const { accessToken, expoPushToken } = req.body
+  const { accessToken } = req.body
   try {
     const googleUserRes = await axios.get(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`)
     if (googleUserRes.status !== 200) {
@@ -111,12 +105,6 @@ module.exports.googleLogin = async (req, res) => {
       })
       await user.save()
     }
-    if(expoPushToken){
-      if(!user.expoPushToken || (user.expoPushToken&&user.expoPushToken !== expoPushToken)){
-        user.expoPushToken = expoPushToken
-        await user.save()
-      }
-    }
     const JWTaccessToken = generateAccessToken(user)
     const JWTrefreshToken = generateRefreshToken(user)
     await RefreshToken.findOneAndDelete({ userId: user._id })
@@ -133,6 +121,37 @@ module.exports.googleLogin = async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Googleログインエラー" })
+  }
+}
+
+module.exports.appleLogin = async (req, res) => {
+  const { username, email, appleId } = req.body
+  try {
+    let user = await User.findOne({ appleId })
+    if (!user) {
+      user = new User({
+        appleId,
+        username,
+        email
+      })
+      await user.save()
+    }
+    const JWTaccessToken = generateAccessToken(user)
+    const JWTrefreshToken = generateRefreshToken(user)
+    await RefreshToken.findOneAndDelete({ userId: user._id })
+    const newRefreshToken = new RefreshToken({
+      userId: user._id,
+      refreshToken: JWTrefreshToken
+    })
+    await newRefreshToken.save()
+    res.json({ 
+      user, 
+      accessToken: JWTaccessToken, 
+      refreshToken: JWTrefreshToken 
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Appleログインエラー" })
   }
 }
 

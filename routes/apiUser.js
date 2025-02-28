@@ -10,6 +10,9 @@ router.post('/login', user.localLogin )
 // googleログイン
 router.post("/auth/google", user.googleLogin )
 
+// appleログイン
+router.post("/auth/apple", user.appleLogin)
+
 // 自動ログイン(アクセストークン)
 router.post('/validateToken', user.validateToken )
 // 自動ログイン(リフレッシュトークン)

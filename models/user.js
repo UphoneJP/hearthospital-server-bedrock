@@ -4,11 +4,9 @@ const passportLocalMongoose = require('passport-local-mongoose')
 const Review = require('../models/review')
 const Response = require('../models/response')
 
-
 const userSchema = new Schema({
-  googleId: {
-    type: String,
-  },
+  googleId: String,
+  appleId: String,
   username: String,
   penName: String,
   email: {

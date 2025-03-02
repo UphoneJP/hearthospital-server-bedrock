@@ -50,6 +50,10 @@ app.use('*', (req, res, next)=>{
 })
 let page = 'initial'
 customSocket(server)
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
 
 // middleware static
 app.use(favicon(path.join(__dirname, 'public', 'css/pictures/icon-192x192.png')))
@@ -166,10 +170,6 @@ app.use(catchAsync(async(req, res, next)=>{
 // app.all('*', (req, res)=>{
 //     throw new AppError('現在メンテナンス中です。しばらくお待ちください。', 503)
 // })
-app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
-});
 
 const apiUserRoutes = require('./routes/apiUser')
 const apiHospitalRoutes = require('./routes/apiHospital')

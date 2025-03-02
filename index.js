@@ -70,7 +70,7 @@ app.use(rateLimit({
 }))
 app.use((req, res, next) => {
   const userAgent = req.headers['user-agent'] || ''
-  if (userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)" || userAgent.includes('Googlebot')){
+  if (req.path === '/robots.txt' || userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)" || userAgent.includes('Googlebot')){
     return next()
   }
   if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {

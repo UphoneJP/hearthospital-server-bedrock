@@ -275,3 +275,17 @@ module.exports.resetPassword = async (req, res) => {
     res.status(400).json({message: 'パスワードの再設定に失敗しました'})
   }
 }
+
+module.exports.earningPoint = async (req, res) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id)
+    if(!user) res.status(404).json({message: 'userが見つかりません'})
+    user.points= user.points + 1
+    user.timeOfGotPoint = new Date()
+    await user.save()
+    res.status(200).json({user})
+  } catch {
+    res.status(400).json({message: 'ポイントを追加できませんでした'})
+  }
+}

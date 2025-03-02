@@ -58,7 +58,6 @@ module.exports.showHospital = async (req, res)=>{
     }
     const skip = (currentPage - 1) * limit;
     const reviews = allReviews.slice(skip, skip + limit);
-    description = `Detailed Page of ${hospital.hospitalname}`;
 
     const hospitalData = {
         hospitalname: hospital.hospitalname,
@@ -111,7 +110,6 @@ module.exports.showHospital = async (req, res)=>{
         currentPage,
         skip,
         limit,
-        description
     });
 }
 
@@ -154,7 +152,6 @@ module.exports.indexHospital = async (req, res) => {
         }
     });
     page = 'list';
-    description = 'List of Hospitals in Japan Performing Pediatric Cardiac Surgery';
     const sortedHospitals = hospitals.sort((a, b) => b.reviews.filter(review => review.ownerCheck && !review.author.isDeleted).length - a.reviews.filter(review => review.ownerCheck && !review.author.isDeleted).length);
     const top10Hospitals = sortedHospitals.slice(0, 10);
     const areas = [
@@ -191,7 +188,6 @@ module.exports.indexHospital = async (req, res) => {
         hospitals: hospitalsData,
         top10Hospitals: top10HospitalsData, 
         page,
-        description,
         areas
     });
 }

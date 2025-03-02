@@ -40,7 +40,12 @@ const userSchema = new Schema({
   num: {
     type: Number,
     default: Math.floor(Math.random()*30)
-  }
+  },
+  points: {
+    type: Number,
+    default: 0
+  },
+  timeOfGotPoint: Date
 })
 
 userSchema.plugin(passportLocalMongoose,{

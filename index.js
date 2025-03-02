@@ -49,7 +49,6 @@ app.use('*', (req, res, next)=>{
     next()
 })
 let page = 'initial'
-let description = 'HeartHospital is a Japanese hospital review app specialized in congenital heart diseases.'
 customSocket(server)
 
 // middleware static
@@ -71,7 +70,7 @@ app.use(rateLimit({
 }))
 app.use((req, res, next) => {
   const userAgent = req.headers['user-agent'] || ''
-  if (userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)"){
+  if (userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)" || userAgent.includes('Googlebot')){
     return next()
   }
   if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {
@@ -151,7 +150,6 @@ app.use(catchAsync(async(req, res, next)=>{
   res.locals.page = page
   res.locals.port = process.env.PORT
   res.locals.viewCount = viewCount
-  res.locals.description = description
   res.locals.nonce = crypto.randomBytes(16).toString('base64')
   if(req.isAuthenticated()){
     const unreadArray = await Message.find({

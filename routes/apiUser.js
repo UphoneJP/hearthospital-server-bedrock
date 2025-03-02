@@ -34,6 +34,8 @@ router.delete('/:id', user.accountDelete )
 // パスワード再設定
 router.post('/resetPassword', user.resetPassword)
 
+// ポイントゲット
+router.post('/:id/earningPoint', user.earningPoint)
 
 module.exports = router
 

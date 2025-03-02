@@ -13,8 +13,7 @@ router.get('/aboutUs', (req, res)=>{
 });
 router.get('/policy', (req, res)=>{
     page = 'policy';
-    description = 'Terms and Conditions and Privacy Policy.'
-    res.render('others/policy', {page, description});
+    res.render('others/policy', {page});
 });
 router.get('/form', saveReturnTo, (req, res)=>{
     page = 'form';

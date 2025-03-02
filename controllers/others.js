@@ -161,7 +161,6 @@ module.exports.hospitalData = async(req, res)=>{
 
 module.exports.showDiseaseName = async(req,res)=>{
     page = 'diseaseNames';
-    description = 'Search for Reviews by Medical Condition.'
 
     let reviews = await Review.find({ownerCheck:true}).populate('author');
     if(!reviews){
@@ -202,7 +201,6 @@ module.exports.showDiseaseName = async(req,res)=>{
             diseaseName,
             diseaseNames,
             page,
-            description
         });
 
     } else {
@@ -229,7 +227,6 @@ module.exports.showDiseaseName = async(req,res)=>{
             limitedReviews:false,
             diseaseNames,
             page,
-            description
         });
     }
 }

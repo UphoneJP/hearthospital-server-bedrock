@@ -166,6 +166,10 @@ app.use(catchAsync(async(req, res, next)=>{
 // app.all('*', (req, res)=>{
 //     throw new AppError('現在メンテナンス中です。しばらくお待ちください。', 503)
 // })
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
 
 const apiUserRoutes = require('./routes/apiUser')
 const apiHospitalRoutes = require('./routes/apiHospital')
@@ -190,10 +194,7 @@ app.use('/admin', adminRoutes)
 app.use('/whatsNew', whatsNewRoutes)
 app.use('/talkingRoom', talkingRoomRoutes)
 app.use('/', othersRoutes)
-app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
-});
+
 
 app.get('/',  (req, res)=>{
   page = 'home'

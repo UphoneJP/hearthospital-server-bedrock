@@ -190,6 +190,10 @@ app.use('/admin', adminRoutes)
 app.use('/whatsNew', whatsNewRoutes)
 app.use('/talkingRoom', talkingRoomRoutes)
 app.use('/', othersRoutes)
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
 
 app.get('/',  (req, res)=>{
   page = 'home'

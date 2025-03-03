@@ -281,7 +281,11 @@ module.exports.earningPoint = async (req, res) => {
     const { id } = req.params
     const user = await User.findById(id)
     if(!user) res.status(404).json({message: 'userが見つかりません'})
-    user.points= user.points + 1
+    const point = {
+      reward: 1,
+      madeAt: new Date()
+    }
+    user.points.push(point)
     user.timeOfGotPoint = new Date()
     await user.save()
     res.status(200).json({user})

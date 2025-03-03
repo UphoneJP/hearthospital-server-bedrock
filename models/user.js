@@ -41,10 +41,13 @@ const userSchema = new Schema({
     type: Number,
     default: Math.floor(Math.random()*30)
   },
-  points: {
-    type: Number,
-    default: 0
-  },
+  points: [{
+    reward: Number,
+    madeAt: {
+      type: Date,
+      default: ()=>new Date()
+    }
+  }],
   timeOfGotPoint: Date
 })
 

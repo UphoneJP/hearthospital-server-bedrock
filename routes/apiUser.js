@@ -37,5 +37,8 @@ router.post('/resetPassword', user.resetPassword)
 // ポイントゲット
 router.post('/:id/earningPoint', user.earningPoint)
 
+// ポイント消費
+router.post('/usingPoints', user.usingPoints)
+
 module.exports = router
 

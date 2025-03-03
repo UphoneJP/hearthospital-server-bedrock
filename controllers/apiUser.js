@@ -3,6 +3,7 @@ const axios = require("axios")
 const nodemailer = require("nodemailer")
 const User = require('../models/user')
 const RefreshToken = require('../models/refreshToken')
+const GiftRequest = require('../models/giftRequest')
 const { generateAccessToken, generateRefreshToken } = require('../utils/tokenFunction')
 
 const transporter = nodemailer.createTransport({
@@ -282,7 +283,7 @@ module.exports.earningPoint = async (req, res) => {
     const user = await User.findById(id)
     if(!user) res.status(404).json({message: 'userが見つかりません'})
     const point = {
-      reward: 1,
+      reward: 2,
       madeAt: new Date()
     }
     user.points.push(point)
@@ -291,5 +292,26 @@ module.exports.earningPoint = async (req, res) => {
     res.status(200).json({user})
   } catch {
     res.status(400).json({message: 'ポイントを追加できませんでした'})
+  }
+}
+
+module.exports.usingPoints = async (req, res) => {
+  try {
+    const {userId} = req.body
+    const user = await User.findById({userId})
+    if(!user) return res.status(404).json({message: 'userが見つかりません'})
+    const totalPoints = user.points.map(point => point.reward).reduce((sum, num) => sum + num, 0) || 0
+    if( totalPoints < 200) return res.status(401).json({message: '200pts未満です'})
+    const point = {
+      reward: -200,
+      madeAt: new Date()
+    }
+    user.points.push(point)
+    await user.save()
+    const giftRequest = new GiftRequest({user})
+    await giftRequest.save()
+    res.status(200).json({user})
+  } catch {
+    res.status(400).json({message: '交換処理ができませんでした。'})
   }
 }

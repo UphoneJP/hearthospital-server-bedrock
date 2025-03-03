@@ -27,6 +27,9 @@ router.post('/nonAccountForm/:id', isLoggedIn, isOwner, catchAsync(admin.nonAcco
 // feedback
 router.patch('/feedback/:id', isLoggedIn, isOwner, catchAsync(admin.feedback));
 
+// giftRequest
+router.patch('/giftRequest/:id', isLoggedIn, isOwner, catchAsync(admin.giftRequest))
+
 // link
 router.post('/link', isLoggedIn, isOwner, validateLinkForm, catchAsync(admin.createLink));
 router.put('/link/:id', isLoggedIn, isOwner, validateLinkForm, catchAsync(admin.editLink));

@@ -6,6 +6,7 @@ const Form = require('../models/form');
 const Link = require('../models/link');
 const NonAccountUser = require('../models/nonAccountUser');
 const Feedback = require('../models/feedback');
+const GiftRequest = require('../models/giftRequest')
 const AppError = require('../utils/AppError');
 
 const nodemailer = require("nodemailer");
@@ -48,8 +49,17 @@ module.exports.showList = async (req, res)=>{
         .where('author.isDeleted').ne(true);
     const nonAccountForms = await NonAccountUser.find({ownerCheck: false});
     const feedbacks = await Feedback.find({ownerCheck: false});
+    const giftRequests = await GiftRequest.find({ownerCheck: false}).populate('user')
     page = 'admin';
-    res.render('admin/admin', {reviews, responses, forms,nonAccountForms, feedbacks, page});
+    res.render('admin/admin', {
+      reviews, 
+      responses, 
+      forms,
+      nonAccountForms, 
+      feedbacks,
+      giftRequests,
+      page
+    });
 }
 
 module.exports.approveReviews = async(req, res)=>{
@@ -147,6 +157,13 @@ module.exports.feedback = async(req, res)=>{
     const {id} = req.params;
     await Feedback.findByIdAndUpdate(id, {ownerCheck: true});
     req.flash('success', 'フィードバックを確認済みにしました。');
+    res.redirect('/admin');
+}
+
+module.exports.giftRequest = async(req, res)=>{
+    const {id} = req.params;
+    await GiftRequest.findByIdAndUpdate(id, {ownerCheck: true});
+    req.flash('success', 'ポイント交換申請を確認済みにしました。');
     res.redirect('/admin');
 }
 

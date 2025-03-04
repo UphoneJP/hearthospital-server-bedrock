@@ -63,16 +63,24 @@ module.exports.showList = async (req, res)=>{
 }
 
 module.exports.approveReviews = async(req, res)=>{
+  try {
     const {reviewid} = req.params;
-    await Review.findByIdAndUpdate(reviewid, {ownerCheck : true});
-    
-    const hospital = await Hospital.findOne({reviews: {$in: reviewid}}).populate('reviews');
-    const filteredReviews = hospital.reviews.filter(review => review.ownerCheck);
-    hospital.filteredReviewsCount = filteredReviews.length;
-    await hospital.save();
+    const review = await Review.findByIdAndUpdate(reviewid, {ownerCheck : true});
+
+    const user = await User.findOne({_id: review.author})
+    if(!user) throw new AppError('userが見つかりません', 404)
+    const point = {
+      reward: 150,
+      madeAt: ()=>new Date()
+    }
+    user.points.push(point)
+    await user.save()
 
     req.flash('success', '口コミの承認をしました')
     res.redirect('/admin');
+  } catch {
+    throw new AppError('承認エラーが発生しました', 400)
+  }
 }
 
 module.exports.reviewEditPage = async(req, res)=>{
@@ -94,11 +102,6 @@ module.exports.reviewEdit = async(req, res)=>{
         comment,
         ownerCheck: true
     });
-
-    const hospital = await Hospital.findOne({reviews: {$in: reviewid}}).populate('reviews');
-    const filteredReviews = hospital.reviews.filter(review => review.ownerCheck);
-    hospital.filteredReviewsCount = filteredReviews.length;
-    await hospital.save();
     
     req.flash('success', '口コミを編集し承認しました')
     res.redirect('/admin');

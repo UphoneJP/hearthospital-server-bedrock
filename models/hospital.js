@@ -28,11 +28,7 @@ const hospitalSchema = new Schema({
   reviews : [{
     type : Schema.Types.ObjectId,
     ref : 'Review'
-  }],
-  filteredReviewsCount: {
-    type : Number,
-    default: 0   
-  }
+  }]
 })
 hospitalSchema.post('findOneAndDelete', async function(hospital) {
   if (hospital.reviews && hospital.reviews.length) {

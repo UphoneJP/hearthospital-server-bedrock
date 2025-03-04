@@ -77,7 +77,8 @@ module.exports.createNewTalk = async(req, res)=> {
     if(!DBuser.points.map(point => point.reward).includes(30)){
       const point = {
         reward: 30,
-        madeAt: ()=>new Date()
+        gettingFrom: 'おしゃべり場初回投稿',
+        madeAt: new Date()
       }
       DBuser.points.push(point)
       await DBuser.save()

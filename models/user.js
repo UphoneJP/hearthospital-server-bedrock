@@ -43,6 +43,7 @@ const userSchema = new Schema({
   },
   points: [{
     reward: Number,
+    gettingFrom: String,
     madeAt: Date
   }],
   timeOfGotPoint: Date

@@ -64,17 +64,21 @@ module.exports.showList = async (req, res)=>{
 
 module.exports.approveReviews = async(req, res)=>{
   try {
-    const {reviewid} = req.params;
-    const review = await Review.findByIdAndUpdate(reviewid, {ownerCheck : true});
-
+    const {reviewid} = req.params
+    const review = await Review.findById(reviewid)
+    if(!review) throw new AppError('reviewが見つかりません', 404)
     const user = await User.findOne({_id: review.author})
     if(!user) throw new AppError('userが見つかりません', 404)
-    const point = {
+
+    user.points.push({
       reward: 150,
-      madeAt: ()=>new Date()
-    }
-    user.points.push(point)
+      gettingFrom: '病院口コミ承認',
+      madeAt: new Date()
+    })
     await user.save()
+
+    review.ownerCheck = true
+    await review.save()
 
     req.flash('success', '口コミの承認をしました')
     res.redirect('/admin');

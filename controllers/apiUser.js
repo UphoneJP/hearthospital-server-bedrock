@@ -298,11 +298,9 @@ module.exports.earningPoint = async (req, res) => {
 
 module.exports.usingPoints = async (req, res) => {
   try {
-    console.log('1')
     const {userId} = req.body
-    const user = await User.findById({userId})
+    const user = await User.findById(userId)
     if(!user) return res.status(404).json({message: 'userが見つかりません'})
-    console.log('2')
     const totalPoints = user.points.map(point => point.reward).reduce((sum, num) => sum + num, 0) || 0
     if(totalPoints<200) return res.status(401).json({message: '200pts未満です'})
     user.points.push({
@@ -310,7 +308,6 @@ module.exports.usingPoints = async (req, res) => {
       gettingFrom: 'ポイント交換申請',
       madeAt: new Date()
     })
-    console.log('3')
     await user.save()
     const giftRequest = new GiftRequest({
       user,
@@ -318,7 +315,6 @@ module.exports.usingPoints = async (req, res) => {
       ownerCheck: false,
       requestedAt: new Date()
     })
-    console.log('4')
     await giftRequest.save()
     res.status(200).json({user})
   } catch {

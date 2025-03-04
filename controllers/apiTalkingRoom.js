@@ -61,27 +61,20 @@ module.exports.createNewTalk = async(req, res)=> {
     if(!reviewText || !user){
       res.status(404).json({message: '必要な情報が不足しています'})
     }
-    console.log(3, user, user._id)
     const DBuser = await User.findById(user._id)
-    console.log(33, DBuser)
     if(!DBuser) {
-      console.log(333)
       res.status(404).json({message: 'userが見つかりません'})
     }
     
-    console.log(4)
     const newTalk = new Talk({
       loggedInUser: user,
       content: reviewText,
       madeAt: new Date()
     })
-    console.log(44, newTalk)
     await newTalk.save()
-    console.log(5)
     talkTheme.talks.unshift(newTalk)
     talkTheme.touchAt = new Date()
     await talkTheme.save()
-    console.log(6)
     
     if(!DBuser.points.map(point => point.reward).includes(30)){
       DBuser.points.push({

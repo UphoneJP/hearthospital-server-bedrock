@@ -1,5 +1,6 @@
 const TalkTheme = require('../models/talkTheme')
 const Talk = require('../models/talk')
+const User = require('../models/user')
 
 module.exports.talkThemesList = async(req, res)=>{
   try{
@@ -60,6 +61,9 @@ module.exports.createNewTalk = async(req, res)=> {
     if(!reviewText || !user){
       res.status(404).json({message: '必要な情報が不足しています'})
     }
+    const DBuser = await User.findOne({user})
+    if(!DBuser) res.status(404).json({message: 'userが見つかりません'})
+
     const newTalk = new Talk({
       loggedInUser: user,
       content: reviewText,
@@ -69,7 +73,16 @@ module.exports.createNewTalk = async(req, res)=> {
     talkTheme.talks.unshift(newTalk)
     talkTheme.touchAt = new Date()
     await talkTheme.save()
-    res.status(200).json({})
+    
+    if(!DBuser.points.map(point => point.reward).includes(30)){
+      const point = {
+        reward: 30,
+        madeAt: ()=>new Date()
+      }
+      DBuser.points.push(point)
+      await DBuser.save()
+    }
+    res.status(200).json({DBuser})
   } catch {
     res.status(400).json({message: 'エラーが発生しました'})
   }

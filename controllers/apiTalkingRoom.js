@@ -52,23 +52,20 @@ module.exports.createNewTalkTheme = async(req, res)=> {
 
 module.exports.createNewTalk = async(req, res)=> {
   try{
-    console.log(1)
     const {id} = req.params
     const talkTheme = await TalkTheme.findById(id)
     if(!talkTheme){
-      console.log(11)
       res.status(404).json({message: 'talkThemeが見つかりません'})
     }
-    console.log(2)
     const {reviewText, user} = req.body
     if(!reviewText || !user){
-      console.log(22)
       res.status(404).json({message: '必要な情報が不足しています'})
     }
-    console.log(3)
-    const DBuser = await User.findbyId(user._id)
+    console.log(3, user, user._id)
+    const DBuser = await User.findById(user._id)
+    console.log(33, DBuser)
     if(!DBuser) {
-      console.log(33)
+      console.log(333)
       res.status(404).json({message: 'userが見つかりません'})
     }
     

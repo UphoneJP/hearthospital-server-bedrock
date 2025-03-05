@@ -17,6 +17,7 @@ const session = require('express-session')
 const flash = require('connect-flash')
 const crypto = require('crypto')
 const favicon = require('serve-favicon')
+const helmet = require("helmet")
 
 // custom module
 const User = require('./models/user')
@@ -51,9 +52,9 @@ app.use('*', (req, res, next)=>{
 let page = 'initial'
 customSocket(server)
 app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
-});
+  res.type('text/plain')
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'))
+})
 
 // middleware static
 app.use(favicon(path.join(__dirname, 'public', 'css/pictures/icon-192x192.png')))
@@ -91,7 +92,7 @@ app.use(session({
   cookie : {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
-    // secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production',
     // sameSite: 'Lax'
   }
 }))
@@ -166,6 +167,58 @@ app.use(catchAsync(async(req, res, next)=>{
   }
   next()
 }))
+
+app.use(helmet())
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "https://cdn.jsdelivr.net",
+          "https://maps.googleapis.com",
+          "https://www.google.com/recaptcha/api.js",
+          "https://www.google.com/recaptcha/api2/",
+          "https://www.gstatic.com",
+          (req, res) => `'nonce-${res.locals.nonce}'`,
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+        ],
+        imgSrc: [
+          "'self'", 
+          "data:", 
+          "https:"
+        ],
+        connectSrc: [
+          "'self'", 
+          "https://maps.googleapis.com",
+          "https://maps.gstatic.com"
+        ],
+        frameSrc: ["'self'", "https://www.google.com"],
+      },
+    },
+    frameguard: { action: "deny" }, // クリックジャッキング防止（Web 用）
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" }, // リファラー制御
+    noSniff: true, // MIME スニッフィング防止
+    xssFilter: true, // XSS 対策（旧仕様だが一応）
+  })
+)
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    helmet.hsts({ // HTTPS 強制
+      maxAge: 31536000, // 1年
+      includeSubDomains: true,
+      preload: true,
+    })
+  )
+}
+// API の場合は一部設定を無効化
+app.use("/api", helmet({ contentSecurityPolicy: false, frameguard: false }))
+
 
 // app.all('*', (req, res)=>{
 //     throw new AppError('現在メンテナンス中です。しばらくお待ちください。', 503)

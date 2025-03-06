@@ -61,6 +61,7 @@ app.use(favicon(path.join(__dirname, 'public', 'css/pictures/icon-192x192.png'))
 app.engine('ejs', ejsMate)
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+app.set('trust proxy', 1)
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }))
 
 // middleware
@@ -70,7 +71,7 @@ app.use(methodOverride('_method'))
 app.use(mongoSanitize())
 app.use(rateLimit({
   windowMs: 1000 * 60,
-  max: 20,
+  max: 10,
   message: "Too many requests from this IP."
 }))
 app.use((req, res, next) => {

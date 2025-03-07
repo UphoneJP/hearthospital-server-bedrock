@@ -190,11 +190,11 @@ module.exports.checkApiKeyIni = async (req, res, next) => {
   if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
     let badUser = await BadUser.findOne({ip: req.ip})
     if(badUser){
-      badUser.accessAt_JST.push(new Date().toLocaleString('ja-JP'))
+      badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
     } else {
       badUser = new BadUser({
         ip: req.ip,
-        accessAt_JST: [new Date().toLocaleString('ja-JP')]
+        accessAt_UTC: [new Date().toLocaleString('ja-JP')]
       })
     }
     await badUser.save()

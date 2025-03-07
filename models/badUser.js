@@ -6,7 +6,7 @@ const badUserSchema = new Schema({
     type: String,
     required: true
   },
-  accessAt_JST:  String
+  accessAt_JST:  [String]
 })
 
 module.exports = mongoose.model('BadUser', badUserSchema)

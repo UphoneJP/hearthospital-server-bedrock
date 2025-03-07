@@ -22,6 +22,7 @@ const helmet = require("helmet")
 // custom module
 const User = require('./models/user')
 const Message = require('./models/message')
+const BadUser = require('./models/badUser')
 const { checkApiKeyIni } = require('./utils/middleware')
 const catchAsync = require('./utils/catchAsync')
 const AppError = require('./utils/AppError')
@@ -259,11 +260,22 @@ app.get('/',  (req, res)=>{
 app.all('*', (req, res)=>{
   throw new AppError('不正なリクエストです', 400)
 })
-app.use((err, req, res, next) => {
+app.use(async(err, req, res, next) => {
   console.log(`【Errorメッセージ】: ${err.message}`)
   console.log(`【Statusコード】: ${err.status}`)
   console.log(`【Stack trace】: ${err.stack}`)
   console.log(`【Request URL】: ${req.originalUrl}`)
+  console.log(`【Bad User】IP: ${req.ip}, Time: ${new Date().toISOString()}`)
+  let badUser = await BadUser.findOne({ip: req.ip})
+  if(badUser){
+    badUser.accessAt_JST.push(new Date().toLocaleString('ja-JP'))
+  } else {
+    badUser = new BadUser({
+      ip: req.ip,
+      accessAt_JST: [new Date().toLocaleString('ja-JP')]
+    })
+  }
+  await badUser.save()
   const { status = 500, message = 'エラー発生' } = err
   res.status(status).render('error', { message, status , page:'error'})
 })

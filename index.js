@@ -75,13 +75,21 @@ app.use(rateLimit({
   max: 10,
   message: "Too many requests from this IP."
 }))
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const userAgent = req.headers['user-agent'] || ''
   if (req.path === '/robots.txt' || userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)" || userAgent.includes('Googlebot')){
     return next()
   }
   if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {
-      return res.status(403).send('Access denied')
+    return res.status(403).send('Access denied')
+  }
+  const badUsers = await BadUser.find({})
+  const IPsOfBadUsers = badUsers
+    .filter(badUser=>badUser.accessAt_UTC.length > 3)
+    .map(badUser=>badUser.ip)
+  if(IPsOfBadUsers.includes(req.ip)){
+    console.log(`【AGAIN IP】: ${req.ip}`, `【Request URL】: ${req.originalUrl}`)
+    return res.status(403).send('Access denied')
   }
   next()
 })

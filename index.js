@@ -88,8 +88,11 @@ app.use(async (req, res, next) => {
     .filter(badUser=>badUser.accessAt_UTC.length > 3)
     .map(badUser=>badUser.ip)
   if(IPsOfBadUsers.includes(req.ip)){
-    console.log(`【AGAIN IP】: ${req.ip}`, `【Request URL】: ${req.originalUrl}`)
-    return res.status(403).send('Access denied')
+    const apiKeyIni = req.headers["api-key-ini"]
+    if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
+      console.log(`【AGAIN IP】: ${req.ip}`, `【Request URL】: ${req.originalUrl}`, `【header】: ${req.headers}`)
+      return res.status(403).send('Access denied')
+    }
   }
   next()
 })

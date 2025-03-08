@@ -188,12 +188,13 @@ module.exports.checkUser = (req, res, next) => {
 module.exports.checkApiKeyIni = async (req, res, next) => {
   const apiKeyIni = req.headers["api-key-ini"]
   if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
-    let badUser = await BadUser.findOne({ip: req.ip})
+    const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+    let badUser = await BadUser.findOne({ip: realIp})
     if(badUser){
       badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
     } else {
       badUser = new BadUser({
-        ip: req.ip,
+        ip: realIp,
         accessAt_UTC: [new Date().toLocaleString('ja-JP')]
       })
     }

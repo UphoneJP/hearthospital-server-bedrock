@@ -87,10 +87,12 @@ app.use(async (req, res, next) => {
   const IPsOfBadUsers = badUsers
     .filter(badUser=>badUser.accessAt_UTC.length > 3)
     .map(badUser=>badUser.ip)
-  if(IPsOfBadUsers.includes(req.ip)){
+  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+  if(IPsOfBadUsers.includes(realIp)){
     const apiKeyIni = req.headers["api-key-ini"]
     if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
-      console.log(`【AGAIN IP】: ${req.ip}`, `【Request URL】: ${req.originalUrl}`, `【header】: ${req.headers}`)
+      console.log(`【AGAIN IP】: ${realIp}`,`【Request URL】: ${req.originalUrl}`)
+      console.log(`【header】: ${req.headers}`)
       return res.status(403).send('Access denied')
     }
   }
@@ -277,12 +279,13 @@ app.use(async(err, req, res, next) => {
   console.log(`【Stack trace】: ${err.stack}`)
   console.log(`【Request URL】: ${req.originalUrl}`)
   console.log(`【Bad User】IP: ${req.ip}, Time: ${new Date().toISOString()}`)
-  let badUser = await BadUser.findOne({ip: req.ip})
+  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+  let badUser = await BadUser.findOne({ip: realIp})
   if(badUser){
     badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
   } else {
     badUser = new BadUser({
-      ip: req.ip,
+      ip: realIp,
       accessAt_UTC: [new Date().toLocaleString('ja-JP')]
     })
   }

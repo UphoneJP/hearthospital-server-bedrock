@@ -27,6 +27,7 @@ const { checkApiKeyIni } = require('./utils/middleware')
 const catchAsync = require('./utils/catchAsync')
 const AppError = require('./utils/AppError')
 const customSocket = require('./controllers/customSocket')
+const FilterOfHeaderAndIP = require('./utils/FilterOfHeaderAndIP')
 
 // env
 const URL = process.env.MONGO_URI || process.env.MONGO_LOCAL_URI
@@ -75,29 +76,7 @@ app.use(rateLimit({
   max: 10,
   message: "Too many requests from this IP."
 }))
-app.use(async (req, res, next) => {
-  const userAgent = req.headers['user-agent'] || ''
-  if (req.path === '/robots.txt' || userAgent === "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)" || userAgent.includes('Googlebot')){
-    return next()
-  }
-  if (!userAgent || userAgent.includes('curl') || userAgent.includes('bot')) {
-    return res.status(403).send('Access denied')
-  }
-  const badUsers = await BadUser.find({})
-  const IPsOfBadUsers = badUsers
-    .filter(badUser=>badUser.accessAt_UTC.length > 3)
-    .map(badUser=>badUser.ip)
-  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
-  if(IPsOfBadUsers.includes(realIp)){
-    const apiKeyIni = req.headers["api-key-ini"]
-    if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
-      console.log(`【AGAIN IP】: ${realIp}`,`【Request URL】: ${req.originalUrl}`)
-      console.log(`【header】: ${req.headers}`)
-      return res.status(403).send('Access denied')
-    }
-  }
-  next()
-})
+app.use((req, res, next) => FilterOfHeaderAndIP(req, res, next))
 app.use(session({
   store,
   name: 'session',
@@ -274,12 +253,12 @@ app.all('*', (req, res)=>{
   throw new AppError('不正なリクエストです', 400)
 })
 app.use(async(err, req, res, next) => {
+  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
   console.log(`【Errorメッセージ】: ${err.message}`)
   console.log(`【Statusコード】: ${err.status}`)
   console.log(`【Stack trace】: ${err.stack}`)
   console.log(`【Request URL】: ${req.originalUrl}`)
-  console.log(`【Bad User】IP: ${req.ip}, Time: ${new Date().toISOString()}`)
-  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+  console.log(`【Bad User】IP: ${realIp}, Time: ${new Date().toISOString()}`)
   let badUser = await BadUser.findOne({ip: realIp})
   if(badUser){
     badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))

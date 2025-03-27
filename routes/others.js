@@ -3,8 +3,8 @@ const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
 const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchForm, validateMessages, validateForms, validateNonAccountForms, validateFeedbackForms} = require('../utils/middleware');
 const others = require('../controllers/others');
-const path = require('path');
-
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const articles = require('../views/others/articles');
 router.get('/aboutUs', (req, res)=>{
@@ -51,5 +51,36 @@ router.post('/readReceipt', catchAsync(others.readReceipt));
 router.post('/form', isLoggedIn, validateForms, catchAsync(others.createForm));
 router.post('/form/nonAccount', validateNonAccountForms, catchAsync(others.createNonAccountForm));
 router.post('/form/feedback', validateFeedbackForms, catchAsync(others.createFeedback));
+
+// firstLaunch
+router.post('/firstLaunch', (req, res) => {
+  const { deviceId, timestamp, signature } = req.body
+  if(!deviceId || !timestamp || !signature) {
+    return res.status(400).json({ error: "Invalid request" });
+  }
+
+  // 3分以上前のリクエストは無効
+  if(Number(timestamp) + 1000 * 60 * 3 < Date.now()) {
+    return res.status(403).json({ error: "Invalid timestamp" });
+  }
+
+  // 正しい署名を作成
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.API_KEY_INI)
+    .update(`${deviceId}:${timestamp}`)
+    .digest("hex");
+
+  // 署名が一致しない場合は403エラー
+  if (signature !== expectedSignature) {
+    return res.status(403).json({ error: "Invalid signature" });
+  }
+
+  const apiKey = process.env.API_KEY
+  const JWTSecret = process.env.JWT_SECRET
+  const payload = { apiKey, JWTSecret, deviceId }
+  const token = jwt.sign(payload, process.env.API_KEY_INI)
+
+  res.json({ token })
+})
 
 module.exports = router;

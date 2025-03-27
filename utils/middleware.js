@@ -6,6 +6,7 @@ const Talk = require('../models/talk')
 const AppError = require('./AppError')
 const schemas = require('../schemas')
 const BadUser = require("../models/badUser")
+const jwt = require("jsonwebtoken")
 
 module.exports.isLoggedIn = (req , res, next)=>{
     if(!req.isAuthenticated()){
@@ -186,8 +187,7 @@ module.exports.checkUser = (req, res, next) => {
 }
 
 module.exports.checkApiKeyIni = async (req, res, next) => {
-  const apiKeyIni = req.headers["api-key-ini"]
-  if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
+  async function saveBadUser() {
     const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
     let badUser = await BadUser.findOne({ip: realIp})
     if(badUser){
@@ -202,6 +202,16 @@ module.exports.checkApiKeyIni = async (req, res, next) => {
     console.log("bad user detected")
     return res.status(403).json({ message: "Access denied. Saved your Info." })
   }
+
+  const apiKeyNeeded = req.headers["api-key-needed"]
+  const apiKeyIni = req.headers["api-key-ini"]  // 不要
+  if (!apiKeyNeeded || !apiKeyIni) saveBadUser()  // 不要
+  // if (!apiKeyNeeded) saveBadUser()
+  const token = apiKeyNeeded.split(' ')[1]
+  const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now() || apiKeyIni !== process.env.API_KEY_INI) saveBadUser() // 不要
+  // if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now()) saveBadUser()
+
   console.log("good user")
   next()
 }

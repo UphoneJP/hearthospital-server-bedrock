@@ -187,7 +187,8 @@ module.exports.checkUser = (req, res, next) => {
 }
 
 module.exports.checkApiKeyIni = async (req, res, next) => {
-  async function saveBadUser() {
+  const apiKeyIni = req.headers["api-key-ini"]
+   if (!apiKeyIni || apiKeyIni !== process.env.API_KEY_INI) {
     const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
     let badUser = await BadUser.findOne({ip: realIp})
     if(badUser){
@@ -202,16 +203,34 @@ module.exports.checkApiKeyIni = async (req, res, next) => {
     console.log("bad user detected")
     return res.status(403).json({ message: "Access denied. Saved your Info." })
   }
+ 
+   console.log("good user")
+   next()
+  // async function saveBadUser() {
+  //   const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+  //   let badUser = await BadUser.findOne({ip: realIp})
+  //   if(badUser){
+  //     badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
+  //   } else {
+  //     badUser = new BadUser({
+  //       ip: realIp,
+  //       accessAt_UTC: [new Date().toLocaleString('ja-JP')]
+  //     })
+  //   }
+  //   await badUser.save()
+  //   console.log("bad user detected")
+  //   return res.status(403).json({ message: "Access denied. Saved your Info." })
+  // }
 
-  const apiKeyNeeded = req.headers["api-key-needed"]
-  const apiKeyIni = req.headers["api-key-ini"]  // 不要
-  if (!apiKeyNeeded && !apiKeyIni) saveBadUser()  // 不要
-  // if (!apiKeyNeeded) saveBadUser()
-  const token = apiKeyNeeded.split(' ')[1]
-  const decoded = jwt.verify(token, process.env.JWT_SECRET)
-  if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now() || apiKeyIni !== process.env.API_KEY_INI) saveBadUser() // 不要
-  // if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now()) saveBadUser()
+  // const apiKeyNeeded = req.headers["api-key-needed"]
+  // const apiKeyIni = req.headers["api-key-ini"]  // 不要
+  // if (!apiKeyNeeded && !apiKeyIni) saveBadUser()  // 不要
+  // // if (!apiKeyNeeded) saveBadUser()
+  // const token = apiKeyNeeded.split(' ')[1]
+  // const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  // if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now() || apiKeyIni !== process.env.API_KEY_INI) saveBadUser() // 不要
+  // // if(decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now()) saveBadUser()
 
-  console.log("good user")
-  next()
+  // console.log("good user")
+  // next()
 }

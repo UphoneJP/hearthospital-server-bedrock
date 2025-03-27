@@ -205,7 +205,7 @@ module.exports.checkApiKeyIni = async (req, res, next) => {
 
   const apiKeyNeeded = req.headers["api-key-needed"]
   const apiKeyIni = req.headers["api-key-ini"]  // 不要
-  if (!apiKeyNeeded || !apiKeyIni) saveBadUser()  // 不要
+  if (!apiKeyNeeded && !apiKeyIni) saveBadUser()  // 不要
   // if (!apiKeyNeeded) saveBadUser()
   const token = apiKeyNeeded.split(' ')[1]
   const decoded = jwt.verify(token, process.env.JWT_SECRET)

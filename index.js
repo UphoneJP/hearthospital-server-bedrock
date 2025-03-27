@@ -79,7 +79,7 @@ app.use(rateLimit({
   max: 10,
   message: "Too many requests from this IP."
 }))
-// app.use((req, res, next) => FilterOfHeaderAndIP(req, res, next))
+app.use((req, res, next) => FilterOfHeaderAndIP(req, res, next))
 app.use(session({
   store,
   name: 'session',

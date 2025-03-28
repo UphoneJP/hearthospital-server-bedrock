@@ -77,7 +77,8 @@ router.post('/firstLaunch', (req, res) => {
 
   const apiKey = process.env.API_KEY
   const JWTSecret = process.env.JWT_SECRET
-  const payload = { apiKey, JWTSecret, deviceId, iat: Math.floor(Date.now() / 1000) }
+  const iat = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()) / 1000)
+  const payload = { apiKey, JWTSecret, deviceId, iat }
   const token = jwt.sign(payload, process.env.API_KEY_INI)
 
   res.json({ token })

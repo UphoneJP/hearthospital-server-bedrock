@@ -53,36 +53,61 @@ router.post('/form/nonAccount', validateNonAccountForms, catchAsync(others.creat
 router.post('/form/feedback', validateFeedbackForms, catchAsync(others.createFeedback));
 
 // firstLaunch
-router.post('/firstLaunch', (req, res) => {
-  const { deviceId, timestamp, signature } = req.body
-  if(!deviceId || !timestamp || !signature) {
-    return res.status(400).json({ error: "Invalid request" });
-  }
-
-  // 3分以上前のリクエストは無効
-  if(Number(timestamp) + 1000 * 60 * 3 < Date.now()) {
-    return res.status(403).json({ error: "Invalid timestamp" });
-  }
-
-  // 正しい署名を作成
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.API_KEY_INI)
-    .update(`${deviceId}:${timestamp}`)
-    .digest("hex");
-
-  // 署名が一致しない場合は403エラー
-  if (signature !== expectedSignature) {
-    return res.status(403).json({ error: "Invalid signature" });
-  }
-
-  const apiKey = process.env.API_KEY
-  const JWTSecret = process.env.JWT_SECRET
-  const iat = Math.floor(new Date().getTime() / 1000)
-  const payload = { apiKey, JWTSecret, deviceId, iat }
+router.post('/firstLaunch', async (req, res) => {
+  try {
+    const { deviceId, timestamp, signature } = req.body
+    if(!deviceId || !timestamp || !signature) {
+      return res.status(400).json({ error: "Invalid request" });
+    }
   
-  const token = jwt.sign(payload, process.env.API_KEY_INI)
-  res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  res.json({ token })
+    // 3分を過ぎたリクエストは無効
+    if(Number(timestamp) + 1000 * 60 * 3 < Date.now()) {
+      return res.status(403).json({ error: "Invalid timestamp" });
+    }
+  
+    // 正しい署名を作成
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.API_KEY_INI)
+      .update(`${deviceId}:${timestamp}`)
+      .digest("hex");
+  
+    // 署名が一致しない場合は403エラー
+    if (signature !== expectedSignature) {
+      return res.status(403).json({ error: "Invalid signature" });
+    }
+  
+    const apiKey = process.env.API_KEY
+    const JWTSecret = process.env.JWT_SECRET
+    const iat = Math.floor(new Date().getTime() / 1000)
+    const payload = { apiKey, JWTSecret, iat }
+  
+    const token = jwt.sign(payload, deviceId)
+    console.log(token)
+    res.status(200).json({ token })
+  } catch(e) {
+    console.log('firstLaunch Error: ', e)
+    res.status(400).json({ error: "firstLaunch missed"})
+  }
 })
 
-module.exports = router;
+// google-play-integrity-api 
+router.post('/verify-integrity', async (req, res) => {
+  const { integrityToken } = req.body
+  if (!integrityToken) {
+    return res.status(400).json({ error: 'integrityToken が必要です' });
+  }
+
+  try {
+    const response = await axios.post(
+      `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
+      { integrityToken }
+    )
+    res.status(200).json(response.data)
+
+  } catch (error) {
+    console.error('APIエラー:', error)
+    res.status(500).json({ error: error.message || 'Internal Server Error' })
+  }
+})
+
+module.exports = router

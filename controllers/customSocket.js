@@ -2,6 +2,7 @@ const { Server } = require('socket.io')
 const nodemailer = require('nodemailer');
 const Message = require('../models/message')
 const User = require('../models/user')
+const { validateMessages } = require('../utils/apiMiddleware')
 
 const transporter = nodemailer.createTransport({
   host: process.env.NODEMAILER_HOST,
@@ -33,6 +34,14 @@ function customSocket(server){
   const clients = {}
   
   io.on('connection', (socket) => {
+    // ⑦のミドルウェア
+    socket.use((packet, next) => {
+      if (packet[0] === "sendMessage") {
+        validateMessages(packet[1], {}, next);
+      } else {
+        next()
+      }
+    })
     
     // ①初回登録・通信開始
     socket.on('register', (userId) => {

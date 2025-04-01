@@ -5,7 +5,7 @@ const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchFo
 const others = require('../controllers/others');
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { nonceArray } = require("../utils/nonceArray")
+const { addNonce } = require("../utils/nonceArray")
 
 const articles = require('../views/others/articles');
 router.get('/aboutUs', (req, res)=>{
@@ -97,9 +97,7 @@ router.get('/getRandomBytes', (req, res)=>{
     nonce,
     iat: new Date().getTime()
   }
-  nonceArray = nonceArray.filter(item => item.iat + 1000 * 60 * 5 > new Date().getTime())
-  nonceArray.push(nonceObject)
-
+  addNonce(nonceObject)
   res.status(200).json({nonceObject})
 })
 

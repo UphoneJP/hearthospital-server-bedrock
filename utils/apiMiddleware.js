@@ -2,7 +2,7 @@ const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
 const jwt = require("jsonwebtoken")
 const { nonceArray } = require("../utils/nonceArray")
-const { signatureArray } = require("../utils/signatureArray")
+const { isValid, addSignature } = require("../utils/signatureArray")
 
 function validate(Schema, req, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -117,7 +117,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   }
 
   try {
-    if(signatureArray.find(item => item.signature === signature && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+    if(isValid(signature)){
       return next()
     }
 
@@ -137,8 +137,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
       return res.status(403).json({ error: "想定外環境からの利用と判断しました。" })
     }
 
-    signatureArray = signatureArray.filter(item => item.iat + 1000 * 60 * 5 > new Date().getTime())
-    signatureArray.push({signature, iat: new Date().getTime()})
+    addSignature({ signature, iat: new Date().getTime() })
     next()
 
   } catch (error) {

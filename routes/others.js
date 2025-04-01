@@ -5,6 +5,7 @@ const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchFo
 const others = require('../controllers/others');
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const { nonceArray } = require("../utils/nonceArray")
 
 const articles = require('../views/others/articles');
 router.get('/aboutUs', (req, res)=>{
@@ -72,20 +73,15 @@ router.post('/firstLaunch', async (req, res) => {
       .digest("hex");
   
     // 署名が一致しない場合は403エラー
-    if (signature !== expectedSignature) {
+    if (signature.trim() !== expectedSignature.trim()) {
       return res.status(403).json({ error: "Invalid signature" });
     }
   
     const apiKey = process.env.API_KEY
     const JWTSecret = process.env.JWT_SECRET
-    const iat = Math.floor(new Date().getTime() / 1000)
-    console.log(iat)
-    const payload = { apiKey, JWTSecret }
-    // const payload = { apiKey, JWTSecret, iat }
-    console.log(payload)
+    const payload = { apiKey, JWTSecret, deviceId }
   
     const token = jwt.sign(payload, deviceId)
-    console.log(token)
     res.status(200).json({ token })
   } catch(e) {
     console.log('firstLaunch Error: ', e)
@@ -93,24 +89,20 @@ router.post('/firstLaunch', async (req, res) => {
   }
 })
 
-// google-play-integrity-api 
-router.post('/verify-integrity', async (req, res) => {
-  const { integrityToken } = req.body
-  if (!integrityToken) {
-    return res.status(400).json({ error: 'integrityToken が必要です' });
+// nonce生成
+router.get('/getRandomBytes', (req, res)=>{
+  const randomBytes = crypto.randomBytes(16)
+  const nonce = Buffer.from(randomBytes).toString("base64")
+  const nonceObject = {
+    nonce,
+    iat: new Date().getTime()
   }
+  nonceArray = nonceArray.filter(item => item.iat + 1000 * 60 * 5 > new Date().getTime())
+  nonceArray.push(nonceObject)
 
-  try {
-    const response = await axios.post(
-      `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
-      { integrityToken }
-    )
-    res.status(200).json(response.data)
-
-  } catch (error) {
-    console.error('APIエラー:', error)
-    res.status(500).json({ error: error.message || 'Internal Server Error' })
-  }
+  res.status(200).json({nonceObject})
 })
+
+
 
 module.exports = router

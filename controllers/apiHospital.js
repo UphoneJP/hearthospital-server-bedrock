@@ -42,6 +42,9 @@ module.exports.createReview = async (req, res)=>{
     }
 
     let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
+    if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user ){
+      res.status(403).json({message: '必要な情報が不足しています'})
+    }
     function formatCurrentDate() {
       const date = new Date();
       const year = date.getFullYear();
@@ -81,7 +84,9 @@ module.exports.createReview = async (req, res)=>{
 }
 
 module.exports.deleteReview = async(req, res)=>{
-  const {id, reviewid} = req.params
+  const { id, reviewid } = req.params
+  const { user } = req.body
+
   let hospital = await Hospital.findById(id)
   .populate({
     path: 'reviews',
@@ -99,38 +104,41 @@ module.exports.deleteReview = async(req, res)=>{
   if (!hospital) {
     res.status(404).json({message: 'hospitalが取得できませんでした'})
   }
-  hospital.reviews = hospital.reviews.filter(review => review._id.toString() !== reviewid)
-  await hospital.save();
 
-  const review = await Review.findByIdAndDelete(reviewid);
+  const review = await Review.findById(reviewid)
   if (!review) {
     res.status(404).json({message: 'reviewが取得できませんでした'})
   }
-  
-  const user = await User.findById(review.author);
-  if (!user) {
-    res.status(404).json({message: 'userが取得できませんでした'})
+
+  // const review = await Review.findByIdAndDelete(reviewid);
+  // if (!review) {
+  //   res.status(404).json({message: 'reviewが取得できませんでした'})
+  // }
+  const author = await User.findById(review.author);
+  if(!author || !user || user !== author){
+    res.status(401).json({message: '削除権限がありません'})
   }
-  user.reviews = user.reviews.filter(_id => _id.toString() !== reviewid)
-  await user.save()
+  
+  hospital.reviews = hospital.reviews.filter(review => review._id.toString() !== reviewid)
+  await hospital.save()
+
+  await Review.findByIdAndDelete(reviewid)
+  
+  author.reviews = author.reviews.filter(_id => _id.toString() !== reviewid)
+  await author.save()
 
   const responses = await Response.find({review})
-  if (!responses) {
-    res.status(404).json({message: 'responsesが取得できませんでした'})
-  }
-  for(let response of responses){
-    const responseAuthor = await User.findById(response.author)
-    if (!responseAuthor) {
-      res.status(404).json({message: 'responseAuthorが取得できませんでした'})
+  if (responses) {
+    for(let response of responses){
+      const responseAuthor = await User.findById(response.author)
+      if (responseAuthor) {
+        responseAuthor.responses = responseAuthor.responses.filter(_id => !_id.equals(response._id))
+        await responseAuthor.save()
+      }
     }
-    responseAuthor.responses = responseAuthor.responses.filter(_id => !_id.equals(response._id));
-    await responseAuthor.save()
   }
 
   const reviews = await Review.find({ownerCheck:true}).populate('hospital').populate('author')
-  if(!reviews){
-    res.status(404).json({message:'reviewsが見つかりません'})
-  }
 
   res.status(200).json({hospital, reviews})
 }

@@ -45,6 +45,9 @@ module.exports.chatBox = async(req, res)=>{
   }
   try {
     const { user } = req.body
+    if(!user){
+      res.status(400).json({message: 'ログインユーザーが読み込めませんでした'})
+    }
     const sentMessages = await Message.find({sender:user._id}).populate('reciever')
     const recievedPersons = sentMessages.filter(message => !message.reciever.isDeleted).map(messages => messages.reciever)
     const recievedMessages = await Message.find({reciever: user._id}).populate('sender')

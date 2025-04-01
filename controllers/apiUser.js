@@ -34,6 +34,9 @@ function random6numbers(){
 module.exports.checkEmail = async (req, res) => {
   try {
     const {email} = req.body
+    if(!email){
+      res.status(400).json({message: 'emailが取得できませんでした'})
+    }
     const nums = random6numbers()
     const expire10min = Date.now() + 1000 * 60 * 10
     await autoSender(email, nums)
@@ -62,6 +65,9 @@ module.exports.register = async (req, res) => {
 
 module.exports.localLogin = async (req, res) => {
   const { email, password } = req.body
+  if( !email || !password ){
+    res.status(400).json({message: 'emailとpasswordは必須です'})
+  }
   try  {
     const user = await User.findOne({email})
     if(!user || user.isDeleted){
@@ -127,6 +133,9 @@ module.exports.googleLogin = async (req, res) => {
 
 module.exports.appleLogin = async (req, res) => {
   const { username, email, appleId } = req.body
+  if( !username || !email || !appleId ){
+    res.status(400).json({message: '必要情報が不足しています'})
+  }
   try {
     let user = await User.findOne({ appleId })
     if (!user) {

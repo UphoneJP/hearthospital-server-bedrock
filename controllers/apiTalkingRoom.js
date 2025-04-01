@@ -36,6 +36,9 @@ module.exports.eachTheme = async(req, res)=> {
 module.exports.createNewTalkTheme = async(req, res)=> {
   try {
     const {title, detailNoSpace, user} = req.body
+    if( !title || !detailNoSpace || !user ){
+      res.status(403).json({message: '必要情報が不足しています'})
+    }
     const talkTheme = new TalkTheme({
       author: user,
       title,
@@ -93,6 +96,9 @@ module.exports.createNewTalk = async(req, res)=> {
 module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
   const {talkThemeEdit, detailEdit} = req.body
+  if( !talkThemeEdit || !detailEdit){
+    res.status(404).json({message: '必要な情報が不足しています'})
+  }
   const talkTheme = await TalkTheme.findByIdAndUpdate(id, {
     title: talkThemeEdit.trim(), 
     detail: detailEdit.trim()
@@ -105,9 +111,14 @@ module.exports.editTalkTheme = async(req, res)=> {
 
 module.exports.deleteTalkTheme = async(req, res)=> {
   const { id } = req.params
-  const talkTheme = await TalkTheme.findById(id)
+  const { user } = req.body
+  
+  const talkTheme = await TalkTheme.findById(id).populate('author')
   if (!talkTheme) {
-    return res.status(404).json({ message: 'talkThemeが見つかりません' })
+    res.status(404).json({ message: 'talkThemeが見つかりません' })
+  }
+  if(!user || user._id !== talkTheme.author._id){
+    res.status(403).json({ message: '削除権限がありません' })
   }
   await talkTheme.deleteOne()
   res.status(200).json({})
@@ -116,7 +127,11 @@ module.exports.deleteTalkTheme = async(req, res)=> {
 module.exports.deleteTalk = async(req, res)=> {
   try {
     const {talkId} = req.params
-    const talk = await Talk.findById(talkId)
+    const { user } = req.body
+    const talk = await Talk.findById(talkId).populate('loggedInUser')
+    if(!user || user._id !== talk.loggedInUser._id){
+      res.status(403).json({message: '削除権限がありません'})
+    }
     talk.deleted = true
     await talk.save()
     res.status(200).json({})

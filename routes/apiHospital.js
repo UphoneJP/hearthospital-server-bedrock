@@ -8,6 +8,6 @@ router.get('/:id', hospital.aboutHospital)
 router.get('/', hospital.getHospitals)
 
 router.post('/:id/new', hospital.createReview)
-router.delete('/:id/:reviewid', hospital.deleteReview)
+router.post('/:id/:reviewid', hospital.deleteReview)
 
 module.exports = router

@@ -92,6 +92,8 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const deviceId = req.headers["deviceid"]
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
+
+  console.log("process.env.NODE_ENV !== 'production': ", process.env.NODE_ENV !== 'production')
   console.log("nonce: ", nonce)
   console.log("timestamp: ", timestamp)
   console.log("deviceId: ", deviceId)
@@ -117,11 +119,13 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   // nonceがArrayに無い、もしくは有効期限切れの場合
   const nonceArray = getNonceArray()
   if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+    console.log("Invalid or expired nonce")
     return res.status(400).json({ error: "Invalid or expired nonce" })
   }
 
   // timestampが5分を過ぎていた場合
   if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
+    console.log("timestamp expired")
     return res.status(400).json({ error: "timestamp expired" })
   }
 
@@ -131,11 +135,13 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     .update(`${nonce}:${timestamp}:${integrityToken}`)
     .digest("hex")
   if (signature !== expectedSignature) {
+    console.log("Invalid signature")
     return res.status(403).json({ error: "Invalid signature" })
   }
 
   try {
     if(isValid(signature)){
+      console.log("キャッシュ利用")
       return next()
     }
 
@@ -143,6 +149,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
       `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
       { integrityToken }
     )).data)
+    console.log(integrityJSON)
     if(
       integrityJSON.requestDetails.requestPackageName !== process.env.PACKAGE_NAME || 
       !nonceArray.find(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||

@@ -89,14 +89,10 @@ module.exports.originalSecurity = async (req, res, next) => {
 module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const nonce = req.headers["nonce"]
   const timestamp = req.headers["timestamp"]
-  const deviceId = req.headers["deviceId"]
-  const integrityToken = req.headers["integrityToken"]
+  const deviceId = req.headers["deviceid"]
+  const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
-  console.log("nonce: ", nonce)
-  console.log("timestamp: ", timestamp)
-  console.log("deviceId: ", deviceId)
-  console.log("integrityToken: ", integrityToken)
-  console.log("signature: ", signature)
+  console.log("Request Headers:", req.headers)
   if ( !nonce || !timestamp || !deviceId || !integrityToken || !signature ) {
     console.log('情報が不足しています')
     return res.status(400).json({ error: '情報が不足しています' })

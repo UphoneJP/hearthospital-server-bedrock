@@ -97,6 +97,18 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     return res.status(400).json({ error: '情報が不足しています' })
   }
 
+  // 開発環境ならスルー
+  if(
+    process.env.NODE_ENV !== 'production' &&
+    nonce === 'thisIsTestNonce' &&
+    timestamp === 1800000000000 &&
+    integrityToken === "thisIsTestIntegrityToken" &&
+    signature === "thisIsTestSignature"
+  ) {
+    console.log('開発環境のためintegrityAPIはスルー')
+    return next()
+  }
+
   // nonceがArrayに無い、もしくは有効期限切れの場合
   if(!nonceArray.find(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
     return res.status(400).json({ error: "Invalid or expired nonce" })
@@ -134,6 +146,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
       integrityJSON.accountDetails.appLicensingVerdict !== "LICENSED" ||
       integrityJSON.environmentDetails?.appAccessRiskVerdict?.appsDetected?.includes("UNKNOWN_CAPTURING")
     ){
+      console.log("想定外環境からの利用です。")
       return res.status(403).json({ error: "想定外環境からの利用と判断しました。" })
     }
 

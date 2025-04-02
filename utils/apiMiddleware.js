@@ -93,18 +93,18 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
 
-  console.log("nonce: ", nonce)
-  console.log("timestamp: ", timestamp)
-  console.log("deviceId: ", deviceId)
-  console.log("integrityToken: ", integrityToken)
-  console.log("signature: ", signature)
-  console.log("deviceId === process.env.DEVICE_ID: ", deviceId === process.env.DEVICE_ID)
-  console.log("nonce === 'thisIsTestNonce': ", nonce === 'thisIsTestNonce')
-  console.log("timestamp === parseInt(process.env.TIMESTAMP): ", timestamp === parseInt(process.env.TIMESTAMP))
-  console.log("timestamp === process.env.TIMESTAMP: ", timestamp === process.env.TIMESTAMP)
-  console.log("typeof: ", typeof(timestamp), typeof(process.env.TIMESTAMP))
-  console.log("integrityToken === 'thisIsTestIntegrityToken': ", integrityToken === "thisIsTestIntegrityToken")
-  console.log("signature === 'thisIsTestSignature': ", signature === "thisIsTestSignature")
+  // console.log("nonce: ", nonce)
+  // console.log("timestamp: ", timestamp)
+  // console.log("deviceId: ", deviceId)
+  // console.log("integrityToken: ", integrityToken)
+  // console.log("signature: ", signature)
+  // console.log("deviceId === process.env.DEVICE_ID: ", deviceId === process.env.DEVICE_ID)
+  // console.log("nonce === 'thisIsTestNonce': ", nonce === 'thisIsTestNonce')
+  // console.log("timestamp === parseInt(process.env.TIMESTAMP): ", timestamp === parseInt(process.env.TIMESTAMP))
+  // console.log("timestamp === process.env.TIMESTAMP: ", timestamp === process.env.TIMESTAMP)
+  // console.log("typeof: ", typeof(timestamp), typeof(process.env.TIMESTAMP))
+  // console.log("integrityToken === 'thisIsTestIntegrityToken': ", integrityToken === "thisIsTestIntegrityToken")
+  // console.log("signature === 'thisIsTestSignature': ", signature === "thisIsTestSignature")
   if ( !nonce || !timestamp || !deviceId || !integrityToken || !signature ) {
     console.log('情報が不足しています')
     return res.status(400).json({ error: '情報が不足しています' })
@@ -114,7 +114,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   if(
     deviceId === process.env.DEVICE_ID &&
     nonce === 'thisIsTestNonce' &&
-    timestamp === process.env.TIMESTAMP &&
+    timestamp === parseInt(process.env.TIMESTAMP) &&
     integrityToken === "thisIsTestIntegrityToken" &&
     signature === "thisIsTestSignature"
   ) {

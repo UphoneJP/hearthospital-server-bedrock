@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 const { getNonceArray } = require("../utils/nonceArray")
 const { isValid, addSignature } = require("../utils/signatureArray")
 const crypto = require("crypto")
+const axios = require("axios")
 
 function validate(Schema, req, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -119,7 +120,6 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
 
   // nonceがArrayに無い、もしくは有効期限切れの場合
   const nonceArray = getNonceArray()
-  console.log(nonceArray)
   if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
     console.log("Invalid or expired nonce")
     return res.status(400).json({ error: "Invalid or expired nonce" })
@@ -136,8 +136,6 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     .createHmac("sha256", deviceId)
     .update(`${nonce}:${timestamp}:${integrityToken}`)
     .digest("hex")
-  console.log(`${nonce}:${timestamp}:${integrityToken}`)
-  console.log(signature, expectedSignature)
   if (signature !== expectedSignature) {
     console.log("Invalid signature")
     return res.status(403).json({ error: "Invalid signature" })

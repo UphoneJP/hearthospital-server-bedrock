@@ -1,7 +1,7 @@
 const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
 const jwt = require("jsonwebtoken")
-const { getNonceArray } = require("../utils/nonceArray")
+const { nonceArray } = require("../utils/nonceArray")
 const { isValid, addSignature } = require("../utils/signatureArray")
 
 function validate(Schema, req, next) {
@@ -93,18 +93,12 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
 
-  // console.log("nonce: ", nonce)
-  // console.log("timestamp: ", timestamp)
-  // console.log("deviceId: ", deviceId)
-  // console.log("integrityToken: ", integrityToken)
-  // console.log("signature: ", signature)
-  // console.log("deviceId === process.env.DEVICE_ID: ", deviceId === process.env.DEVICE_ID)
-  // console.log("nonce === 'thisIsTestNonce': ", nonce === 'thisIsTestNonce')
-  // console.log("timestamp === parseInt(process.env.TIMESTAMP): ", timestamp === parseInt(process.env.TIMESTAMP))
-  // console.log("timestamp === process.env.TIMESTAMP: ", timestamp === process.env.TIMESTAMP)
-  // console.log("typeof: ", typeof(timestamp), typeof(process.env.TIMESTAMP))
-  // console.log("integrityToken === 'thisIsTestIntegrityToken': ", integrityToken === "thisIsTestIntegrityToken")
-  // console.log("signature === 'thisIsTestSignature': ", signature === "thisIsTestSignature")
+  console.log("nonce: ", nonce)
+  console.log("timestamp: ", timestamp)
+  console.log("deviceId: ", deviceId)
+  console.log("integrityToken: ", integrityToken)
+  console.log("signature: ", signature)
+
   if ( !nonce || !timestamp || !deviceId || !integrityToken || !signature ) {
     console.log('情報が不足しています')
     return res.status(400).json({ error: '情報が不足しています' })
@@ -123,7 +117,6 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   }
 
   // nonceがArrayに無い、もしくは有効期限切れの場合
-  const nonceArray = getNonceArray()
   if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
     console.log("Invalid or expired nonce")
     return res.status(400).json({ error: "Invalid or expired nonce" })
@@ -158,7 +151,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     console.log(integrityJSON)
     if(
       integrityJSON.requestDetails.requestPackageName !== process.env.PACKAGE_NAME || 
-      !nonceArray.find(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||
+      !nonceArray.some(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||
       integrityJSON.appIntegrity.appRecognitionVerdict !== "PLAY_RECOGNIZED" ||
       integrityJSON.appIntegrity.packageName !== process.env.PACKAGE_NAME ||
       integrityJSON.deviceIntegrity.recentDeviceActivity.deviceActivityLevel === "LEVEL_3" ||

@@ -91,6 +91,7 @@ router.post('/firstLaunch', async (req, res) => {
 
 // nonce生成
 router.get('/getRandomBytes', (req, res)=>{
+  console.log('nonce function called')
   const randomBytes = crypto.randomBytes(16)
   const nonce = Buffer.from(randomBytes).toString("base64")
   const nonceObject = {

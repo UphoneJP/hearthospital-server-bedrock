@@ -110,7 +110,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   if(
     deviceId === process.env.DEVICE_ID &&
     nonce === 'thisIsTestNonce' &&
-    timestamp === parseInt(process.env.TIMESTAMP) &&
+    timestamp === process.env.TIMESTAMP &&
     integrityToken === "thisIsTestIntegrityToken" &&
     signature === "thisIsTestSignature"
   ) {

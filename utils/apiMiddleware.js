@@ -89,7 +89,7 @@ module.exports.originalSecurity = async (req, res, next) => {
 // google-play-integrity-api 
 module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const nonce = req.headers["nonce"]
-  const timestamp = parseInt(req.headers["timestamp"]) + 1
+  const timestamp = parseInt(req.headers["timestamp"]) !== 1800000000000 ? parseInt(req.headers["timestamp"]) : process.env.TIMESTAMP
   const deviceId = req.headers["deviceid"]
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
@@ -136,6 +136,8 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     .createHmac("sha256", deviceId)
     .update(`${nonce}:${timestamp}:${integrityToken}`)
     .digest("hex")
+  console.log(`${nonce}:${timestamp}:${integrityToken}`)
+  console.log(signature, expectedSignature)
   if (signature !== expectedSignature) {
     console.log("Invalid signature")
     return res.status(403).json({ error: "Invalid signature" })

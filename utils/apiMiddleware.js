@@ -1,7 +1,7 @@
 const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
 const jwt = require("jsonwebtoken")
-const { nonceArray } = require("../utils/nonceArray")
+const { getNonceArray } = require("../utils/nonceArray")
 const { isValid, addSignature } = require("../utils/signatureArray")
 
 function validate(Schema, req, next) {
@@ -117,11 +117,8 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   }
 
   // nonceがArrayに無い、もしくは有効期限切れの場合
-  nonceArray.forEach(nonceObject => {
-    console.log(nonceObject, typeOf(nonceObject.iat))
-    console.log(nonceObject.iat + 1000 * 60 * 5 , new Date().getTime())
-    console.log(nonceObject.iat + 1000 * 60 * 5 > new Date().getTime())
-  })
+  const nonceArray = getNonceArray()
+  console.log(nonceArray)
   if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
     console.log("Invalid or expired nonce")
     return res.status(400).json({ error: "Invalid or expired nonce" })

@@ -3,6 +3,7 @@ const BadUser = require("../models/badUser")
 const jwt = require("jsonwebtoken")
 const { getNonceArray } = require("../utils/nonceArray")
 const { isValid, addSignature } = require("../utils/signatureArray")
+const crypto = require("crypto")
 
 function validate(Schema, req, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -146,6 +147,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
       return next()
     }
 
+    console.log('here')
     const integrityJSON = JSON.parse((await axios.post(
       `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
       { integrityToken }

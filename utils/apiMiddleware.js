@@ -88,7 +88,7 @@ module.exports.originalSecurity = async (req, res, next) => {
 // google-play-integrity-api 
 module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const nonce = req.headers["nonce"]
-  const timestamp = req.headers["timestamp"]
+  const timestamp = parseInt(req.headers["timestamp"])
   const deviceId = req.headers["deviceid"]
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]

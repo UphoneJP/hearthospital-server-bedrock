@@ -88,7 +88,7 @@ module.exports.originalSecurity = async (req, res, next) => {
 // google-play-integrity-api 
 module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   const nonce = req.headers["nonce"]
-  const timestamp = parseInt(req.headers["timestamp"])
+  const timestamp = parseInt(req.headers["timestamp"]) + 1
   const deviceId = req.headers["deviceid"]
   const integrityToken = req.headers["integritytoken"]
   const signature = req.headers["signature"]
@@ -100,7 +100,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
   console.log("signature: ", signature)
   console.log("deviceId === process.env.DEVICE_ID: ", deviceId === process.env.DEVICE_ID)
   console.log("nonce === 'thisIsTestNonce': ", nonce === 'thisIsTestNonce')
-  console.log("timestamp === 1800000000000: ", timestamp === 1800000000000)
+  console.log("timestamp === parseInt(process.env.TIMESTAMP): ", timestamp === parseInt(process.env.TIMESTAMP))
   console.log("integrityToken === 'thisIsTestIntegrityToken': ", integrityToken === "thisIsTestIntegrityToken")
   console.log("signature === 'thisIsTestSignature': ", signature === "thisIsTestSignature")
   if ( !nonce || !timestamp || !deviceId || !integrityToken || !signature ) {
@@ -110,9 +110,9 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
 
   // 開発環境ならスルー
   if(
-    deviceId === process.env.DEVICE_ID,
+    deviceId === process.env.DEVICE_ID &&
     nonce === 'thisIsTestNonce' &&
-    timestamp === 1800000000000 &&
+    timestamp === parseInt(process.env.TIMESTAMP) &&
     integrityToken === "thisIsTestIntegrityToken" &&
     signature === "thisIsTestSignature"
   ) {

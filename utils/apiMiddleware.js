@@ -153,7 +153,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     // サービスアカウントの認証情報を設定
     const playintegrity = google.playintegrity('v1')
     const auth = new google.auth.GoogleAuth({
-      keyFile: '../ancient-binder-427601-u6-6b79d01ca67a.json',
+      credentials: JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS),
       scopes: ['https://www.googleapis.com/auth/playintegrity'],
     })
     const client = await auth.getClient()

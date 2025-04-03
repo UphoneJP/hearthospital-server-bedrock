@@ -5,6 +5,7 @@ const { getNonceArray } = require("../utils/nonceArray")
 const { isValid, addSignature } = require("../utils/signatureArray")
 const crypto = require("crypto")
 const axios = require("axios")
+const { google } = require('googleapis')
 
 function validate(Schema, req, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -141,30 +142,47 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     return res.status(403).json({ error: "Invalid signature" })
   }
 
-  try {
-    if(isValid(signature)){
-      console.log("キャッシュ利用")
-      return next()
-    }
+  if(isValid(signature)){
+    console.log("キャッシュ利用")
+    return next()
+  }
 
+  try {
     console.log('here')
-    const integrityJSON = JSON.parse((await axios.post(
-      `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
-      { integrityToken }
-    )).data)
-    console.log(integrityJSON)
-    if(
-      integrityJSON.requestDetails.requestPackageName !== process.env.PACKAGE_NAME || 
-      !nonceArray.some(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||
-      integrityJSON.appIntegrity.appRecognitionVerdict !== "PLAY_RECOGNIZED" ||
-      integrityJSON.appIntegrity.packageName !== process.env.PACKAGE_NAME ||
-      integrityJSON.deviceIntegrity.recentDeviceActivity.deviceActivityLevel === "LEVEL_3" ||
-      integrityJSON.accountDetails.appLicensingVerdict !== "LICENSED" ||
-      integrityJSON.environmentDetails?.appAccessRiskVerdict?.appsDetected?.includes("UNKNOWN_CAPTURING")
-    ){
-      console.log("想定外環境からの利用です。")
-      return res.status(403).json({ error: "想定外環境からの利用と判断しました。" })
-    }
+
+    // サービスアカウントの認証情報を設定
+    const playintegrity = google.playintegrity('v1')
+    const auth = new google.auth.GoogleAuth({
+      keyFile: '../ancient-binder-427601-u6-6b79d01ca67a.json',
+      scopes: ['https://www.googleapis.com/auth/playintegrity'],
+    })
+    const client = await auth.getClient()
+    google.options({ auth: client })
+
+    const res = await playintegrity.v1.decodeIntegrityToken({
+      packageName: packageName,
+      requestBody: { integrityToken }
+    })
+
+    console.log(res.data)
+
+    // const integrityJSON = JSON.parse((await axios.post(
+    //   `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
+    //   { integrityToken }
+    // )).data)
+    // console.log(integrityJSON)
+    // if(
+    //   integrityJSON.requestDetails.requestPackageName !== process.env.PACKAGE_NAME || 
+    //   !nonceArray.some(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||
+    //   integrityJSON.appIntegrity.appRecognitionVerdict !== "PLAY_RECOGNIZED" ||
+    //   integrityJSON.appIntegrity.packageName !== process.env.PACKAGE_NAME ||
+    //   integrityJSON.deviceIntegrity.recentDeviceActivity.deviceActivityLevel === "LEVEL_3" ||
+    //   integrityJSON.accountDetails.appLicensingVerdict !== "LICENSED" ||
+    //   integrityJSON.environmentDetails?.appAccessRiskVerdict?.appsDetected?.includes("UNKNOWN_CAPTURING")
+    // ){
+    //   console.log("想定外環境からの利用です。")
+    //   return res.status(403).json({ error: "想定外環境からの利用と判断しました。" })
+    // }
 
     addSignature({ signature, iat: new Date().getTime() })
     next()

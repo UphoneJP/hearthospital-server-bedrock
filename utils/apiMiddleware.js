@@ -149,7 +149,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
 
   try {
     console.log('here')
-
+    const packageName = process.env.PACKAGE_NAME
     const credentials = JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS)
     credentials.private_key = credentials.private_key.replace(/\\n/g, '\n')
     
@@ -170,7 +170,7 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
     console.log("client: ", client)
 
     const res = await playintegrity.v1.decodeIntegrityToken({
-      packageName: packageName,
+      packageName,
       requestBody: { integrityToken }
     })
 

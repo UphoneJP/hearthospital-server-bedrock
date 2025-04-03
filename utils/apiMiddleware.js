@@ -149,6 +149,8 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
 
   try {
     console.log('here')
+    console.log(JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS))
+    console.log(typeof(JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS)))
 
     // サービスアカウントの認証情報を設定
     const playintegrity = google.playintegrity('v1')
@@ -156,8 +158,12 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
       credentials: JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS),
       scopes: ['https://www.googleapis.com/auth/playintegrity'],
     })
+    console.log("auth: ", auth)
+    
     const client = await auth.getClient()
     google.options({ auth: client })
+
+    console.log("client: ", client)
 
     const res = await playintegrity.v1.decodeIntegrityToken({
       packageName: packageName,

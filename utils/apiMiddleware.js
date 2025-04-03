@@ -149,8 +149,12 @@ module.exports.googlePlayIntegrityApi = async (req, res, next) => {
 
   try {
     console.log('here')
-    console.log(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS)
-    console.log(typeof(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS))
+    const credentialJSON = process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS.replace(/\n/g, '\\n')
+    console.log(credentialJSON)
+    console.log(typeof(credentialJSON))
+    const parseCredentialJSON = JSON.parse(credentialJSON)
+    console.log(parseCredentialJSON)
+    console.log(typeof(parseCredentialJSON))
     const packageName = process.env.PACKAGE_NAME
     const credentials = JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS)
     credentials.private_key = credentials.private_key.replace(/\\n/g, '\n')

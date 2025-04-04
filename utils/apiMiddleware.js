@@ -69,17 +69,12 @@ module.exports.originalSecurity = async (req, res, next) => {
     return res.status(403).json({ message: "Access denied. Saved your Info." })
   }
 
-  // 旧型で削除予定
-  const apiKeyIni = req.headers["api-key-ini"]
-  if(apiKeyIni && apiKeyIni === process.env.API_KEY_INI) return next()
-
   const apiKeyNeeded = req.headers["api-key-needed"]
   if (!apiKeyNeeded || apiKeyNeeded.trim() === 'Bearer') saveBadUser()
   const token = apiKeyNeeded.split(' ')[1]
   const decoded = jwt.verify(token, process.env.JWT_SECRET)
   if(!decoded || decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now()) saveBadUser()
 
-  console.log("good user")
   next()
 }
 
@@ -92,21 +87,15 @@ module.exports.checkIntegrity = async (req, res, next) => {
     const cryptoToken = req.headers["cryptotoken"]
     const signature = req.headers["signature"]
 
-    console.log("nonce: ", nonce)
-    console.log("timestamp: ", timestamp)
-    console.log("deviceId: ", deviceId)
-    console.log("cryptoToken: ", cryptoToken)
-    console.log("signature: ", signature)
-
     if ( !nonce || !timestamp || !deviceId || !cryptoToken || !signature ) {
-      console.log('情報が不足しています')
+      console.log('checkIntegrity情報が不足しています')
       return res.status(400).json({ error: '情報が不足しています' })
     }
 
     // nonceがArrayに無い、もしくは有効期限切れの場合
     const nonceArray = getNonceArray()
     if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-      console.log("Invalid or expired nonce")
+      console.log("checkIntegrity: Invalid or expired nonce")
       return res.status(400).json({ error: "Invalid or expired nonce" })
     }
 
@@ -119,7 +108,7 @@ module.exports.checkIntegrity = async (req, res, next) => {
     // cryptoTokenが無い、もしくは有効期限切れの場合
     const cryptoArray = getCryptoArray()
     if(!cryptoArray.some(item => item.cryptoToken === cryptoToken && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-      console.log("Invalid or expired crypto")
+      console.log("checkIntegrity: Invalid or expired crypto")
       return res.status(400).json({ error: "Invalid or expired crypto" })
     }
 
@@ -129,14 +118,14 @@ module.exports.checkIntegrity = async (req, res, next) => {
       .update(`${nonce}:${timestamp}:${cryptoToken}`)
       .digest("hex")
     if (signature !== expectedSignature) {
-      console.log("Invalid signature")
+      console.log("checkIntegrity: Invalid signature")
       return res.status(403).json({ error: "Invalid signature" })
     }
 
     next()
 
   } catch (error) {
-    console.error('整合性エラー:', error)
+    console.log('整合性エラー:', error)
     res.status(500).json({ error: error.message || 'Internal Server Error' })
   }
 }

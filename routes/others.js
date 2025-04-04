@@ -5,7 +5,7 @@ const router = express.Router();
 const others = require('../controllers/others');
 const catchAsync = require('../utils/catchAsync');
 const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchForm, validateMessages, validateForms, validateNonAccountForms, validateFeedbackForms} = require('../utils/middleware');
-const { addNonce } = require("../utils/nonceArray")
+const { getNonceArray, addNonce } = require("../utils/nonceArray")
 const { addCrypto } = require("../utils/cryptoArray")
 
 const articles = require('../views/others/articles');

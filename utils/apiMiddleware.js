@@ -9,6 +9,7 @@ function validate(Schema, req, res, next) {
   const {error} = Schema.validate(req.body) || {}
   if(error){
     const msg = error.details.map(detail => detail.message).join(',')
+    console.log("Validation error:", msg)
     res.status(400).json({msg})
   } else {
     next()

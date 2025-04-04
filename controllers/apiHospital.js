@@ -42,9 +42,8 @@ module.exports.createReview = async (req, res)=>{
     }
 
     let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
-    if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user || !user._id ){
+    if( !title || !diseaseNames || !treatmentTiming || !comment || !user || !user._id ){
       console.log('必要な情報が不足しています')
-      console.log(title, diseaseNames, url, treatmentTiming, comment, user)
       return res.status(403).json({message: '必要な情報が不足しています'})
     }
     function formatCurrentDate() {
@@ -65,7 +64,7 @@ module.exports.createReview = async (req, res)=>{
       diseaseNames,
       treatmentTiming,
       comment,
-      url,
+      url: url || null,
       author: user._id,
       tweetDate,
       ownerCheck: false
@@ -113,10 +112,6 @@ module.exports.deleteReview = async(req, res)=>{
     res.status(404).json({message: 'reviewが取得できませんでした'})
   }
 
-  // const review = await Review.findByIdAndDelete(reviewid);
-  // if (!review) {
-  //   res.status(404).json({message: 'reviewが取得できませんでした'})
-  // }
   const author = await User.findById(review.author);
   if(!author || !user || user !== author){
     res.status(401).json({message: '削除権限がありません'})
@@ -125,7 +120,7 @@ module.exports.deleteReview = async(req, res)=>{
   hospital.reviews = hospital.reviews.filter(review => review._id.toString() !== reviewid)
   await hospital.save()
 
-  await Review.findByIdAndDelete(reviewid)
+  await review.deleteOne()
   
   author.reviews = author.reviews.filter(_id => _id.toString() !== reviewid)
   await author.save()

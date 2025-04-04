@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const catchAsync = require('../utils/catchAsync');
-const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchForm, validateMessages, validateForms, validateNonAccountForms, validateFeedbackForms} = require('../utils/middleware');
-const others = require('../controllers/others');
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const express = require('express');
+const router = express.Router();
+const others = require('../controllers/others');
+const catchAsync = require('../utils/catchAsync');
+const {isLoggedIn, saveReturnTo, intoMyPage, intoDirectMessage, validateSearchForm, validateMessages, validateForms, validateNonAccountForms, validateFeedbackForms} = require('../utils/middleware');
 const { addNonce } = require("../utils/nonceArray")
+const { addCrypto } = require("../utils/cryptoArray")
 
 const articles = require('../views/others/articles');
 router.get('/aboutUs', (req, res)=>{
@@ -22,8 +23,6 @@ router.get('/form', saveReturnTo, (req, res)=>{
 });
 router.get('/link', catchAsync(others.link));
 router.get('/hospitalData', saveReturnTo, catchAsync(others.hospitalData));
-
-
 router.get('/diseaseNames', validateSearchForm, catchAsync(others.showDiseaseName));
 
 // 口コミ記入時の索引
@@ -102,6 +101,36 @@ router.get('/getRandomBytes', (req, res)=>{
   res.status(200).json({nonceObject})
 })
 
+// crypto生成
+router.post('/getCrypto', (req, res)=>{
+  console.log('crypto function called')
+  const { deviceId, nonce, timestamp } = req.body
 
+  if(!deviceId || !nonce || !timestamp) {
+    return res.status(400).json({ error: "Invalid request" });
+  }
+
+  // nonceがArrayに無い、もしくは有効期限切れの場合
+  const nonceArray = getNonceArray()
+  if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+    console.log("Invalid or expired nonce")
+    return res.status(400).json({ error: "Invalid or expired nonce" })
+  }
+
+  // timestampが5分を過ぎていた場合
+  if(Number(timestamp) + 1000 * 60 * 5 < new Date().getTime()){
+    console.log("timestamp expired")
+    return res.status(400).json({ error: "timestamp expired" })
+  }
+
+  // 正しい署名を作成
+  const cryptoToken = crypto.randomBytes(32).toString("base64")
+  const cryptoObject = {
+    cryptoToken,
+    iat: new Date().getTime()
+  }
+  addCrypto(cryptoObject)
+  res.status(200).json({cryptoToken})
+})
 
 module.exports = router

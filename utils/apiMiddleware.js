@@ -1,11 +1,9 @@
+const jwt = require("jsonwebtoken")
+const crypto = require("crypto")
 const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
-const jwt = require("jsonwebtoken")
 const { getNonceArray } = require("../utils/nonceArray")
-const { isValid, addSignature } = require("../utils/signatureArray")
-const crypto = require("crypto")
-const axios = require("axios")
-const { google } = require('googleapis')
+const { getCryptoArray } = require("../utils/cryptoArray")
 
 function validate(Schema, req, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -32,12 +30,10 @@ module.exports.validatePenName = (req, res, next)=>{
 module.exports.validatePromotion = (req, res, next)=>{
     validate(apiSchemas.promotionSchema, req, next)
 }
-
 // review, response
 module.exports.validateReviews = (req, res, next)=>{
     validate(apiSchemas.reviewSchema, req, next)
 }
-
 // other
 module.exports.validateMessages = (req, res, next)=>{
     validate(apiSchemas.messageSchema, req, next)
@@ -48,7 +44,6 @@ module.exports.validateForms = (req, res, next)=>{
 module.exports.validateFeedbackForms = (req, res, next)=>{
     validate(apiSchemas.feedbackSchema, req, next)
 }
-
 // talkingRoom
 module.exports.validateTalkTheme = (req, res, next) => {
     validate(apiSchemas.talkThemeSchema, req, next)
@@ -89,122 +84,59 @@ module.exports.originalSecurity = async (req, res, next) => {
 }
 
 // google-play-integrity-api 
-module.exports.googlePlayIntegrityApi = async (req, res, next) => {
-  const nonce = req.headers["nonce"]
-  const timestamp = parseInt(req.headers["timestamp"]) !== 1800000000000 ? parseInt(req.headers["timestamp"]) : process.env.TIMESTAMP
-  const deviceId = req.headers["deviceid"]
-  const integrityToken = req.headers["integritytoken"]
-  const signature = req.headers["signature"]
-
-  console.log("nonce: ", nonce)
-  console.log("timestamp: ", timestamp)
-  console.log("deviceId: ", deviceId)
-  console.log("integrityToken: ", integrityToken)
-  console.log("signature: ", signature)
-
-  if ( !nonce || !timestamp || !deviceId || !integrityToken || !signature ) {
-    console.log('情報が不足しています')
-    return res.status(400).json({ error: '情報が不足しています' })
-  }
-
-  // 開発環境ならスルー
-  if(
-    deviceId === process.env.DEVICE_ID &&
-    nonce === 'thisIsTestNonce' &&
-    timestamp === process.env.TIMESTAMP &&
-    integrityToken === "thisIsTestIntegrityToken" &&
-    signature === "thisIsTestSignature"
-  ) {
-    console.log('開発環境のためintegrityAPIはスルー')
-    return next()
-  }
-
-  // nonceがArrayに無い、もしくは有効期限切れの場合
-  const nonceArray = getNonceArray()
-  if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-    console.log("Invalid or expired nonce")
-    return res.status(400).json({ error: "Invalid or expired nonce" })
-  }
-
-  // timestampが5分を過ぎていた場合
-  if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
-    console.log("timestamp expired")
-    return res.status(400).json({ error: "timestamp expired" })
-  }
-
-  // 署名が一致しない場合は403エラー
-  const expectedSignature = crypto
-    .createHmac("sha256", deviceId)
-    .update(`${nonce}:${timestamp}:${integrityToken}`)
-    .digest("hex")
-  if (signature !== expectedSignature) {
-    console.log("Invalid signature")
-    return res.status(403).json({ error: "Invalid signature" })
-  }
-
-  if(isValid(signature)){
-    console.log("キャッシュ利用")
-    return next()
-  }
-
+module.exports.checkIntegrity = async (req, res, next) => {
   try {
-    console.log('here')
-    const credentialJSON = process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS.replace(' ', '').replace(/\n/g, '\\n')
-    console.log(credentialJSON)
-    console.log(typeof(credentialJSON))
-    const parseCredentialJSON = JSON.parse(credentialJSON)
-    console.log(parseCredentialJSON)
-    console.log(typeof(parseCredentialJSON))
-    const packageName = process.env.PACKAGE_NAME
-    const credentials = JSON.parse(process.env.GOOGLE_CLOUD_SERVICE_ACCOUNT_CREDENTIALS)
-    credentials.private_key = credentials.private_key.replace(/\\n/g, '\n')
-    
-    console.log("credentials: ", credentials)
-    console.log(typeof(credentials))
+    const nonce = req.headers["nonce"]
+    const timestamp = parseInt(req.headers["timestamp"])
+    const deviceId = req.headers["deviceid"]
+    const cryptoToken = req.headers["cryptotoken"]
+    const signature = req.headers["signature"]
 
-    // サービスアカウントの認証情報を設定
-    const playintegrity = google.playintegrity('v1')
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/playintegrity'],
-    })
-    console.log("auth: ", auth)
+    console.log("nonce: ", nonce)
+    console.log("timestamp: ", timestamp)
+    console.log("deviceId: ", deviceId)
+    console.log("cryptoToken: ", cryptoToken)
+    console.log("signature: ", signature)
 
-    const client = await auth.getClient()
-    google.options({ auth: client })
+    if ( !nonce || !timestamp || !deviceId || !cryptoToken || !signature ) {
+      console.log('情報が不足しています')
+      return res.status(400).json({ error: '情報が不足しています' })
+    }
 
-    console.log("client: ", client)
+    // nonceがArrayに無い、もしくは有効期限切れの場合
+    const nonceArray = getNonceArray()
+    if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+      console.log("Invalid or expired nonce")
+      return res.status(400).json({ error: "Invalid or expired nonce" })
+    }
 
-    const res = await playintegrity.v1.decodeIntegrityToken({
-      packageName,
-      requestBody: { integrityToken }
-    })
+    // timestampが5分を過ぎていた場合
+    if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
+      console.log("timestamp expired")
+      return res.status(400).json({ error: "timestamp expired" })
+    }
 
-    console.log(res.data)
+    // cryptoTokenが無い、もしくは有効期限切れの場合
+    const cryptoArray = getCryptoArray()
+    if(!cryptoArray.some(item => item.crypto === crypto && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+      console.log("Invalid or expired crypto")
+      return res.status(400).json({ error: "Invalid or expired crypto" })
+    }
 
-    // const integrityJSON = JSON.parse((await axios.post(
-    //   `https://playintegrity.googleapis.com/v1/validateIntegrityToken?key=${process.env.PLAY_INTEGRITY_API_KEY}`, 
-    //   { integrityToken }
-    // )).data)
-    // console.log(integrityJSON)
-    // if(
-    //   integrityJSON.requestDetails.requestPackageName !== process.env.PACKAGE_NAME || 
-    //   !nonceArray.some(item => item.nonce === integrityJSON.requestDetails.nonce && item.iat + 1000 * 60 * 5 > integrityJSON.requestDetails.timestampMillis) ||
-    //   integrityJSON.appIntegrity.appRecognitionVerdict !== "PLAY_RECOGNIZED" ||
-    //   integrityJSON.appIntegrity.packageName !== process.env.PACKAGE_NAME ||
-    //   integrityJSON.deviceIntegrity.recentDeviceActivity.deviceActivityLevel === "LEVEL_3" ||
-    //   integrityJSON.accountDetails.appLicensingVerdict !== "LICENSED" ||
-    //   integrityJSON.environmentDetails?.appAccessRiskVerdict?.appsDetected?.includes("UNKNOWN_CAPTURING")
-    // ){
-    //   console.log("想定外環境からの利用です。")
-    //   return res.status(403).json({ error: "想定外環境からの利用と判断しました。" })
-    // }
+    // 署名が一致しない場合は403エラー
+    const expectedSignature = crypto
+      .createHmac("sha256", deviceId)
+      .update(`${nonce}:${timestamp}:${cryptoToken}`)
+      .digest("hex")
+    if (signature !== expectedSignature) {
+      console.log("Invalid signature")
+      return res.status(403).json({ error: "Invalid signature" })
+    }
 
-    addSignature({ signature, iat: new Date().getTime() })
     next()
 
   } catch (error) {
-    console.error('APIエラー:', error)
+    console.error('整合性エラー:', error)
     res.status(500).json({ error: error.message || 'Internal Server Error' })
   }
 }

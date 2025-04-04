@@ -1,5 +1,6 @@
 const BaseJoi = require('joi')
 const sanitizeHtml = require('sanitize-html')
+const user = require('./models/user')
 
 const extention = (joi) =>({
   type: 'string',
@@ -36,10 +37,10 @@ module.exports.userLoginSchema = Joi.object({
   password: Joi.string().required().escapeHTML()
 }).required()
 module.exports.penNameSchema = Joi.object({
-  penName: Joi.string().required().escapeHTML()
+  penNameInput: Joi.string().required().escapeHTML()
 })
 module.exports.promotionSchema = Joi.object({
-  promotion: Joi.string().required().escapeHTML()
+  promotionInput: Joi.string().required().escapeHTML()
 })
 
 //review, response
@@ -48,7 +49,8 @@ module.exports.reviewSchema = Joi.object({
   diseaseNames: Joi.string().required().escapeHTML(),
   treatmentTiming: Joi.string().required().escapeHTML(),
   comment: Joi.string().required().escapeHTML(),
-  url: Joi.string().allow('').uri()
+  url: Joi.string().allow('').uri(),
+  user: Joi.object().required(),
 }).required()
 
 // other
@@ -56,7 +58,8 @@ module.exports.messageSchema = Joi.object({
   content: Joi.string().required().escapeHTML()
 }).required()
 module.exports.formSchema = Joi.object({
-  formContent: Joi.string().required().escapeHTML()
+  formContent: Joi.string().required().escapeHTML(),
+  author: Joi.object().required(),
 }).required()
 module.exports.feedbackSchema = Joi.object({
   feedbackContent: Joi.string().required().escapeHTML()
@@ -64,10 +67,16 @@ module.exports.feedbackSchema = Joi.object({
 
 // talkingRoom
 module.exports.talkThemeSchema = Joi.object({
-  title: Joi.string().escapeHTML(),
-  detail: Joi.string().escapeHTML(),
+  title: Joi.string().required().escapeHTML(),
+  detailNoSpace: Joi.string().required().escapeHTML(),
+  user: Joi.object().required()
+}).required()
+module.exports.editTalkThemeSchema = Joi.object({
+  talkThemeEdit: Joi.string().required().escapeHTML(),
+  detailEdit: Joi.string().required().escapeHTML()
 }).required()
 module.exports.talkSchema = Joi.object({
-  content: Joi.string().escapeHTML(),
+  reviewText: Joi.string().required().escapeHTML(),
+  user: Joi.object().required()
 }).required()
 

@@ -49,7 +49,7 @@ module.exports.reviewSchema = Joi.object({
   diseaseNames: Joi.string().required().escapeHTML(),
   treatmentTiming: Joi.string().required().escapeHTML(),
   comment: Joi.string().required().escapeHTML(),
-  url: Joi.string().allow('').uri(),
+  url: Joi.string().uri().allow('').optional(),
   user: Joi.object().required(),
 }).required()
 

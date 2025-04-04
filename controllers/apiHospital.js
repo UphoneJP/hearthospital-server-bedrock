@@ -42,7 +42,6 @@ module.exports.createReview = async (req, res)=>{
     }
 
     let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
-    console.log('user:', user)
     if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user || !user._id ){
       return res.status(403).json({message: '必要な情報が不足しています'})
     }

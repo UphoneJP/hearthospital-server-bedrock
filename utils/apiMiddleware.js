@@ -118,7 +118,7 @@ module.exports.checkIntegrity = async (req, res, next) => {
 
     // cryptoTokenが無い、もしくは有効期限切れの場合
     const cryptoArray = getCryptoArray()
-    if(!cryptoArray.some(item => item.crypto === crypto && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+    if(!cryptoArray.some(item => item.cryptoToken === cryptoToken && item.iat + 1000 * 60 * 5 > new Date().getTime())){
       console.log("Invalid or expired crypto")
       return res.status(400).json({ error: "Invalid or expired crypto" })
     }

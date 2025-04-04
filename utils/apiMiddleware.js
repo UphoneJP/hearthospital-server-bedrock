@@ -5,7 +5,7 @@ const BadUser = require("../models/badUser")
 const { getNonceArray } = require("../utils/nonceArray")
 const { getCryptoArray } = require("../utils/cryptoArray")
 
-function validate(Schema, req, next) {
+function validate(Schema, req, res, next) {
   const {error} = Schema.validate(req.body) || {}
   if(error){
     const msg = error.details.map(detail => detail.message).join(',')
@@ -16,40 +16,40 @@ function validate(Schema, req, next) {
 }
 // user
 module.exports.validateEmail = (req, res, next)=>{
-    validate(apiSchemas.emailSchema, req, next)
+    validate(apiSchemas.emailSchema, req, res, next)
 }
 module.exports.validateUserRegister = (req, res, next)=>{
-    validate(apiSchemas.userRegisterSchema, req, next)
+    validate(apiSchemas.userRegisterSchema, req, res, next)
 }
 module.exports.validateUserLogin = (req, res, next)=>{
-    validate(apiSchemas.userLoginSchema, req, next)
+    validate(apiSchemas.userLoginSchema, req, res, next)
 }
 module.exports.validatePenName = (req, res, next)=>{
-    validate(apiSchemas.penNameSchema, req, next)
+    validate(apiSchemas.penNameSchema, req, res, next)
 }
 module.exports.validatePromotion = (req, res, next)=>{
-    validate(apiSchemas.promotionSchema, req, next)
+    validate(apiSchemas.promotionSchema, req, res, next)
 }
 // review, response
 module.exports.validateReviews = (req, res, next)=>{
-    validate(apiSchemas.reviewSchema, req, next)
+    validate(apiSchemas.reviewSchema, req, res, next)
 }
 // other
 module.exports.validateMessages = (req, res, next)=>{
-    validate(apiSchemas.messageSchema, req, next)
+    validate(apiSchemas.messageSchema, req, res, next)
 }
 module.exports.validateForms = (req, res, next)=>{
-    validate(apiSchemas.formSchema, req, next)
+    validate(apiSchemas.formSchema, req, res, next)
 }
 module.exports.validateFeedbackForms = (req, res, next)=>{
-    validate(apiSchemas.feedbackSchema, req, next)
+    validate(apiSchemas.feedbackSchema, req, res, next)
 }
 // talkingRoom
 module.exports.validateTalkTheme = (req, res, next) => {
-    validate(apiSchemas.talkThemeSchema, req, next)
+    validate(apiSchemas.talkThemeSchema, req, res, next)
 }
 module.exports.validateTalk = (req, res, next) => {
-    validate(apiSchemas.talkSchema, req, next)
+    validate(apiSchemas.talkSchema, req, res, next)
 }
 
 module.exports.originalSecurity = async (req, res, next) => {

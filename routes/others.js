@@ -90,7 +90,6 @@ router.post('/firstLaunch', async (req, res) => {
 
 // nonce生成
 router.get('/getRandomBytes', (req, res)=>{
-  console.log('nonce function called')
   const randomBytes = crypto.randomBytes(16)
   const nonce = Buffer.from(randomBytes).toString("base64")
   const nonceObject = {
@@ -103,7 +102,6 @@ router.get('/getRandomBytes', (req, res)=>{
 
 // crypto生成
 router.post('/getCrypto', (req, res)=>{
-  console.log('crypto function called')
   const { deviceId, nonce, timestamp } = req.body
 
   if(!deviceId || !nonce || !timestamp) {

@@ -43,6 +43,8 @@ module.exports.createReview = async (req, res)=>{
 
     let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
     if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user || !user._id ){
+      console.log('必要な情報が不足しています')
+      console.log(title, diseaseNames, url, treatmentTiming, comment, user)
       return res.status(403).json({message: '必要な情報が不足しています'})
     }
     function formatCurrentDate() {

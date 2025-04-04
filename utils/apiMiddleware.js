@@ -49,6 +49,9 @@ module.exports.validateFeedbackForms = (req, res, next)=>{
 module.exports.validateTalkTheme = (req, res, next) => {
     validate(apiSchemas.talkThemeSchema, req, res, next)
 }
+module.exports.validateEditTalkTheme = (req, res, next) => {
+    validate(apiSchemas.editTalkThemeSchema, req, res, next)
+}
 module.exports.validateTalk = (req, res, next) => {
     validate(apiSchemas.talkSchema, req, res, next)
 }

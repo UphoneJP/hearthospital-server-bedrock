@@ -38,12 +38,13 @@ module.exports.createReview = async (req, res)=>{
     const { id } = req.params
     const hospital = await Hospital.findById(id)
     if (!hospital) {
-      res.status(404).json({message: 'hospitalが見つかりません'})
+      return res.status(404).json({message: 'hospitalが見つかりません'})
     }
 
     let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
-    if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user ){
-      res.status(403).json({message: '必要な情報が不足しています'})
+    console.log('user:', user)
+    if( !title || !diseaseNames || !url || !treatmentTiming || !comment || !user || !user._id ){
+      return res.status(403).json({message: '必要な情報が不足しています'})
     }
     function formatCurrentDate() {
       const date = new Date();
@@ -77,9 +78,10 @@ module.exports.createReview = async (req, res)=>{
     DBuser.reviews.push(review)
     await DBuser.save()
 
-    res.status(200).json({message: '投稿しました'})
-  } catch {
-    res.status(400).json({message: '投稿できませんでした'})
+    return res.status(200).json({message: '投稿しました'})
+  } catch(e) {
+    console.log('createReview関数のエラー: ', e)
+    return res.status(400).json({message: '投稿できませんでした'})
   }
 }
 

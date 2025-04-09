@@ -18,10 +18,10 @@ module.exports.form = async (req, res) => {
       content: formContent
     })
     await newMessage.save();
-    res.status(200).json({message: 'フォームを送信しました'});
+    return res.status(200).json({message: 'フォームを送信しました'});
   } catch(err) {
     console.log('フォームを保存できませんでした', err)
-    res.status(400).json({message: 'フォームを保存できませんでした'})
+    return res.status(400).json({message: 'フォームを保存できませんでした'})
   }
 }
 
@@ -30,10 +30,10 @@ module.exports.feedback = async(req, res)=>{
     const { feedbackContent } = req.body
     const feedback = new Feedback({feedbackContent})
     await feedback.save()
-    res.status(200).json({message: 'フィードバックを送信しました'})
+    return res.status(200).json({message: 'フィードバックを送信しました'})
   } catch (err){
     console.log('フィードバックを保存できませんでした', err)
-    res.status(400).json({message: 'フィードバックを保存できませんでした'})
+    return res.status(400).json({message: 'フィードバックを保存できませんでした'})
   }
 }
 
@@ -69,13 +69,13 @@ module.exports.chatBox = async(req, res)=>{
       .filter(person=>person._id.toString() !== user._id.toString())
       .map((person)=>({_id: person._id, penName: person.penName||person.username}))
     
-    res.status(200).json({ 
+    return res.status(200).json({ 
       contactPersons: contactPersonsData,
       usersExceptContactPersons 
     })
   } catch(err) {
     console.log('連絡相手を取得できませんでした', err)
-    res.status(401).json({message: '連絡相手を取得できませんでした'})
+    return res.status(401).json({message: '連絡相手を取得できませんでした'})
   }
 }
 
@@ -83,9 +83,9 @@ module.exports.recieverName = async (req, res)=>{
   const { id } = req.params
   const reciever = await User.findById(id)
   if(reciever){
-    res.status(200).json({penName: reciever.penName || reciever.username})
+    return res.status(200).json({penName: reciever.penName || reciever.username})
   } else {
-    res.status(404).json({message: 'receiverが見つかりません'})
+    return res.status(404).json({message: 'receiverが見つかりません'})
   }
 }
 
@@ -95,12 +95,12 @@ module.exports.getMessages = async(req,res)=>{
     const sender = await User.findById(senderId);
     if(!sender || sender.isDeleted){
       console.log('senderが見つかりません')
-      res.status(404).json({message: 'senderが見つかりません'});
+      return res.status(404).json({message: 'senderが見つかりません'});
     }
     const reciever = await User.findById(recieverId);
     if(!reciever || reciever.isDeleted){
       console.log('recieverが見つかりません')
-      res.status(404).json({message: 'recieverが見つかりません'});
+      return res.status(404).json({message: 'recieverが見つかりません'});
     }
     const senderMessages = await Message.find({sender, reciever}).populate('sender').populate('reciever');
     const recieverMessages = await Message.find({sender:reciever, reciever:sender}).populate('sender').populate('reciever');
@@ -119,12 +119,12 @@ module.exports.getMessages = async(req,res)=>{
       }
       messagesData.push(messageData);
     })
-    res.status(200).json({
+    return res.status(200).json({
       messages: messagesData
     })
   } catch(err) {
     console.log('メッセージを取得できませんでした', err)
-    res.status(401).json({message: 'メッセージを取得できませんでした'})
+    return res.status(401).json({message: 'メッセージを取得できませんでした'})
   }
 }
 
@@ -133,10 +133,10 @@ module.exports.othersPage = async (req, res) => {
     const { id } = req.body
     const other = await User.findById(id).populate('reviews')
     if(!other){
-      res.status(404).json({})
+      return res.status(404).json({})
     }
-    res.status(200).json({other})
+    return res.status(200).json({other})
   } catch {
-    res.status(400).json({message: '相手の情報を取得できませんでした'})
+    return res.status(400).json({message: '相手の情報を取得できませんでした'})
   }
 }

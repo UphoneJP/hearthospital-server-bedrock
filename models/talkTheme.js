@@ -29,10 +29,4 @@ const talkThemeSchema = new Schema({
   }
 })
 
-talkThemeSchema.post('deleteOne', async function(talkTheme) {
-  if (talkTheme.talks && talkTheme.talks.length > 0) {
-    await Talk.deleteMany({ _id: { $in: talkTheme.talks } })
-  }
-})
-
 module.exports = mongoose.model('TalkTheme', talkThemeSchema)

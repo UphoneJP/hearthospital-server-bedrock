@@ -6,9 +6,9 @@ const Response = require('../models/response')
 module.exports.getReviews = async (req, res) => {
   const reviews = await Review.find({ownerCheck:true}).populate('hospital').populate('author')
   if(!reviews){
-    res.status(404).json({message:'reviewsが見つかりません'})
+    return res.status(404).json({message:'reviewsが見つかりません'})
   }
-  res.status(200).json({reviews})
+  return res.status(200).json({reviews})
 }
 
 module.exports.aboutHospital = async (req, res)=>{
@@ -28,9 +28,9 @@ module.exports.aboutHospital = async (req, res)=>{
       }]
   })
   if(!hospital){
-    res.status(404).json({message:'hospitalが見つかりません'})
+    return res.status(404).json({message:'hospitalが見つかりません'})
   }
-  res.status(200).json({hospital})
+  return res.status(200).json({hospital})
 }
 
 module.exports.createReview = async (req, res)=>{
@@ -104,17 +104,17 @@ module.exports.deleteReview = async(req, res)=>{
       }]
   })
   if (!hospital) {
-    res.status(404).json({message: 'hospitalが取得できませんでした'})
+    return res.status(404).json({message: 'hospitalが取得できませんでした'})
   }
 
   const review = await Review.findById(reviewid)
   if (!review) {
-    res.status(404).json({message: 'reviewが取得できませんでした'})
+    return res.status(404).json({message: 'reviewが取得できませんでした'})
   }
 
   const author = await User.findById(review.author);
   if(!author || !user || user !== author){
-    res.status(401).json({message: '削除権限がありません'})
+    return res.status(401).json({message: '削除権限がありません'})
   }
   
   hospital.reviews = hospital.reviews.filter(review => review._id.toString() !== reviewid)
@@ -138,14 +138,14 @@ module.exports.deleteReview = async(req, res)=>{
 
   const reviews = await Review.find({ownerCheck:true}).populate('hospital').populate('author')
 
-  res.status(200).json({hospital, reviews})
+  return res.status(200).json({hospital, reviews})
 }
 
 module.exports.getHospitals = async (req, res) => {
   const hospitals = await Hospital.find({})
     .populate('reviews')
   if(!hospitals){
-    res.status(404).json({message:'hospitalsが見つかりません'})
+    return res.status(404).json({message:'hospitalsが見つかりません'})
   }
   const areas = [
     '北海道・東北地方',
@@ -155,6 +155,6 @@ module.exports.getHospitals = async (req, res) => {
     '中国・四国地方',
     '九州・沖縄地方'
   ]
-  res.status(200).json({hospitals,areas})
+  return res.status(200).json({hospitals,areas})
 }
 

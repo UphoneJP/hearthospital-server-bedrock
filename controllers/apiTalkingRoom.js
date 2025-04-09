@@ -5,9 +5,9 @@ const User = require('../models/user')
 module.exports.talkThemesList = async(req, res)=>{
   try{
     const talkThemes = await TalkTheme.find({})
-    res.status(200).json({talkThemes})
+    return res.status(200).json({talkThemes})
   } catch {
-    res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({message: 'エラーが発生しました'})
   }
 }
 
@@ -27,9 +27,9 @@ module.exports.eachTheme = async(req, res)=> {
     }
     talkTheme.accessCount += 1
     await talkTheme.save()
-    res.status(200).json({talkTheme})
+    return res.status(200).json({talkTheme})
   } catch {
-    res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({message: 'エラーが発生しました'})
   }
 }
 
@@ -37,7 +37,7 @@ module.exports.createNewTalkTheme = async(req, res)=> {
   try {
     const {title, detailNoSpace, user} = req.body
     if( !title || !detailNoSpace || !user ){
-      res.status(403).json({message: '必要情報が不足しています'})
+      return res.status(403).json({message: '必要情報が不足しています'})
     }
     const talkTheme = new TalkTheme({
       author: user,
@@ -47,9 +47,9 @@ module.exports.createNewTalkTheme = async(req, res)=> {
       touchAt: new Date()
     })
     await talkTheme.save()
-    res.status(200).json({})
+    return res.status(200).json({})
   } catch {
-    res.status(400).json({message: 'トークテーマを作れませんでした'})
+    return res.status(400).json({message: 'トークテーマを作れませんでした'})
   }
 }
 
@@ -58,15 +58,15 @@ module.exports.createNewTalk = async(req, res)=> {
     const {id} = req.params
     const talkTheme = await TalkTheme.findById(id)
     if(!talkTheme){
-      res.status(404).json({message: 'talkThemeが見つかりません'})
+      return res.status(404).json({message: 'talkThemeが見つかりません'})
     }
     const {reviewText, user} = req.body
     if(!reviewText || !user){
-      res.status(404).json({message: '必要な情報が不足しています'})
+      return res.status(404).json({message: '必要な情報が不足しています'})
     }
     const DBuser = await User.findById(user._id)
     if(!DBuser) {
-      res.status(404).json({message: 'userが見つかりません'})
+      return res.status(404).json({message: 'userが見つかりません'})
     }
     
     const newTalk = new Talk({
@@ -87,9 +87,9 @@ module.exports.createNewTalk = async(req, res)=> {
       })
       await DBuser.save()
     }
-    res.status(200).json({DBuser})
+    return res.status(200).json({DBuser})
   } catch {
-    res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({message: 'エラーが発生しました'})
   }
 }
 
@@ -97,14 +97,14 @@ module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
   const {talkThemeEdit, detailEdit} = req.body
   if( !talkThemeEdit || !detailEdit){
-    res.status(404).json({message: '必要な情報が不足しています'})
+    return res.status(404).json({message: '必要な情報が不足しています'})
   }
   const talkTheme = await TalkTheme.findByIdAndUpdate(id, {
     title: talkThemeEdit.trim(), 
     detail: detailEdit.trim()
   })
   if(!talkTheme){
-    res.status(404).json({message: 'talkThemeが見つかりません'})
+    return res.status(404).json({message: 'talkThemeが見つかりません'})
   }
   res.status(200).json({})
 }
@@ -113,15 +113,16 @@ module.exports.deleteTalkTheme = async(req, res)=> {
   const { id } = req.params
   const { user } = req.body
   
-  const talkTheme = await TalkTheme.findById(id).populate('author')
+  const talkTheme = await TalkTheme.findById(id)
   if (!talkTheme) {
-    res.status(404).json({ message: 'talkThemeが見つかりません' })
+    return res.status(404).json({ message: 'talkThemeが見つかりません' })
   }
-  if(!user || user._id !== talkTheme.author._id){
-    res.status(403).json({ message: '削除権限がありません' })
+  console.log(user, talkTheme.author, !user.equals(talkTheme.author))
+  if(!user || !user.equals(talkTheme.author)){
+    return res.status(403).json({ message: '削除権限がありません' })
   }
   await talkTheme.deleteOne()
-  res.status(200).json({})
+  return res.status(200).json({})
 }
 
 module.exports.deleteTalk = async(req, res)=> {
@@ -130,12 +131,12 @@ module.exports.deleteTalk = async(req, res)=> {
     const { user } = req.body
     const talk = await Talk.findById(talkId).populate('loggedInUser')
     if(!user || user._id !== talk.loggedInUser._id){
-      res.status(403).json({message: '削除権限がありません'})
+      return res.status(403).json({message: '削除権限がありません'})
     }
     talk.deleted = true
     await talk.save()
-    res.status(200).json({})
+    return res.status(200).json({})
   } catch {
-    res.status(400).json({message: 'トークを削除できませんでした'})
+    return res.status(400).json({message: 'トークを削除できませんでした'})
   }
 }

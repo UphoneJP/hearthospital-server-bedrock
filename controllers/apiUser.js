@@ -35,14 +35,14 @@ module.exports.checkEmail = async (req, res) => {
   try {
     const {email} = req.body
     if(!email){
-      res.status(400).json({message: 'emailが取得できませんでした'})
+      return res.status(400).json({message: 'emailが取得できませんでした'})
     }
     const nums = random6numbers()
     const expire10min = Date.now() + 1000 * 60 * 10
     await autoSender(email, nums)
-    res.status(200).json({nums, expire10min})
+    return res.status(200).json({nums, expire10min})
   } catch {
-    res.status(400).json({message: '認証メールが送信できませんでした'})
+    return res.status(400).json({message: '認証メールが送信できませんでした'})
   }
 }
 
@@ -54,19 +54,19 @@ module.exports.register = async (req, res) => {
   const user = new User({ penName, email })
   try {
     await User.register(user, password)
-    res.status(201).json({ 
+    return res.status(201).json({ 
       message: "User registered successfully",
       success: true
     })
   } catch {
-    res.status(500).json({ message: "Error creating user" })
+    return res.status(500).json({ message: "Error creating user" })
   }
 }
 
 module.exports.localLogin = async (req, res) => {
   const { email, password } = req.body
   if( !email || !password ){
-    res.status(400).json({message: 'emailとpasswordは必須です'})
+    return res.status(400).json({message: 'emailとpasswordは必須です'})
   }
   try  {
     const user = await User.findOne({email})
@@ -86,10 +86,10 @@ module.exports.localLogin = async (req, res) => {
       refreshToken
     })
     await newRefreshToken.save()
-    res.json({ accessToken, refreshToken, user })
+    return res.json({ accessToken, refreshToken, user })
   } catch (err) {
     console.error(err)
-    res.status(500).json({ message: "Internal server error" })
+    return res.status(500).json({ message: "Internal server error" })
   }
 }
 
@@ -120,21 +120,21 @@ module.exports.googleLogin = async (req, res) => {
       refreshToken: JWTrefreshToken
     })
     await newRefreshToken.save()
-    res.json({ 
+    return res.status(200).json({ 
       user, 
       accessToken: JWTaccessToken, 
       refreshToken: JWTrefreshToken 
     })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: "Googleログインエラー" })
+    return res.status(500).json({ error: "Googleログインエラー" })
   }
 }
 
 module.exports.appleLogin = async (req, res) => {
   const { username, email, appleId } = req.body
   if( !username || !email || !appleId ){
-    res.status(400).json({message: '必要情報が不足しています'})
+    return res.status(400).json({message: '必要情報が不足しています'})
   }
   try {
     let user = await User.findOne({ appleId })
@@ -154,14 +154,14 @@ module.exports.appleLogin = async (req, res) => {
       refreshToken: JWTrefreshToken
     })
     await newRefreshToken.save()
-    res.json({ 
+    return res.json({ 
       user, 
       accessToken: JWTaccessToken, 
       refreshToken: JWTrefreshToken 
     })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: "Appleログインエラー" })
+    return res.status(500).json({ error: "Appleログインエラー" })
   }
 }
 
@@ -213,18 +213,18 @@ module.exports.notifyTrue = async (req, res)=> {
   const {id} = req.params
   const user = await User.findByIdAndUpdate(id, {notify: true})
   if(!user || user.isDeleted){
-    res.status(401).json({success: false})
+    return res.status(401).json({success: false})
   }
-  res.status(200).json({success: true})
+  return res.status(200).json({success: true})
 }
 
 module.exports.notifyFalse = async (req, res)=> {
   const {id} = req.params
   const user = await User.findByIdAndUpdate(id, {notify: false})
   if(!user || user.isDeleted){
-    res.status(401).json({success: false})
+    return res.status(401).json({success: false})
   }
-  res.status(200).json({success: true})
+  return res.status(200).json({success: true})
 }
 
 module.exports.penName = async(req, res)=>{
@@ -233,11 +233,11 @@ module.exports.penName = async(req, res)=>{
   if(penNameInput.trim()){
     const user = await User.findByIdAndUpdate(id, { penName: penNameInput, username: '' }, { new: true })
     if(!user){
-      res.status(401).json({message: "ユーザーが見つかりません"})
+      return res.status(401).json({message: "ユーザーが見つかりません"})
     }
-    res.status(200).json({user})
+    return res.status(200).json({user})
   } else {
-    res.status(401).json({message: 'ペンネームの入力が空欄です'})
+    return res.status(401).json({message: 'ペンネームの入力が空欄です'})
   }
 }
 
@@ -246,9 +246,9 @@ module.exports.promotion = async(req, res)=>{
   const {promotionInput} = req.body
   const user = await User.findByIdAndUpdate(id, { promotion: promotionInput }, { new: true })
   if(!user){
-    res.status(401).json({message: "ユーザーが見つかりません"})
+    return res.status(401).json({message: "ユーザーが見つかりません"})
   }
-  res.status(200).json({user})
+  return res.status(200).json({user})
 }
 
 module.exports.accountDelete = (req, res) => {
@@ -257,7 +257,7 @@ module.exports.accountDelete = (req, res) => {
   .then(()=>{
     RefreshToken.findOneAndDelete({userId: id})
     .then(()=>{
-      res.json({delete: true})
+      return res.json({delete: true})
     })
     .catch((e)=>{
       console.log('リフレッシュトークンを削除できませんでした', e)
@@ -265,7 +265,7 @@ module.exports.accountDelete = (req, res) => {
   })
   .catch((e)=>{
     console.log('userが見つかりません', e)
-    res.json({delete: false})
+    return res.json({delete: false})
   })  
 }
 
@@ -277,12 +277,12 @@ module.exports.resetPassword = async (req, res) => {
       isDeleted: false
     })
     if(!user){
-      res.status(404).json({message: 'ユーザーが見つかりません'})
+      return res.status(404).json({message: 'ユーザーが見つかりません'})
     }
     await user.setPassword(password)
-    res.status(200).json({})
+    return res.status(200).json({})
   } catch {
-    res.status(400).json({message: 'パスワードの再設定に失敗しました'})
+    return res.status(400).json({message: 'パスワードの再設定に失敗しました'})
   }
 }
 
@@ -299,9 +299,9 @@ module.exports.earningPoint = async (req, res) => {
     user.points.push(point)
     user.timeOfGotPoint = new Date()
     await user.save()
-    res.status(200).json({user})
+    return res.status(200).json({user})
   } catch {
-    res.status(400).json({message: 'ポイントを追加できませんでした'})
+    return res.status(400).json({message: 'ポイントを追加できませんでした'})
   }
 }
 
@@ -325,8 +325,8 @@ module.exports.usingPoints = async (req, res) => {
       requestedAt: new Date()
     })
     await giftRequest.save()
-    res.status(200).json({user})
+    return res.status(200).json({user})
   } catch {
-    res.status(400).json({message: '交換処理ができませんでした。'})
+    return res.status(400).json({message: '交換処理ができませんでした。'})
   }
 }

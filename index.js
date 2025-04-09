@@ -118,7 +118,6 @@ app.use((req, res, next)=>{
         } else {
           user = await User.findOneAndUpdate({googleId: profile.id}, {
             googleId: profile.id,
-            username: profile.displayName,
             email: profile.emails[0].value,
           })
         }

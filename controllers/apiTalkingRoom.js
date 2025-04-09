@@ -117,8 +117,8 @@ module.exports.deleteTalkTheme = async(req, res)=> {
   if (!talkTheme) {
     return res.status(404).json({ message: 'talkThemeが見つかりません' })
   }
-  console.log(user, talkTheme.author, !user.equals(talkTheme.author))
-  if(!user || !user.equals(talkTheme.author)){
+  console.log(user, talkTheme.author, !talkTheme.author.equals(user._id))
+  if(!user || !talkTheme.author.equals(user._id)){
     return res.status(403).json({ message: '削除権限がありません' })
   }
   await talkTheme.deleteOne()

@@ -102,9 +102,7 @@ module.exports.createNewTalk = async(req, res)=> {
 
 module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
-  const {talkThemeEdit, detailEdit} = req.body
-  const title = talkThemeEdit.trim()
-  const detail = detailEdit.trim()
+  const {title, detail} = req.body
   if( !title || !detail ){
     return res.status(404).json({message: '必要な情報が不足しています'})
   }

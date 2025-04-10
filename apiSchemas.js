@@ -72,8 +72,8 @@ module.exports.talkThemeSchema = Joi.object({
   userId: Joi.string().required()
 }).required()
 module.exports.editTalkThemeSchema = Joi.object({
-  talkThemeEdit: Joi.string().required().escapeHTML(),
-  detailEdit: Joi.string().required().escapeHTML()
+  title: Joi.string().required().escapeHTML(),
+  detail: Joi.string().required().escapeHTML()
 }).required()
 module.exports.talkSchema = Joi.object({
   reviewText: Joi.string().required().escapeHTML(),

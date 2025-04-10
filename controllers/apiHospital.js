@@ -41,8 +41,8 @@ module.exports.createReview = async (req, res)=>{
       return res.status(404).json({message: 'hospitalが見つかりません'})
     }
 
-    let { title, diseaseNames, url, treatmentTiming, comment, user } = req.body
-    if( !title || !diseaseNames || !treatmentTiming || !comment || !user || !user._id ){
+    let { title, diseaseNames, url, treatmentTiming, comment, userId } = req.body
+    if( !title || !diseaseNames || !treatmentTiming || !comment || !userId ){
       console.log('必要な情報が不足しています')
       return res.status(403).json({message: '必要な情報が不足しています'})
     }
@@ -65,7 +65,7 @@ module.exports.createReview = async (req, res)=>{
       treatmentTiming,
       comment,
       url: url || null,
-      author: user._id,
+      author: userId,
       tweetDate,
       ownerCheck: false
     })
@@ -74,7 +74,7 @@ module.exports.createReview = async (req, res)=>{
     hospital.reviews.push(review)
     await hospital.save()
 
-    const DBuser = await User.findById(user._id)
+    const DBuser = await User.findById(userId)
     DBuser.reviews.push(review)
     await DBuser.save()
 

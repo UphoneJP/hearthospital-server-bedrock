@@ -50,7 +50,7 @@ module.exports.reviewSchema = Joi.object({
   treatmentTiming: Joi.string().required().escapeHTML(),
   comment: Joi.string().required().escapeHTML(),
   url: Joi.string().uri().allow('').optional(),
-  user: Joi.object().required(),
+  userId: Joi.string().required(),
 }).required()
 
 // other
@@ -59,7 +59,7 @@ module.exports.messageSchema = Joi.object({
 }).required()
 module.exports.formSchema = Joi.object({
   formContent: Joi.string().required().escapeHTML(),
-  author: Joi.object().required(),
+  authorId: Joi.string().required(),
 }).required()
 module.exports.feedbackSchema = Joi.object({
   feedbackContent: Joi.string().required().escapeHTML()
@@ -69,7 +69,7 @@ module.exports.feedbackSchema = Joi.object({
 module.exports.talkThemeSchema = Joi.object({
   title: Joi.string().required().escapeHTML(),
   detailNoSpace: Joi.string().required().escapeHTML(),
-  user: Joi.object().required()
+  userId: Joi.string().required()
 }).required()
 module.exports.editTalkThemeSchema = Joi.object({
   talkThemeEdit: Joi.string().required().escapeHTML(),

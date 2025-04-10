@@ -35,12 +35,12 @@ module.exports.eachTheme = async(req, res)=> {
 
 module.exports.createNewTalkTheme = async(req, res)=> {
   try {
-    const {title, detailNoSpace, user} = req.body
-    if( !title || !detailNoSpace || !user ){
+    const {title, detailNoSpace, userId} = req.body
+    if( !title || !detailNoSpace || !userId ){
       return res.status(403).json({message: '必要情報が不足しています'})
     }
     const talkTheme = new TalkTheme({
-      author: user,
+      author: userId,
       title,
       detail: detailNoSpace,
       colorNum: Math.floor(Math.random()*12),

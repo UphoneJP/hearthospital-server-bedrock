@@ -5,15 +5,15 @@ const User = require('../models/user')
 
 module.exports.form = async (req, res) => {
   try {
-    const {formContent, author} = req.body;
+    const {formContent, authorId} = req.body;
     const newForm = new Form({
       formContent,
-      author
+      author: authorId
     })
     await newForm.save();
 
     const newMessage = new Message({
-      sender: req.user._id,
+      sender: authorId,
       reciever: process.env.ownerId,
       content: formContent
     })

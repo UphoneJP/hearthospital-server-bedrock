@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const {Schema} = mongoose
 const Talk = require('../models/talk')
+const User = require('../models/user')
 
 const talkThemeSchema = new Schema({
   author: {

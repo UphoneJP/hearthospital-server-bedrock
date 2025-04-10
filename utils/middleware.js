@@ -81,9 +81,6 @@ module.exports.isOwner = async(req, res, next)=>{
 module.exports.intoMyPage = async(req, res, next)=>{
     const {id} = req.params
     if(id !== req.user._id.toString() && req.user._id.toString() !== process.env.ownerId){
-        console.log(id)
-        console.log(process.env.ownerId)
-        console.log(id !== process.env.ownerId)
         throw new AppError('そのアクションの権限がありません', 401)
     }
     next()

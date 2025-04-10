@@ -99,7 +99,6 @@ module.exports.checkIntegrity = async (req, res, next) => {
     // nonceがArrayに無い、もしくは有効期限切れの場合
     const nonceArray = getNonceArray()
     if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-      console.log(nonce, nonceArray)
       console.log("checkIntegrity: Invalid or expired nonce")
       console.log("nonce + 5min: ", nonce.iat + 1000 * 60 * 5)
       console.log("今: ", new Date().getTime())

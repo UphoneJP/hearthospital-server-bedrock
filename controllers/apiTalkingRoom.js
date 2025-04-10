@@ -124,7 +124,6 @@ module.exports.deleteTalkTheme = async(req, res)=> {
   if (!talkTheme) {
     return res.status(404).json({ message: 'talkThemeが見つかりません' })
   }
-  console.log(user, talkTheme.author, !talkTheme.author.equals(user._id))
   if(!user || !talkTheme.author.equals(user._id)){
     return res.status(403).json({ message: '削除権限がありません' })
   }
@@ -136,7 +135,6 @@ module.exports.deleteTalk = async(req, res)=> {
   try {
     const { talkId, userId } = req.params
     const talk = await Talk.findById(talkId)
-    console.log(talk.loggedInUser, userId, talk.loggedInUser.equals(userId))
     if(!talk.loggedInUser.equals(userId)){
       return res.status(403).json({message: '削除権限がありません'})
     }

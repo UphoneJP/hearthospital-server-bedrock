@@ -205,7 +205,6 @@ router.post('/:id/newTalk', isLoggedIn, validateTalk, catchAsync(async(req, res)
     res.redirect(`/talkingRoom/${id}`);
 }));
 router.post('/:id/guestNewTalk', postLimiter, validateGuestTalk, recaptcha.middleware.verify, catchAsync(async(req, res)=> {
-    console.log(req.body)
     if (!req.recaptcha.error) {
         const {id} = req.params;
         const {guestName, content} = req.body;

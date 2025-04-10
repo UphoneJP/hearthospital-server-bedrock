@@ -34,14 +34,6 @@ function customSocket(server){
   const clients = {}
   
   io.on('connection', (socket) => {
-    // ⑦のミドルウェア
-    socket.use((packet, next) => {
-      if (packet[0] === "sendMessage") {
-        validateMessages(packet[1], {}, next);
-      } else {
-        next()
-      }
-    })
     
     // ①初回登録・通信開始
     socket.on('register', (userId) => {
@@ -49,11 +41,11 @@ function customSocket(server){
     })
 
     // ②未読数取得request
-    socket.on('requestUnReadMessages', async (user) => {
-      const userSocketId = clients[user._id]
+    socket.on('requestUnReadMessages', async (userId) => {
+      const userSocketId = clients[userId]
       if (userSocketId) {
         const unReadArray = await Message.find({
-          reciever: user,
+          reciever: userId,
           shown: false
         })
         // ③未読数取得return
@@ -85,51 +77,55 @@ function customSocket(server){
     })
 
     // ⑦自分がメッセージを送信した
-    socket.on('sendMessage', async ({userId, personId, messageInput})=>{
-      try {
-        const sender = await User.findById(userId);
-        if(!sender || sender.isDeleted){
-          res.status(404).json({message: 'senderが見つかりません'})
+    socket.on('sendMessage', async (data, callback) => {
+      const validate = validateMessages()
+      validate(data, async (err) => {
+        if (err) {
+          if (callback) return callback(err); // フロントに返す
+          return console.log('Validation error:', err.msg)
         }
-        const reciever = await User.findById(personId)
-        if(!reciever || reciever.isDeleted){
-          res.status(404).json({message: 'recieverが見つかりません'})
-        }
-        const newMessage = new Message({
-          sender,
-          reciever,
-          content: messageInput
-        })
-        await newMessage.save()
-        if(reciever.notify){
-          await notifyToReciever(reciever)
-        }
+  
+        const { userId, personId, messageInput } = data
 
-        // ⑧送信したら自分も更新
-        const userScocketId = clients[userId]
-        if (userScocketId) {
-          const arrangedNewMessage = new Message({
-            _id: newMessage._id,
-            sender: newMessage.sender._id,
-            reciever: newMessage.reciever._id,
-            content: newMessage.content,
-            timestamp: newMessage.timestamp,
-            shown: newMessage.shown
+        try {
+          const sender = await User.findById(userId);
+          if(!sender || sender.isDeleted){
+            return callback?.({ status: 404, msg: '送信者が見つかりません' })
+          }
+          const reciever = await User.findById(personId)
+          if(!reciever || reciever.isDeleted){
+            return callback?.({ status: 404, msg: '受信者が見つかりません' })
+          }
+          const newMessage = new Message({
+            sender,
+            reciever,
+            content: messageInput
           })
-          io.to(userScocketId).emit("sentMessage", arrangedNewMessage)
+          await newMessage.save()
+          if(reciever.notify){
+            await notifyToReciever(reciever)
+          }
+  
+          // ⑧送信したら自分も更新
+          const userScocketId = clients[userId]
+          if (userScocketId) {
+            io.to(userScocketId).emit("sentMessage", newMessage)
+          }
+          // ⑨newMessageを受信側へ通知
+          const friendSocketId = clients[personId]
+          if (friendSocketId) {          
+            const unReadArray = await Message.find({
+              reciever: { _id: personId},
+              shown: false
+            })
+            io.to(friendSocketId).emit("recieveMessage", newMessage, unReadArray)
+          } 
+          callback?.({ status: 200, msg: 'Message sent successfully' })
+        } catch (err) {
+          console.log('メッセージを投稿できませんでした', err)
+          callback?.({ status: 500, msg: 'サーバーエラー' })
         }
-        // ⑨newMessageを受信側へ通知
-        const friendSocketId = clients[personId]
-        const unReadArray = await Message.find({
-          reciever: { _id: personId},
-          shown: false
-        })
-        if (friendSocketId) {          
-          io.to(friendSocketId).emit("recieveMessage", newMessage, unReadArray)
-        } 
-      } catch (err) {
-        console.log('メッセージを投稿できませんでした', err)
-      }
+      }) 
     })
 
     socket.on('disconnect', () => {

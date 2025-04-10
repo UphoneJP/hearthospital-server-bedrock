@@ -10,7 +10,7 @@ function validate(Schema, req, res, next) {
   if(error){
     const msg = error.details.map(detail => detail.message).join(',')
     console.log("Validation error:", msg)
-    res.status(400).json({msg})
+    return res.status(400).json({msg})
   } else {
     next()
   }
@@ -36,9 +36,32 @@ module.exports.validateReviews = (req, res, next)=>{
     validate(apiSchemas.reviewSchema, req, res, next)
 }
 // other
-module.exports.validateMessages = (req, res, next)=>{
-    validate(apiSchemas.messageSchema, req, res, next)
+module.exports.validateMessages = () => {
+  return (data, callback) => {
+    const { error } = apiSchemas.messageSchema.validate(data)
+    if (error) {
+      const message = error.details.map(detail => detail.message).join(', ')
+      return callback({ status: 400, msg: message })
+    }
+    callback() // 問題なければ何も返さず次へ
+  }
 }
+
+io.on('connection', (socket) => {
+  socket.on('sendMessage', (data, callback) => {
+    validateMessages(messageSchema)(data, (err) => {
+      if (err) return callback(err); // Joiエラーがあれば返す
+
+      // 通常の処理
+      console.log('message received:', data);
+      callback({ status: 200, msg: 'Message received successfully' });
+    });
+  });
+});
+
+
+
+
 module.exports.validateForms = (req, res, next)=>{
     validate(apiSchemas.formSchema, req, res, next)
 }

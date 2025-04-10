@@ -60,25 +60,28 @@ module.exports.createNewTalk = async(req, res)=> {
     if(!talkTheme){
       return res.status(404).json({message: 'talkThemeが見つかりません'})
     }
-    const {reviewText, user} = req.body
-    if(!reviewText || !user){
+    const {reviewText, userId} = req.body
+    if(!reviewText || !userId){
       return res.status(404).json({message: '必要な情報が不足しています'})
     }
-    const DBuser = await User.findById(user._id)
+    const DBuser = await User.findById(userId)
     if(!DBuser) {
       return res.status(404).json({message: 'userが見つかりません'})
     }
-    
     const newTalk = new Talk({
-      loggedInUser: user,
+      loggedInUser: userId,
       content: reviewText,
       madeAt: new Date()
     })
     await newTalk.save()
-    talkTheme.talks.unshift(newTalk)
+    talkTheme.talks.unshift(newTalk._id)
     talkTheme.touchAt = new Date()
     await talkTheme.save()
-    
+
+    if(!DBuser.points){
+      DBuser.points = []
+    }
+
     if(!DBuser.points.map(point => point.reward).includes(30)){
       DBuser.points.push({
         reward: 30,

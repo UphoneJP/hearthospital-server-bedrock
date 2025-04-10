@@ -9,7 +9,7 @@ router.post('/new', validateTalkTheme, talkingRoom.createNewTalkTheme)
 router.patch('/:id', validateEditTalkTheme, talkingRoom.editTalkTheme)
 router.post('/:id', talkingRoom.deleteTalkTheme)
 
-router.post('/:id', validateTalk, talkingRoom.createNewTalk)
+router.post('/:id/new', validateTalk, talkingRoom.createNewTalk)
 router.post('/:id/:talkId', talkingRoom.deleteTalk)
 
 module.exports = router

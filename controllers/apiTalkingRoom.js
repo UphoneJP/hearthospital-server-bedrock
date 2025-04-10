@@ -134,10 +134,10 @@ module.exports.deleteTalkTheme = async(req, res)=> {
 
 module.exports.deleteTalk = async(req, res)=> {
   try {
-    const {talkId} = req.params
-    const { user } = req.body
-    const talk = await Talk.findById(talkId).populate('loggedInUser')
-    if(!user || user._id !== talk.loggedInUser._id){
+    const { talkId, userId } = req.params
+    const talk = await Talk.findById(talkId)
+    console.log(talk.loggedInUser, userId, talk.loggedInUser.equals(userId))
+    if(!talk.loggedInUser.equals(userId)){
       return res.status(403).json({message: '削除権限がありません'})
     }
     talk.deleted = true

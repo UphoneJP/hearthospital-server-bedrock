@@ -10,6 +10,6 @@ router.patch('/:id', validateEditTalkTheme, talkingRoom.editTalkTheme)
 router.post('/:id', talkingRoom.deleteTalkTheme)
 
 router.post('/:id/new', validateTalk, talkingRoom.createNewTalk)
-router.post('/:id/:talkId', talkingRoom.deleteTalk)
+router.delete('/:id/:talkId/:userId', talkingRoom.deleteTalk)
 
 module.exports = router

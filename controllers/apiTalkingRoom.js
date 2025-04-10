@@ -39,8 +39,12 @@ module.exports.createNewTalkTheme = async(req, res)=> {
     if( !title || !detailNoSpace || !userId ){
       return res.status(403).json({message: '必要情報が不足しています'})
     }
+    const user = await User.findById(userId)
+    if(!user){ 
+      return res.status(404).json({message: 'userが見つかりません'})
+    }
     const talkTheme = new TalkTheme({
-      author: userId,
+      author: user._id,
       title,
       detail: detailNoSpace,
       colorNum: Math.floor(Math.random()*12),
@@ -99,12 +103,14 @@ module.exports.createNewTalk = async(req, res)=> {
 module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
   const {talkThemeEdit, detailEdit} = req.body
-  if( !talkThemeEdit || !detailEdit){
+  const title = talkThemeEdit.trim()
+  const detail = detailEdit.trim()
+  if( !title || !detail ){
     return res.status(404).json({message: '必要な情報が不足しています'})
   }
   const talkTheme = await TalkTheme.findByIdAndUpdate(id, {
-    title: talkThemeEdit.trim(), 
-    detail: detailEdit.trim()
+    title, 
+    detail
   })
   if(!talkTheme){
     return res.status(404).json({message: 'talkThemeが見つかりません'})

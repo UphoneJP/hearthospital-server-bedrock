@@ -82,7 +82,7 @@ module.exports.originalSecurity = async (req, res, next) => {
   next()
 }
 
-// google-play-integrity-api 
+// integrity check 
 module.exports.checkIntegrity = async (req, res, next) => {
   try {
     const nonce = req.headers["nonce"]

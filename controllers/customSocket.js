@@ -78,6 +78,7 @@ function customSocket(server){
 
     // ⑦自分がメッセージを送信した
     socket.on('sendMessage', async (data, callback) => {
+      console.log('sendMessage', data)
       const validate = validateMessages()
       validate(data, async (err) => {
         if (err) {
@@ -85,7 +86,7 @@ function customSocket(server){
           return console.log('Validation error:', err.msg)
         }
   
-        const { userId, personId, messageInput } = data
+        const { userId, personId, trimmedMessage } = data
 
         try {
           const sender = await User.findById(userId);
@@ -99,7 +100,7 @@ function customSocket(server){
           const newMessage = new Message({
             sender,
             reciever,
-            content: messageInput
+            content: trimmedMessage
           })
           await newMessage.save()
           if(reciever.notify){

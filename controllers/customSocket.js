@@ -19,7 +19,7 @@ async function notifyToReciever(reciever) {
     to: reciever.email, 
     bcc: 'support@hearthospital.jp',
     subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital ダイレクトメッセージ受信のお知らせ",
-    text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\nダイレクトメッセージを受信しました。\nログインをした後、メニュータブ内のメッセージBOXでご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nブラウザ版: https://www.hearthospital.jp`,
+    text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n『ダイレクトメッセージ』を受信しました。\nモバイルアプリHeartHospitalのメニュータブ内、【メッセージBOX】でご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nブラウザ版: https://www.hearthospital.jp`,
   });
 }
 
@@ -78,7 +78,6 @@ function customSocket(server){
 
     // ⑦自分がメッセージを送信した
     socket.on('sendMessage', async (data, callback) => {
-      console.log('sendMessage', data)
       const validate = validateMessages()
       validate(data, async (err) => {
         if (err) {
@@ -110,7 +109,6 @@ function customSocket(server){
           // ⑧送信したら自分も更新
           const userScocketId = clients[userId]
           if (userScocketId) {
-            console.log('userScocketId', userScocketId, newMessage)
             io.to(userScocketId).emit("sentMessage", newMessage)
           }
           // ⑨newMessageを受信側へ通知

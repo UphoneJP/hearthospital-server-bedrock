@@ -98,8 +98,8 @@ function customSocket(server){
             return callback?.({ status: 404, msg: '受信者が見つかりません' })
           }
           const newMessage = new Message({
-            sender,
-            reciever,
+            sender: sender._id,
+            reciever: reciever._id,
             content
           })
           await newMessage.save()
@@ -110,6 +110,7 @@ function customSocket(server){
           // ⑧送信したら自分も更新
           const userScocketId = clients[userId]
           if (userScocketId) {
+            console.log('userScocketId', userScocketId, newMessage)
             io.to(userScocketId).emit("sentMessage", newMessage)
           }
           // ⑨newMessageを受信側へ通知

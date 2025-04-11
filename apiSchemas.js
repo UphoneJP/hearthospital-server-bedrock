@@ -57,7 +57,7 @@ module.exports.reviewSchema = Joi.object({
 module.exports.messageSchema = Joi.object({
   userId: Joi.string().required().escapeHTML(),
   personId: Joi.string().required().escapeHTML(),
-  trimmedMessage: Joi.string().min(1).required().escapeHTML()
+  content: Joi.string().min(1).required().escapeHTML()
 }).required()
 module.exports.formSchema = Joi.object({
   formContent: Joi.string().required().escapeHTML(),

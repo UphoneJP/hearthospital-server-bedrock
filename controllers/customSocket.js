@@ -86,7 +86,7 @@ function customSocket(server){
           return console.log('Validation error:', err.msg)
         }
   
-        const { userId, personId, trimmedMessage } = data
+        const { userId, personId, content } = data
 
         try {
           const sender = await User.findById(userId);
@@ -100,7 +100,7 @@ function customSocket(server){
           const newMessage = new Message({
             sender,
             reciever,
-            content: trimmedMessage
+            content
           })
           await newMessage.save()
           if(reciever.notify){

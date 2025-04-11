@@ -47,21 +47,6 @@ module.exports.validateMessages = () => {
   }
 }
 
-io.on('connection', (socket) => {
-  socket.on('sendMessage', (data, callback) => {
-    validateMessages(messageSchema)(data, (err) => {
-      if (err) return callback(err); // Joiエラーがあれば返す
-
-      // 通常の処理
-      console.log('message received:', data);
-      callback({ status: 200, msg: 'Message received successfully' });
-    });
-  });
-});
-
-
-
-
 module.exports.validateForms = (req, res, next)=>{
     validate(apiSchemas.formSchema, req, res, next)
 }

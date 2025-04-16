@@ -5,11 +5,12 @@ const User = require('../models/user')
 const RefreshToken = require('../models/refreshToken')
 const GiftRequest = require('../models/giftRequest')
 const { generateAccessToken, generateRefreshToken } = require('../utils/tokenFunction')
+const jwksClient = require('jwks-rsa')
 
 const transporter = nodemailer.createTransport({
   host: process.env.NODEMAILER_HOST,
   port: 465,
-  secure: true, 
+  secure: true,
   auth: {
     user: process.env.NODEMAILER_USER,
     pass: process.env.NODEMAILER_PASS
@@ -19,7 +20,7 @@ const transporter = nodemailer.createTransport({
 async function autoSender(toUser, nums) {
   await transporter.sendMail({
     from: 'support@hearthospital.jp',
-    to: toUser, 
+    to: toUser,
     bcc: 'support@hearthospital.jp',
     subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital E-mail認証番号",
     text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n認証番号を通知します。\n\n${nums}\n\n上記認証番号を所定の入力欄に入力してください。\n※認証番号は送信後10分間のみ有効です。\n\nHeartHospital\nhttps://www.hearthospital.jp`
@@ -54,7 +55,7 @@ module.exports.register = async (req, res) => {
   const user = new User({ penName, email })
   try {
     await User.register(user, password)
-    return res.status(201).json({ 
+    return res.status(201).json({
       message: "User registered successfully",
       success: true
     })
@@ -120,10 +121,10 @@ module.exports.googleLogin = async (req, res) => {
       refreshToken: JWTrefreshToken
     })
     await newRefreshToken.save()
-    return res.status(200).json({ 
-      user, 
-      accessToken: JWTaccessToken, 
-      refreshToken: JWTrefreshToken 
+    return res.status(200).json({
+      user,
+      accessToken: JWTaccessToken,
+      refreshToken: JWTrefreshToken
     })
   } catch (error) {
     console.error(error)
@@ -132,17 +133,39 @@ module.exports.googleLogin = async (req, res) => {
 }
 
 module.exports.appleLogin = async (req, res) => {
-  const { username, email, appleId } = req.body
-  if( !username || !email || !appleId ){
+  const { username, identityToken } = req.body
+  if( !identityToken ){
     return res.status(400).json({message: '必要情報が不足しています'})
   }
+  const decodedToken = jwt.decode(identityToken, { complete: true })
+  if (!decodedToken || !decodedToken.header) {
+    return res.status(400).json({ success: false, message: '不正なトークンです' })
+  }
   try {
-    let user = await User.findOne({ appleId })
+
+    // Appleの公開鍵を取得
+    const client = jwksClient({
+      jwksUri: 'https://appleid.apple.com/auth/keys',
+    })
+    const key = await new Promise((resolve, reject) => {
+      client.getSigningKey(decodedToken.header.kid, (err, key) => {
+        if (err) return reject(err)
+        resolve(key.getPublicKey())
+      })
+    })
+
+    // トークンの署名を検証
+    const payload = jwt.verify(identityToken, key, { algorithms: ['RS256'] })
+
+    // Apple ID固有ユーザーID（payload.sub）を使ってユーザー処理
+    const appleUserId = payload.sub
+
+    let user = await User.findOne({ appleUserId })
     if (!user) {
       user = new User({
-        appleId,
-        username,
-        email
+        appleUserId,
+        email: payload.email,
+        username
       })
       await user.save()
     }
@@ -154,13 +177,13 @@ module.exports.appleLogin = async (req, res) => {
       refreshToken: JWTrefreshToken
     })
     await newRefreshToken.save()
-    return res.json({ 
-      user, 
-      accessToken: JWTaccessToken, 
-      refreshToken: JWTrefreshToken 
+    return res.json({
+      user,
+      accessToken: JWTaccessToken,
+      refreshToken: JWTrefreshToken
     })
   } catch (error) {
-    console.error(error)
+    console.error('apple login error: ', error)
     return res.status(500).json({ error: "Appleログインエラー" })
   }
 }
@@ -196,8 +219,8 @@ module.exports.refreshToken = async (req, res) => {
     console.log('リフレッシュトークンでのdecoded:', decoded)
     const storedData = await RefreshToken.findOne({userId: decoded.id})
     if (
-      (storedData.refreshToken !== refreshToken) || 
-      (decoded.exp < Date.now()) 
+      (storedData.refreshToken !== refreshToken) ||
+      (decoded.exp < Date.now())
     ) {
       return res.status(403).json({ message: "リフレッシュトークンが無効です。" })
     }
@@ -266,7 +289,7 @@ module.exports.accountDelete = (req, res) => {
   .catch((e)=>{
     console.log('userが見つかりません', e)
     return res.json({delete: false})
-  })  
+  })
 }
 
 module.exports.resetPassword = async (req, res) => {

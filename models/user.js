@@ -6,7 +6,7 @@ const Response = require('../models/response')
 
 const userSchema = new Schema({
   googleId: String,
-  appleId: String,
+  appleUserId: String,
   username: String,
   penName: String,
   email: {

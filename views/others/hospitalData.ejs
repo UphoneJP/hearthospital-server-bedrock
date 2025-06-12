@@ -128,8 +128,8 @@
                             </td>
             
                             <!-- 大血管転位症手術 大血管血流転換術(ジャテーン手術)等 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''}">
-                                ${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value)}
+                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''}">
+                                ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value)}
                             </td>
             
                             <!-- ファロー四徴症手術等 -->
@@ -188,8 +188,8 @@
                                 </td>
                 
                                 <!-- 大血管転位症手術 大血管血流転換術(ジャテーン手術)等 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x10100', 'x10101', 'x10110','x10111'])?'table-active':''}">
-                                    ${calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'], selectedYear.value)}
+                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x10100', 'x10101', 'x10110','x10111'])?'table-active':''}">
+                                    ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value)}
                                 </td>
                 
                                 <!-- ファロー四徴症手術等 -->
@@ -428,13 +428,13 @@
         const ctxPC = document.getElementById(`DPCcodeChartPC${hospital._id}`).getContext('2d');
         const data = [];
 
-        if(calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R3')!==0||calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R4')!==0||calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R5')!==0){
+        if(calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R3')!==0||calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R4')!==0||calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R5')!==0){
             const d = {
                 label: '大血管転位症手術 大血管血流転換術(ジャテーン手術)等',
                 data: [
-                    calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R3'),
-                    calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R4'),
-                    calcPatientsDPC(hospital, ['x10100','x10101','x10110','x10111'], 'R5'),
+                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R3'),
+                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R4'),
+                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R5'),
                 ],
             }
             data.push(d);

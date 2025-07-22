@@ -5,6 +5,11 @@
         <%- include('../layouts/partials/navbar') %>
         <div class="flex-grow-1 d-flex flex-column">
             <%- include('../layouts/partials/flash') %>
+
+            <div id="loading-indicator" class="d-none position-fixed top-0 start-0 end-0 bottom-0 bg-white opacity-75 z-3 d-flex justify-content-center align-items-center">
+              <div class="spinner"></div>
+            </div>
+
             <div class="row flex-grow-1 px-lg-5">
                 
                 <div class="col-lg-8 text-center d-flex flex-column justify-content-center">

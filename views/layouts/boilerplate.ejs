@@ -7,7 +7,11 @@
         
         <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
 
-                <%- body -%>
+          <div id="loading-indicator" class="d-none position-fixed top-0 start-0 end-0 bottom-0 bg-white opacity-75 z-3 d-flex justify-content-center align-items-center">
+            <div class="spinner"></div>
+          </div>
+
+          <%- body -%>
 
         </div>
 

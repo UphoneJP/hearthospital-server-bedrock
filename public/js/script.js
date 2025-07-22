@@ -55,4 +55,31 @@
           console.error('Service Worker registration failed:', error);
         });
     });
-  }  
+  }
+
+  // ActivityIndicator
+  window.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('a[href]:not([target="_blank"])');
+
+    links.forEach(link => {
+      link.addEventListener('click', function (e) {
+        const href = link.getAttribute('href');
+
+        // 外部リンクやアンカーリンクなどは除外
+        if (href.startsWith('#') || href.startsWith('http')) return;
+
+        // ローディング表示
+        const loading = document.getElementById('loading-indicator');
+        loading.classList.remove('d-none');
+      });
+    });
+
+    // フォーム送信にも対応したい場合
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+      form.addEventListener('submit', () => {
+        const loading = document.getElementById('loading-indicator');
+        loading.style.display = 'flex';
+      });
+    });
+  });

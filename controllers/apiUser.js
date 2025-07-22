@@ -5,7 +5,7 @@ const User = require('../models/user')
 const RefreshToken = require('../models/refreshToken')
 const GiftRequest = require('../models/giftRequest')
 const { generateAccessToken, generateRefreshToken } = require('../utils/tokenFunction')
-const jwksClient = require('jwks-rsa')
+// const jwksClient = require('jwks-rsa')
 
 const transporter = nodemailer.createTransport({
   host: process.env.NODEMAILER_HOST,
@@ -132,61 +132,61 @@ module.exports.googleLogin = async (req, res) => {
   }
 }
 
-module.exports.appleLogin = async (req, res) => {
-  const { username, identityToken } = req.body
-  if( !identityToken ){
-    return res.status(400).json({message: '必要情報が不足しています'})
-  }
-  const decodedToken = jwt.decode(identityToken, { complete: true })
-  if (!decodedToken || !decodedToken.header) {
-    return res.status(400).json({ success: false, message: '不正なトークンです' })
-  }
-  try {
+// module.exports.appleLogin = async (req, res) => {
+//   const { username, identityToken } = req.body
+//   if( !identityToken ){
+//     return res.status(400).json({message: '必要情報が不足しています'})
+//   }
+//   const decodedToken = jwt.decode(identityToken, { complete: true })
+//   if (!decodedToken || !decodedToken.header) {
+//     return res.status(400).json({ success: false, message: '不正なトークンです' })
+//   }
+//   try {
 
-    // Appleの公開鍵を取得
-    const client = jwksClient({
-      jwksUri: 'https://appleid.apple.com/auth/keys',
-    })
-    const key = await new Promise((resolve, reject) => {
-      client.getSigningKey(decodedToken.header.kid, (err, key) => {
-        if (err) return reject(err)
-        resolve(key.getPublicKey())
-      })
-    })
+//     // Appleの公開鍵を取得
+//     const client = jwksClient({
+//       jwksUri: 'https://appleid.apple.com/auth/keys',
+//     })
+//     const key = await new Promise((resolve, reject) => {
+//       client.getSigningKey(decodedToken.header.kid, (err, key) => {
+//         if (err) return reject(err)
+//         resolve(key.getPublicKey())
+//       })
+//     })
 
-    // トークンの署名を検証
-    const payload = jwt.verify(identityToken, key, { algorithms: ['RS256'] })
+//     // トークンの署名を検証
+//     const payload = jwt.verify(identityToken, key, { algorithms: ['RS256'] })
 
-    // Apple ID固有ユーザーID（payload.sub）を使ってユーザー処理
-    const appleUserId = payload.sub
+//     // Apple ID固有ユーザーID（payload.sub）を使ってユーザー処理
+//     const appleUserId = payload.sub
 
-    let user = await User.findOne({ appleUserId })
-    if (!user) {
-      user = new User({
-        appleUserId,
-        email: payload.email,
-        username
-      })
-      await user.save()
-    }
-    const JWTaccessToken = generateAccessToken(user)
-    const JWTrefreshToken = generateRefreshToken(user)
-    await RefreshToken.findOneAndDelete({ userId: user._id })
-    const newRefreshToken = new RefreshToken({
-      userId: user._id,
-      refreshToken: JWTrefreshToken
-    })
-    await newRefreshToken.save()
-    return res.json({
-      user,
-      accessToken: JWTaccessToken,
-      refreshToken: JWTrefreshToken
-    })
-  } catch (error) {
-    console.error('apple login error: ', error)
-    return res.status(500).json({ error: "Appleログインエラー" })
-  }
-}
+//     let user = await User.findOne({ appleUserId })
+//     if (!user) {
+//       user = new User({
+//         appleUserId,
+//         email: payload.email,
+//         username
+//       })
+//       await user.save()
+//     }
+//     const JWTaccessToken = generateAccessToken(user)
+//     const JWTrefreshToken = generateRefreshToken(user)
+//     await RefreshToken.findOneAndDelete({ userId: user._id })
+//     const newRefreshToken = new RefreshToken({
+//       userId: user._id,
+//       refreshToken: JWTrefreshToken
+//     })
+//     await newRefreshToken.save()
+//     return res.json({
+//       user,
+//       accessToken: JWTaccessToken,
+//       refreshToken: JWTrefreshToken
+//     })
+//   } catch (error) {
+//     console.error('apple login error: ', error)
+//     return res.status(500).json({ error: "Appleログインエラー" })
+//   }
+// }
 
 module.exports.validateToken = async (req, res) => {
   const authHeader = req.body.Authorization

@@ -12,7 +12,7 @@ router.post('/login', validateUserLogin, user.localLogin )
 router.post("/auth/google", user.googleLogin )
 
 // appleログイン
-router.post("/auth/apple", user.appleLogin)
+// router.post("/auth/apple", user.appleLogin)
 
 // 自動ログイン(アクセストークン)
 router.post('/validateToken', user.validateToken )

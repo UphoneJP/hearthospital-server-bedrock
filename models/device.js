@@ -13,5 +13,4 @@ const deviceSchema = new Schema({
   timestamp: Number  
 })
 
-
 module.exports = mongoose.model('Device', deviceSchema)

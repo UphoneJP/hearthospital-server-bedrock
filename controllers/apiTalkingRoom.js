@@ -7,7 +7,7 @@ module.exports.talkThemesList = async(req, res)=>{
     const talkThemes = await TalkTheme.find({})
     return res.status(200).json({talkThemes, newApiKey: req.newApiKey})
   } catch {
-    return res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({newApiKey: req.newApiKey})
   }
 }
 
@@ -27,9 +27,9 @@ module.exports.eachTheme = async(req, res)=> {
     }
     talkTheme.accessCount += 1
     await talkTheme.save()
-    return res.status(200).json({talkTheme})
+    return res.status(200).json({talkTheme, newApiKey: req.newApiKey})
   } catch {
-    return res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({newApiKey: req.newApiKey})
   }
 }
 
@@ -37,11 +37,11 @@ module.exports.createNewTalkTheme = async(req, res)=> {
   try {
     const {title, detailNoSpace, userId} = req.body
     if( !title || !detailNoSpace || !userId ){
-      return res.status(403).json({message: '必要情報が不足しています'})
+      return res.status(403).json({newApiKey: req.newApiKey})
     }
     const user = await User.findById(userId)
     if(!user){ 
-      return res.status(404).json({message: 'userが見つかりません'})
+      return res.status(404).json({newApiKey: req.newApiKey})
     }
     const talkTheme = new TalkTheme({
       author: user._id,
@@ -51,9 +51,9 @@ module.exports.createNewTalkTheme = async(req, res)=> {
       touchAt: new Date()
     })
     await talkTheme.save()
-    return res.status(200).json({})
+    return res.status(200).json({newApiKey: req.newApiKey})
   } catch {
-    return res.status(400).json({message: 'トークテーマを作れませんでした'})
+    return res.status(400).json({newApiKey: req.newApiKey})
   }
 }
 
@@ -62,15 +62,15 @@ module.exports.createNewTalk = async(req, res)=> {
     const {id} = req.params
     const talkTheme = await TalkTheme.findById(id)
     if(!talkTheme){
-      return res.status(404).json({message: 'talkThemeが見つかりません'})
+      return res.status(404).json({newApiKey: req.newApiKey})
     }
     const {reviewText, userId} = req.body
     if(!reviewText || !userId){
-      return res.status(404).json({message: '必要な情報が不足しています'})
+      return res.status(404).json({newApiKey: req.newApiKey})
     }
     const DBuser = await User.findById(userId)
     if(!DBuser) {
-      return res.status(404).json({message: 'userが見つかりません'})
+      return res.status(404).json({newApiKey: req.newApiKey})
     }
     const newTalk = new Talk({
       loggedInUser: userId,
@@ -94,9 +94,9 @@ module.exports.createNewTalk = async(req, res)=> {
       })
       await DBuser.save()
     }
-    return res.status(200).json({DBuser})
+    return res.status(200).json({DBuser, newApiKey: req.newApiKey})
   } catch {
-    return res.status(400).json({message: 'エラーが発生しました'})
+    return res.status(400).json({newApiKey: req.newApiKey})
   }
 }
 
@@ -104,16 +104,16 @@ module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
   const {title, detail} = req.body
   if( !title || !detail ){
-    return res.status(404).json({message: '必要な情報が不足しています'})
+    return res.status(404).json({newApiKey: req.newApiKey})
   }
   const talkTheme = await TalkTheme.findByIdAndUpdate(id, {
     title, 
     detail
   })
   if(!talkTheme){
-    return res.status(404).json({message: 'talkThemeが見つかりません'})
+    return res.status(404).json({newApiKey: req.newApiKey})
   }
-  res.status(200).json({})
+  res.status(200).json({newApiKey: req.newApiKey})
 }
 
 module.exports.deleteTalkTheme = async(req, res)=> {
@@ -122,13 +122,13 @@ module.exports.deleteTalkTheme = async(req, res)=> {
   
   const talkTheme = await TalkTheme.findById(id)
   if (!talkTheme) {
-    return res.status(404).json({ message: 'talkThemeが見つかりません' })
+    return res.status(404).json({newApiKey: req.newApiKey})
   }
   if(!user || !talkTheme.author.equals(user._id)){
-    return res.status(403).json({ message: '削除権限がありません' })
+    return res.status(403).json({newApiKey: req.newApiKey})
   }
   await talkTheme.deleteOne()
-  return res.status(200).json({})
+  return res.status(200).json({newApiKey: req.newApiKey})
 }
 
 module.exports.deleteTalk = async(req, res)=> {
@@ -136,12 +136,12 @@ module.exports.deleteTalk = async(req, res)=> {
     const { talkId, userId } = req.params
     const talk = await Talk.findById(talkId)
     if(!talk.loggedInUser.equals(userId)){
-      return res.status(403).json({message: '削除権限がありません'})
+      return res.status(403).json({newApiKey: req.newApiKey})
     }
     talk.deleted = true
     await talk.save()
-    return res.status(200).json({})
+    return res.status(200).json({newApiKey: req.newApiKey})
   } catch {
-    return res.status(400).json({message: 'トークを削除できませんでした'})
+    return res.status(400).json({newApiKey: req.newApiKey})
   }
 }

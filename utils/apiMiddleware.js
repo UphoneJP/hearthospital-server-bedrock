@@ -3,8 +3,6 @@ const crypto = require("crypto")
 const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
 const Device = require("../models/device")
-const { getNonceArray } = require("../utils/nonceArray")
-const { getCryptoArray } = require("../utils/cryptoArray")
 
 function validate(Schema, req, res, next) {
   const {error} = Schema.validate(req.body) || {}
@@ -121,57 +119,3 @@ module.exports.originalSecurity = async (req, res, next) => {
   }
 }
 
-// // integrity check 
-// module.exports.checkIntegrity = async (req, res, next) => {
-//   try {
-//     const nonce = req.headers["nonce"]
-//     const timestamp = parseInt(req.headers["timestamp"])
-//     const deviceId = req.headers["deviceid"]
-//     const cryptoToken = req.headers["cryptotoken"]
-//     const signature = req.headers["signature"]
-
-//     if ( !nonce || !timestamp || !deviceId || !cryptoToken || !signature ) {
-//       console.log('checkIntegrity情報が不足しています')
-//       return res.status(400).json({ error: '情報が不足しています' })
-//     }
-
-//     // nonceがArrayに無い、もしくは有効期限切れの場合
-//     const nonceArray = getNonceArray()
-//     if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-//       console.log("checkIntegrity: Invalid or expired nonce")
-//       console.log("nonce + 5min: ", nonce.iat + 1000 * 60 * 5)
-//       console.log("今: ", new Date().getTime())
-//       console.log("nonce + 5min > 今: ", nonce.iat + 1000 * 60 * 5 > new Date().getTime())
-//       return res.status(400).json({ error: "Invalid or expired nonce" })
-//     }
-
-//     // timestampが5分を過ぎていた場合
-//     if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
-//       console.log("timestamp expired")
-//       return res.status(400).json({ error: "timestamp expired" })
-//     }
-
-//     // cryptoTokenが無い、もしくは有効期限切れの場合
-//     const cryptoArray = getCryptoArray()
-//     if(!cryptoArray.some(item => item.cryptoToken === cryptoToken && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-//       console.log("checkIntegrity: Invalid or expired crypto")
-//       return res.status(400).json({ error: "Invalid or expired crypto" })
-//     }
-
-//     // 署名が一致しない場合は403エラー
-//     const expectedSignature = crypto
-//       .createHmac("sha256", deviceId)
-//       .update(`${nonce}:${timestamp}:${cryptoToken}`)
-//       .digest("hex")
-//     if (signature !== expectedSignature) {
-//       console.log("checkIntegrity: Invalid signature")
-//       return res.status(403).json({ error: "Invalid signature" })
-//     }
-
-//     next()
-
-//   } catch (error) {
-//     console.log('整合性エラー:', error)
-//     res.status(500).json({ error: error.message || 'Internal Server Error' })
-//   }
-// }

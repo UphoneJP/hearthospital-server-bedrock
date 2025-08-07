@@ -5,7 +5,7 @@ const User = require('../models/user')
 module.exports.talkThemesList = async(req, res)=>{
   try{
     const talkThemes = await TalkTheme.find({})
-    return res.status(200).json({talkThemes})
+    return res.status(200).json({talkThemes, newApiKey: req.newApiKey})
   } catch {
     return res.status(400).json({message: 'エラーが発生しました'})
   }

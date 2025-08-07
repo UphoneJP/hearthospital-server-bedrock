@@ -60,7 +60,12 @@
   // ActivityIndicator
   window.addEventListener('DOMContentLoaded', () => {
     const links = document.querySelectorAll('a[href]:not([target="_blank"])');
+    const loading = document.getElementById('loading-indicator');
 
+    if (!loading.classList.contains('d-none')) {
+      loading.classList.add('d-none');
+    }
+    
     links.forEach(link => {
       link.addEventListener('click', function (e) {
         const href = link.getAttribute('href');
@@ -69,7 +74,6 @@
         if (href.startsWith('#') || href.startsWith('http')) return;
 
         // ローディング表示
-        const loading = document.getElementById('loading-indicator');
         loading.classList.remove('d-none');
       });
     });
@@ -79,7 +83,7 @@
     forms.forEach(form => {
       form.addEventListener('submit', () => {
         const loading = document.getElementById('loading-indicator');
-        loading.style.display = 'flex';
+        loading.classList.remove('d-none');
       });
     });
   });

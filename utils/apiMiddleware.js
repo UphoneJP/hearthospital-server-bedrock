@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken")
 const crypto = require("crypto")
 const apiSchemas = require('../apiSchemas')
 const BadUser = require("../models/badUser")
+const Device = require("../models/device")
 const { getNonceArray } = require("../utils/nonceArray")
 const { getCryptoArray } = require("../utils/cryptoArray")
 
@@ -66,7 +67,7 @@ module.exports.validateTalk = (req, res, next) => {
 
 module.exports.originalSecurity = async (req, res, next) => {
   async function saveBadUser() {
-    const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+    const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress
     let badUser = await BadUser.findOne({ip: realIp})
     if(badUser){
       badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
@@ -81,66 +82,96 @@ module.exports.originalSecurity = async (req, res, next) => {
     return res.status(403).json({ message: "Access denied. Saved your Info." })
   }
 
-  const apiKeyNeeded = req.headers["api-key-needed"]
-  if (!apiKeyNeeded || apiKeyNeeded.trim() === 'Bearer') saveBadUser()
-  const token = apiKeyNeeded.split(' ')[1]
-  const decoded = jwt.verify(token, process.env.JWT_SECRET)
-  if(!decoded || decoded.apiKey !== process.env.API_KEY || decoded.timestamp + 1000 * 60 * 3 < Date.now()) saveBadUser()
-
-  next()
-}
-
-// integrity check 
-module.exports.checkIntegrity = async (req, res, next) => {
   try {
-    const nonce = req.headers["nonce"]
-    const timestamp = parseInt(req.headers["timestamp"])
     const deviceId = req.headers["deviceid"]
-    const cryptoToken = req.headers["cryptotoken"]
-    const signature = req.headers["signature"]
-
-    if ( !nonce || !timestamp || !deviceId || !cryptoToken || !signature ) {
-      console.log('checkIntegrity情報が不足しています')
-      return res.status(400).json({ error: '情報が不足しています' })
+    const apiKeyNeeded = req.headers["api-key-needed"]
+    if (!apiKeyNeeded || apiKeyNeeded.trim() === 'Bearer' || !deviceId){
+      return await saveBadUser()
+    }
+    const token = apiKeyNeeded.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    if(
+      !decoded 
+      || !decoded.timestamp 
+      || !decoded.apiKey 
+      || decoded.timestamp + 1000 * 60 * 3 < Date.now()
+    ) {
+      return await saveBadUser()
     }
 
-    // nonceがArrayに無い、もしくは有効期限切れの場合
-    const nonceArray = getNonceArray()
-    if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-      console.log("checkIntegrity: Invalid or expired nonce")
-      console.log("nonce + 5min: ", nonce.iat + 1000 * 60 * 5)
-      console.log("今: ", new Date().getTime())
-      console.log("nonce + 5min > 今: ", nonce.iat + 1000 * 60 * 5 > new Date().getTime())
-      return res.status(400).json({ error: "Invalid or expired nonce" })
+    const savedDevice = await Device.findOne({deviceId, apiKey:decoded.apiKey})
+    if( savedDevice && savedDevice.timestamp ){
+      if( Date.now() > savedDevice.timestamp + 1000 * 60 * 5 ){
+        const newApiKey = crypto.randomBytes(24).toString('hex')
+        savedDevice.apiKey = newApiKey
+        savedDevice.timestamp = Date.now()
+        await savedDevice.save()
+        req.newApiKey = newApiKey
+      } else {
+        savedDevice.timestamp = Date.now();
+        await savedDevice.save();
+      }
+      return next()
+    } else {
+      return await saveBadUser()
     }
-
-    // timestampが5分を過ぎていた場合
-    if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
-      console.log("timestamp expired")
-      return res.status(400).json({ error: "timestamp expired" })
-    }
-
-    // cryptoTokenが無い、もしくは有効期限切れの場合
-    const cryptoArray = getCryptoArray()
-    if(!cryptoArray.some(item => item.cryptoToken === cryptoToken && item.iat + 1000 * 60 * 5 > new Date().getTime())){
-      console.log("checkIntegrity: Invalid or expired crypto")
-      return res.status(400).json({ error: "Invalid or expired crypto" })
-    }
-
-    // 署名が一致しない場合は403エラー
-    const expectedSignature = crypto
-      .createHmac("sha256", deviceId)
-      .update(`${nonce}:${timestamp}:${cryptoToken}`)
-      .digest("hex")
-    if (signature !== expectedSignature) {
-      console.log("checkIntegrity: Invalid signature")
-      return res.status(403).json({ error: "Invalid signature" })
-    }
-
-    next()
-
   } catch (error) {
-    console.log('整合性エラー:', error)
-    res.status(500).json({ error: error.message || 'Internal Server Error' })
+    console.error("originalSecurity error:", error);
+    return await saveBadUser()
   }
 }
+
+// // integrity check 
+// module.exports.checkIntegrity = async (req, res, next) => {
+//   try {
+//     const nonce = req.headers["nonce"]
+//     const timestamp = parseInt(req.headers["timestamp"])
+//     const deviceId = req.headers["deviceid"]
+//     const cryptoToken = req.headers["cryptotoken"]
+//     const signature = req.headers["signature"]
+
+//     if ( !nonce || !timestamp || !deviceId || !cryptoToken || !signature ) {
+//       console.log('checkIntegrity情報が不足しています')
+//       return res.status(400).json({ error: '情報が不足しています' })
+//     }
+
+//     // nonceがArrayに無い、もしくは有効期限切れの場合
+//     const nonceArray = getNonceArray()
+//     if(!nonceArray.some(item => item.nonce === nonce && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+//       console.log("checkIntegrity: Invalid or expired nonce")
+//       console.log("nonce + 5min: ", nonce.iat + 1000 * 60 * 5)
+//       console.log("今: ", new Date().getTime())
+//       console.log("nonce + 5min > 今: ", nonce.iat + 1000 * 60 * 5 > new Date().getTime())
+//       return res.status(400).json({ error: "Invalid or expired nonce" })
+//     }
+
+//     // timestampが5分を過ぎていた場合
+//     if(timestamp + 1000 * 60 * 5 < new Date().getTime()){
+//       console.log("timestamp expired")
+//       return res.status(400).json({ error: "timestamp expired" })
+//     }
+
+//     // cryptoTokenが無い、もしくは有効期限切れの場合
+//     const cryptoArray = getCryptoArray()
+//     if(!cryptoArray.some(item => item.cryptoToken === cryptoToken && item.iat + 1000 * 60 * 5 > new Date().getTime())){
+//       console.log("checkIntegrity: Invalid or expired crypto")
+//       return res.status(400).json({ error: "Invalid or expired crypto" })
+//     }
+
+//     // 署名が一致しない場合は403エラー
+//     const expectedSignature = crypto
+//       .createHmac("sha256", deviceId)
+//       .update(`${nonce}:${timestamp}:${cryptoToken}`)
+//       .digest("hex")
+//     if (signature !== expectedSignature) {
+//       console.log("checkIntegrity: Invalid signature")
+//       return res.status(403).json({ error: "Invalid signature" })
+//     }
+
+//     next()
+
+//   } catch (error) {
+//     console.log('整合性エラー:', error)
+//     res.status(500).json({ error: error.message || 'Internal Server Error' })
+//   }
+// }

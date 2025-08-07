@@ -45,6 +45,19 @@ const initMap = async() => {
                     }
                     infoWindow.open(map, marker);
                     currentInfoWindow = infoWindow;
+
+                    // 少し遅らせて DOM にアクセス
+                    setTimeout(() => {
+                        const infoWindowLink = document.querySelector('.gm-style-iw a');
+                        if (infoWindowLink) {
+                            infoWindowLink.addEventListener('click', () => {
+                                const loading = document.getElementById('loading-indicator');
+                                if (loading) {
+                                    loading.classList.remove('d-none');
+                                }
+                            });
+                        }
+                    }, 100);
                 });
             }
         }

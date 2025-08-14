@@ -80,16 +80,6 @@ module.exports.chatBox = async(req, res)=>{
   }
 }
 
-module.exports.recieverName = async (req, res)=>{
-  const { id } = req.params
-  const reciever = await User.findById(id)
-  if(reciever){
-    return res.status(200).json({penName: reciever.penName || reciever.username, newApiKey: req.newApiKey})
-  } else {
-    return res.status(404).json({newApiKey: req.newApiKey})
-  }
-}
-
 module.exports.getMessages = async(req,res)=>{
   try {
     const { senderId, recieverId } = req.params
@@ -122,6 +112,7 @@ module.exports.getMessages = async(req,res)=>{
     })
     return res.status(200).json({
       messages: messagesData,
+      penName: reciever.penName || reciever.username,
       newApiKey: req.newApiKey
     })
   } catch(err) {

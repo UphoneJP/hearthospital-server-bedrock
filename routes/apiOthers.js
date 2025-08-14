@@ -10,7 +10,6 @@ router.post('/feedback', validateFeedbackForms, others.feedback)
 // メッセージボックス画面
 router.post('/chatBox', others.chatBox)
 // チャットルームのヘッダーとメッセージ取得
-router.get('/chat/recieverName/:id', others.recieverName)
 router.get('/chat/:senderId/:recieverId', others.getMessages)
 
 // othersPage

@@ -99,12 +99,8 @@ module.exports.originalSecurity = async (req, res, next) => {
 
     const savedDevice = await Device.findOne({deviceId, apiKey:decoded.apiKey})
     if( savedDevice && savedDevice.timestamp ){
-      if( Date.now() > savedDevice.timestamp + 1000 * 60 * 5 ){
-        const newApiKey = crypto.randomBytes(24).toString('hex')
-        savedDevice.apiKey = newApiKey
-        savedDevice.timestamp = Date.now()
-        await savedDevice.save()
-        req.newApiKey = newApiKey
+      if( Date.now() > savedDevice.timestamp + 1000 * 60 * 15 ){
+        return res.status(400).json({ message: "Error Occured" })
       } else {
         savedDevice.timestamp = Date.now();
         await savedDevice.save();

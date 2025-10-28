@@ -4,7 +4,7 @@ const user = require('../controllers/apiUser')
 const { validateEmail, validateUserRegister, validateUserLogin, validatePenName, validatePromotion } = require('../utils/apiMiddleware')
 
 // ローカル
-router.post('/checkEmail', validateEmail, user.checkEmail)
+// router.post('/checkEmail', validateEmail, user.checkEmail)
 router.post('/register', validateUserRegister, user.register )
 router.post('/login', validateUserLogin, user.localLogin )
 

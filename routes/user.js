@@ -7,7 +7,7 @@ const {isLoggedIn, saveReturnTo, intoMyPage, validateEmail, validateUserRegister
 
 // localユーザー登録
 router.get('/register', user.registerPage);
-router.post('/checkEmail', validateEmail, user.checkEmail)
+// router.post('/checkEmail', validateEmail, user.checkEmail)
 router.post('/register', validateUserRegister, catchAsync(user.register));
 
 
@@ -20,13 +20,13 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 
 router.get('/login/callback', user.googleLogin);
 
 // パスワード再設定
-router.get('/resetPassword', (req, res)=>{
-    res.render('users/resetPassword');
-})
-router.post('/resetPassword', validateEmail, catchAsync(user.sendEmail));
-router.get('/resetPassword/:token', catchAsync(user.resetPasswordForm));
-router.get('/sendAuthNum/:token', catchAsync(user.sendAuthNum));
-router.patch('/resetPassword/:token', validateResetPassword, catchAsync(user.resetPWcomplete));
+// router.get('/resetPassword', (req, res)=>{
+//     res.render('users/resetPassword');
+// })
+// router.post('/resetPassword', validateEmail, catchAsync(user.sendEmail));
+// router.get('/resetPassword/:token', catchAsync(user.resetPasswordForm));
+// router.get('/sendAuthNum/:token', catchAsync(user.sendAuthNum));
+// router.patch('/resetPassword/:token', validateResetPassword, catchAsync(user.resetPWcomplete));
 
 
 // penName入力　修正

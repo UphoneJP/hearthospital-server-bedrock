@@ -4,30 +4,30 @@ const Response = require('../models/response');
 const User = require('../models/user');
 const Form = require('../models/form');
 const Link = require('../models/link');
-const NonAccountUser = require('../models/nonAccountUser');
+// const NonAccountUser = require('../models/nonAccountUser');
 const Feedback = require('../models/feedback');
 const GiftRequest = require('../models/giftRequest')
 const AppError = require('../utils/AppError');
 
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport({
-    host: process.env.NODEMAILER_HOST,
-    port: 465,
-    secure: true, 
-    auth: {
-        user: process.env.NODEMAILER_USER,
-        pass: process.env.NODEMAILER_PASS,
-    },
-});
-async function autoSender(nonAccount, formContent) {
-    await transporter.sendMail({
-        from: 'support@hearthospital.jp',
-        to: nonAccount.email, 
-        bcc: 'support@hearthospital.jp',
-        subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital お問い合わせの返答",
-        text: `${nonAccount.username}様\n\nHeartHospitalにお問い合わせいただきありがとうございます。\n返答までお待たせいたしました。\n\n${formContent}\nまたご質問・ご意見・ご要望等ございましたら、\n再度お問い合わせフォームにてお問合せ下さい。\n\n-----お問い合わせ内容-----\n【問い合わせ番号】${nonAccount._id}\n【問い合わせ日時】${nonAccount.timestamp.toLocaleString()}\n【氏名】${nonAccount.username}\n【内容】${nonAccount.formContent}\n\nHeartHospital\nhttps://www.hearthospital.jp`,
-    });
-}
+// const nodemailer = require("nodemailer");
+// const transporter = nodemailer.createTransport({
+//     host: process.env.NODEMAILER_HOST,
+//     port: 465,
+//     secure: true, 
+//     auth: {
+//         user: process.env.NODEMAILER_USER,
+//         pass: process.env.NODEMAILER_PASS,
+//     },
+// });
+// async function autoSender(nonAccount, formContent) {
+//     await transporter.sendMail({
+//         from: 'support@hearthospital.jp',
+//         to: nonAccount.email, 
+//         bcc: 'support@hearthospital.jp',
+//         subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital お問い合わせの返答",
+//         text: `${nonAccount.username}様\n\nHeartHospitalにお問い合わせいただきありがとうございます。\n返答までお待たせいたしました。\n\n${formContent}\nまたご質問・ご意見・ご要望等ございましたら、\n再度お問い合わせフォームにてお問合せ下さい。\n\n-----お問い合わせ内容-----\n【問い合わせ番号】${nonAccount._id}\n【問い合わせ日時】${nonAccount.timestamp.toLocaleString()}\n【氏名】${nonAccount.username}\n【内容】${nonAccount.formContent}\n\nHeartHospital\nhttps://www.hearthospital.jp`,
+//     });
+// }
 
 module.exports.showList = async (req, res)=>{
     const reviews = await Review.find({ownerCheck: false})
@@ -47,7 +47,7 @@ module.exports.showList = async (req, res)=>{
     const forms = await Form.find({ownerCheck: false})
         .populate('author')
         .where('author.isDeleted').ne(true);
-    const nonAccountForms = await NonAccountUser.find({ownerCheck: false});
+    // const nonAccountForms = await NonAccountUser.find({ownerCheck: false});
     const feedbacks = await Feedback.find({ownerCheck: false});
     const giftRequests = await GiftRequest.find({ownerCheck: false}).populate('user')
     page = 'admin';
@@ -55,7 +55,7 @@ module.exports.showList = async (req, res)=>{
       reviews, 
       responses, 
       forms,
-      nonAccountForms, 
+      // nonAccountForms, 
       feedbacks,
       giftRequests,
       page
@@ -153,10 +153,10 @@ module.exports.nonAccountForm = async(req, res)=>{
     const {id} = req.params;
     const {formContent} = req.body;
     const nonAccount = await NonAccountUser.findById(id);
-    await autoSender(nonAccount, formContent);
+    // await autoSender(nonAccount, formContent);
     nonAccount.ownerCheck = true;
     await nonAccount.save();
-    req.flash('success', 'emailを送信し対応済みにしました。');
+    // req.flash('success', 'emailを送信し対応済みにしました。');
     res.redirect('/admin');
 }
 

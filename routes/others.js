@@ -48,7 +48,7 @@ router.post('/readReceipt', catchAsync(others.readReceipt));
 
 // 問い合わせフォーム入力
 router.post('/form', isLoggedIn, validateForms, catchAsync(others.createForm));
-router.post('/form/nonAccount', validateNonAccountForms, catchAsync(others.createNonAccountForm));
+// router.post('/form/nonAccount', validateNonAccountForms, catchAsync(others.createNonAccountForm));
 router.post('/form/feedback', validateFeedbackForms, catchAsync(others.createFeedback));
 
 // firstLaunch

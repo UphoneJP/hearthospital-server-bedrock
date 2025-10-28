@@ -1,51 +1,50 @@
 const jwt = require("jsonwebtoken")
 const axios = require("axios")
-const nodemailer = require("nodemailer")
+// const nodemailer = require("nodemailer")
 const User = require('../models/user')
 const RefreshToken = require('../models/refreshToken')
 const GiftRequest = require('../models/giftRequest')
 const { generateAccessToken, generateRefreshToken } = require('../utils/tokenFunction')
-// const jwksClient = require('jwks-rsa')
 
-const transporter = nodemailer.createTransport({
-  host: process.env.NODEMAILER_HOST,
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.NODEMAILER_USER,
-    pass: process.env.NODEMAILER_PASS
-  }
-})
+// const transporter = nodemailer.createTransport({
+//   host: process.env.NODEMAILER_HOST,
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: process.env.NODEMAILER_USER,
+//     pass: process.env._PASS
+//   }
+// })
 
-async function autoSender(toUser, nums) {
-  await transporter.sendMail({
-    from: 'support@hearthospital.jp',
-    to: toUser,
-    bcc: 'support@hearthospital.jp',
-    subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital E-mail認証番号",
-    text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n認証番号を通知します。\n\n${nums}\n\n上記認証番号を所定の入力欄に入力してください。\n※認証番号は送信後10分間のみ有効です。\n\nHeartHospital\nhttps://www.hearthospital.jp`
-  })
-}
+// async function autoSender(toUser, nums) {
+//   await transporter.sendMail({
+//     from: 'support@hearthospital.jp',
+//     to: toUser,
+//     bcc: 'support@hearthospital.jp',
+//     subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital E-mail認証番号",
+//     text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n認証番号を通知します。\n\n${nums}\n\n上記認証番号を所定の入力欄に入力してください。\n※認証番号は送信後10分間のみ有効です。\n\nHeartHospital\nhttps://www.hearthospital.jp`
+//   })
+// }
 
-function random6numbers(){
-  nums = Math.floor(Math.random()*1000000).toString().padStart(6, '0')
-  return nums
-}
+// function random6numbers(){
+//   nums = Math.floor(Math.random()*1000000).toString().padStart(6, '0')
+//   return nums
+// }
 
-module.exports.checkEmail = async (req, res) => {
-  try {
-    const {email} = req.body
-    if(!email){
-      return res.status(400).json({newApiKey: req.newApiKey})
-    }
-    const nums = random6numbers()
-    const expire10min = Date.now() + 1000 * 60 * 10
-    await autoSender(email, nums)
-    return res.status(200).json({nums, expire10min, newApiKey: req.newApiKey})
-  } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
-  }
-}
+// module.exports.checkEmail = async (req, res) => {
+//   try {
+//     const {email} = req.body
+//     if(!email){
+//       return res.status(400).json({newApiKey: req.newApiKey})
+//     }
+//     const nums = random6numbers()
+//     const expire10min = Date.now() + 1000 * 60 * 10
+//     await autoSender(email, nums)
+//     return res.status(200).json({nums, expire10min, newApiKey: req.newApiKey})
+//   } catch {
+//     return res.status(400).json({newApiKey: req.newApiKey})
+//   }
+// }
 
 module.exports.register = async (req, res) => {
   const { penName, email, password } = req.body

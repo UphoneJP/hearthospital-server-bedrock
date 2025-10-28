@@ -1,27 +1,27 @@
 const { Server } = require('socket.io')
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 const Message = require('../models/message')
 const User = require('../models/user')
 const { validateMessages } = require('../utils/apiMiddleware')
 
-const transporter = nodemailer.createTransport({
-  host: process.env.NODEMAILER_HOST,
-  port: 465,
-  secure: true, 
-  auth: {
-    user: process.env.NODEMAILER_USER,
-    pass: process.env.NODEMAILER_PASS,
-  }
-})
-async function notifyToReciever(reciever) {
-  await transporter.sendMail({
-    from: 'support@hearthospital.jp',
-    to: reciever.email, 
-    bcc: 'support@hearthospital.jp',
-    subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital ダイレクトメッセージ受信のお知らせ",
-    text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n『ダイレクトメッセージ』を受信しました。\nモバイルアプリHeartHospitalのメニュータブ内、【メッセージBOX】でご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nブラウザ版: https://www.hearthospital.jp`,
-  });
-}
+// const transporter = nodemailer.createTransport({
+//   host: process.env.NODEMAILER_HOST,
+//   port: 465,
+//   secure: true, 
+//   auth: {
+//     user: process.env.NODEMAILER_USER,
+//     pass: process.env.NODEMAILER_PASS,
+//   }
+// })
+// async function notifyToReciever(reciever) {
+//   await transporter.sendMail({
+//     from: 'support@hearthospital.jp',
+//     to: reciever.email, 
+//     bcc: 'support@hearthospital.jp',
+//     subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital ダイレクトメッセージ受信のお知らせ",
+//     text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\n『ダイレクトメッセージ』を受信しました。\nモバイルアプリHeartHospitalのメニュータブ内、【メッセージBOX】でご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nブラウザ版: https://www.hearthospital.jp`,
+//   });
+// }
 
 function customSocket(server){
   const io = new Server(server, {
@@ -102,9 +102,9 @@ function customSocket(server){
             content
           })
           await newMessage.save()
-          if(reciever.notify){
-            await notifyToReciever(reciever)
-          }
+          // if(reciever.notify){
+          //   await notifyToReciever(reciever)
+          // }
   
           // ⑧送信したら自分も更新
           const userScocketId = clients[userId]

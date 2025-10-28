@@ -8,12 +8,12 @@
     <fieldset class="border rounded border-3 px-2 px-xl-5 pt-2 me-lg-5">
         <p class="mb-1">会員ID: <%= user._id %></p>
         <% if(user.username){ %>
-            <p class="mb-1">お名前: <%= user.username %></p>
+            <p class="mb-1">お名前:  <%= user.username %></p>
         <% } %>
-        <p class="mb-1">E-mailアドレス: <%= user.email %></p>
+        <p class="mb-1">E-mailアドレス:  <%= user.email %></p>
 
         <div>
-            <span class="mt-2">パスワード: </span>
+            <!-- <span class="mt-2">パスワード: </span>
             <% if(user.googleId){ %>
                 <button class="btn btn-sm btn-outline-success mb-0" disabled>
                     Googleアカウントでログイン中
@@ -23,11 +23,11 @@
                     変更フォームを上記E-mailアドレスに送信する
                     <span class="visually-hidden spinner-border spinner-border-sm text-primary" id="spinner"></span>
                 </button>
-            <% } %>
+            <% } %> -->
             
         </div>
 
-        <div class="mb-1">
+        <!-- <div class="mb-1">
             <span>ダイレクトメッセージ受信したら: </span>
             <div class="form-check ms-3">
                 <input class="form-check-input" type="radio" name="notify" id="notifyTrue" <%=user.notify? 'checked':''%>>
@@ -41,7 +41,7 @@
                     通知しない
                 </label>
             </div>
-        </div>
+        </div> -->
         
     </fieldset>
 </div>

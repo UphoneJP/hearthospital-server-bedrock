@@ -35,25 +35,25 @@
                     
                 <div class="input-group mb-3">
                     <span class="input-group-text">ペンネーム</span>
-                    <input type="text" class="form-control" name="penName" required>
+                    <input type="text" class="form-control" name="penName" id="penName" required>
                 </div>
 
-                <div class="input-group mb-1">
+                <div class="input-group mb-3">
                     <span class="input-group-text">E-mail</span>
                     <input type="email" class="form-control" name="email" id="email" required>
-                    <a class="btn btn-primary" id="sendEmail">
+                    <!-- <a class="btn btn-primary" id="sendEmail">
                         送信
                         <span class="visually-hidden spinner-border spinner-border-sm text-primary" id="spinner"></span>
-                    </a>
+                    </a> -->
                 </div>
-                <p class="text-secondary m-0" id="hintText">
+                <!-- <p class="text-secondary m-0" id="hintText">
                     <small>※「support@hearthospital.jp」からメールを自動送信します。メール内の認証番号をご確認ください。</small>
                 </p>
 
                 <div class="input-group px-5 mb-4">
                     <span class="input-group-text">認証番号</span>
                     <input type="text" class="form-control"  id="authNum" name="authNum" required>
-                </div>
+                </div> -->
 
                 <div class="input-group mb-3">
                     <span class="input-group-text">パスワード</span>
@@ -71,7 +71,7 @@
                 </div>
                 
                 <div class="text-center">
-                    <button class="btn btn-success w-100" id="registerBtn" disabled>新規登録</button>
+                    <button class="btn btn-secondary disabled" id="registerBtn">新規登録</button>
                 </div>
 
             </form>
@@ -98,43 +98,71 @@
         });
     });
 
-    // メールを送る
-    const sendEmailBtn = document.querySelector('#sendEmail');
-    const email = document.querySelector('#email');
-    const hintText = document.querySelector('#hintText');
-    const checkbox = document.querySelector('#checkbox');
-    const authNum = document.querySelector('#authNum');
-    const registerBtn = document.querySelector('#registerBtn');
-    const spinner = document.querySelector('#spinner');
-    sendEmailBtn.addEventListener('click', ()=>{
-        spinner.classList.remove('visually-hidden');
-        email.classList.add('pe-none');
-        sendEmailBtn.disabled = true;
-        axios.post('/checkEmail', {email:email.value})
-        .then(response =>{
-            if(response.data.emailSent){
-                sendEmailBtn.textContent = 'メールを送信しました';
-                sendEmailBtn.classList.add('btn-outline-primary', 'pe-none');
-                sendEmailBtn.classList.remove('btn-primary')
+    // 登録ボタンのアクティブ化
+    const penName = document.getElementById('penName');
+    const email = document.getElementById('email');
+    const password = document.getElementById('passwordA');
+    const checkbox = document.getElementById('checkbox');
+    const registerButton = document.querySelector('#registerBtn');
+    function btnActivate() {
+      if (
+        penName.value.trim() 
+        && email.value.trim().includes('@') 
+        && email.value.trim().includes('.') 
+        && email.value.trim()[email.value.trim().length - 1] !== '@'
+        && email.value.trim()[email.value.trim().length - 1] !== '.'
+        && password.value.trim() 
+        && checkbox.checked
+      ) {
+            registerButton.classList.remove('disabled', 'btn-secondary');
+            registerButton.classList.add('btn-success');
+        } else {
+            registerButton.classList.remove('btn-success');
+            registerButton.classList.add('disabled', 'btn-secondary');
+        }
+    };
+    penName.addEventListener('input', btnActivate);
+    email.addEventListener('input', btnActivate);
+    password.addEventListener('input', btnActivate);
+    checkbox.addEventListener('change', btnActivate);
 
-                // フォームの状態を確認する関数
-                const checkFormState = () => {
-                    if (authNum.value.toString() === response.data.nums && checkbox.checked) {
-                        registerBtn.disabled = false;
-                    } else {
-                        registerBtn.disabled = true;
-                    }
-                };
-                // 認証番号入力とチェックボックスのイベントリスナー
-                authNum.addEventListener('input', checkFormState);
-                checkbox.addEventListener('click', checkFormState);
-            } else {
-                hintText.textContent = 'エラーが発生し送信できませんでした。'
-            }
-        })
-        .catch(e => {
-            hintText.textContent = 'エラーが発生し送信できませんでした。再度お試しいただくか問い合わせフォームにてお知らせください。';
-            console.log(e);
-        })
-    })
+    // メールを送る
+    // const sendEmailBtn = document.querySelector('#sendEmail');
+    // const email = document.querySelector('#email');
+    // const hintText = document.querySelector('#hintText');
+    // const checkbox = document.querySelector('#checkbox');
+    // const authNum = document.querySelector('#authNum');
+    // const registerBtn = document.querySelector('#registerBtn');
+    // const spinner = document.querySelector('#spinner');
+    // sendEmailBtn.addEventListener('click', ()=>{
+    //     spinner.classList.remove('visually-hidden');
+    //     email.classList.add('pe-none');
+    //     sendEmailBtn.disabled = true;
+    //     axios.post('/checkEmail', {email:email.value})
+    //     .then(response =>{
+    //         if(response.data.emailSent){
+    //             sendEmailBtn.textContent = 'メールを送信しました';
+    //             sendEmailBtn.classList.add('btn-outline-primary', 'pe-none');
+    //             sendEmailBtn.classList.remove('btn-primary');
+
+    //             // フォームの状態を確認する関数
+    //             const checkFormState = () => {
+    //                 if (authNum.value.toString() === response.data.nums && checkbox.checked) {
+    //                     registerBtn.disabled = false;
+    //                 } else {
+    //                     registerBtn.disabled = true;
+    //                 }
+    //             };
+    //             // 認証番号入力とチェックボックスのイベントリスナー
+    //             authNum.addEventListener('input', checkFormState);
+    //             checkbox.addEventListener('click', checkFormState);
+    //         } else {
+    //             hintText.textContent = 'エラーが発生し送信できませんでした。'
+    //         }
+    //     })
+    //     .catch(e => {
+    //         hintText.textContent = 'エラーが発生し送信できませんでした。再度お試しいただくか問い合わせフォームにてお知らせください。';
+    //         console.log(e);
+    //     })
+    // })
 </script>

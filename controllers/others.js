@@ -5,37 +5,37 @@ const Review = require('../models/review');
 const Form = require('../models/form');
 const Feedback = require('../models/feedback');
 const Link = require('../models/link');
-const NonAccountUser = require('../models/nonAccountUser');
+// const NonAccountUser = require('../models/nonAccountUser');
 const AppError = require('../utils/AppError');
 
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport({
-    host: process.env.NODEMAILER_HOST,
-    port: 465,
-    secure: true, 
-    auth: {
-        user: process.env.NODEMAILER_USER,
-        pass: process.env.NODEMAILER_PASS,
-    },
-});
-async function autoSender(nonAccount) {
-    await transporter.sendMail({
-        from: 'support@hearthospital.jp',
-        to: nonAccount.email, 
-        bcc: 'support@hearthospital.jp',
-        subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital お問い合わせ内容",
-        text: `※自動送信メールです。このメールに返信いただいても対応しかねます。\n\nHeartHospitalにお問い合わせいただきありがとうございます。\n内容を確認し順番に対応しております。\n返答には通常数日要しますのでご了承下さい。\n\n-----お問い合わせ内容-----\n【問い合わせ番号】${nonAccount._id}\n【氏名】${nonAccount.username}\n【内容】${nonAccount.formContent}\n\n対応に至らない点もあると存じますが、\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\n\nHeartHospital\nhttps://www.hearthospital.jp`,
-    });
-}
-async function notifyToReciever(reciever) {
-    await transporter.sendMail({
-        from: 'support@hearthospital.jp',
-        to: reciever.email, 
-        bcc: 'support@hearthospital.jp',
-        subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital ダイレクトメッセージ受信のお知らせ",
-        text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\nダイレクトメッセージを受信しました。\nログインをした後、マイページの「ダイレクトメッセージを見る」でご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nhttps://www.hearthospital.jp`,
-    });
-}
+// const nodemailer = require("nodemailer");
+// const transporter = nodemailer.createTransport({
+//     host: process.env.NODEMAILER_HOST,
+//     port: 465,
+//     secure: true, 
+//     auth: {
+//         user: process.env.NODEMAILER_USER,
+//         pass: process.env.NODEMAILER_PASS,
+//     },
+// });
+// async function autoSender(nonAccount) {
+//     await transporter.sendMail({
+//         from: 'support@hearthospital.jp',
+//         to: nonAccount.email, 
+//         bcc: 'support@hearthospital.jp',
+//         subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital お問い合わせ内容",
+//         text: `※自動送信メールです。このメールに返信いただいても対応しかねます。\n\nHeartHospitalにお問い合わせいただきありがとうございます。\n内容を確認し順番に対応しております。\n返答には通常数日要しますのでご了承下さい。\n\n-----お問い合わせ内容-----\n【問い合わせ番号】${nonAccount._id}\n【氏名】${nonAccount.username}\n【内容】${nonAccount.formContent}\n\n対応に至らない点もあると存じますが、\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\n\nHeartHospital\nhttps://www.hearthospital.jp`,
+//     });
+// }
+// async function notifyToReciever(reciever) {
+//     await transporter.sendMail({
+//         from: 'support@hearthospital.jp',
+//         to: reciever.email, 
+//         bcc: 'support@hearthospital.jp',
+//         subject: "~先天性心疾患専用 病院口コミアプリ~ HeartHospital ダイレクトメッセージ受信のお知らせ",
+//         text: `※自動送信メールです。\n\nHeartHospitalをご利用いただきありがとうございます。\nダイレクトメッセージを受信しました。\nログインをした後、マイページの「ダイレクトメッセージを見る」でご確認下さい。\n\n悩んでいる人の力になれるようお力をお貸しください。\nよろしくお願いいたします。\nまた、何かお困りの際は問い合わせフォームにてご相談ください。\n\nHeartHospital\nhttps://www.hearthospital.jp`,
+//     });
+// }
 function sortHospitalDPC(hospitals, codes, year) {
     let arrays = [];
     let name = `${year}DPCcode`;
@@ -508,9 +508,9 @@ module.exports.postDirectMessage = async(req,res)=>{
         content
     });
     await newMessage.save();
-    if(reciever.notify){
-        await notifyToReciever(reciever);
-    }
+    // if(reciever.notify){
+    //     await notifyToReciever(reciever);
+    // }
     res.redirect(`/messages/${senderId}/${recieverId}`);
 }
 
@@ -546,21 +546,21 @@ module.exports.createForm = async(req, res)=>{
     res.redirect(`/messages/${req.user._id}/${process.env.ownerId}`);
 }
 
-module.exports.createNonAccountForm = async(req, res)=>{
-    const {lastname, firstname, email, authNum, formContent} = req.body;
-    if(authNum === req.session.nums && Date.now() - req.session.authTimestamp <= 1000 * 60 * 10){
-        const nonAccount = new NonAccountUser({
-            username: [lastname, firstname].join(' '),
-            email,
-            formContent
-        });
-        await nonAccount.save();
-        await autoSender(nonAccount);
-        res.render('others/formSent', {nonAccount}); 
-    } else {
-        res.render('others/formSent', {nonAccount:false, formContent});
-    }
-}
+// module.exports.createNonAccountForm = async(req, res)=>{
+//     const {lastname, firstname, email, authNum, formContent} = req.body;
+//     if(authNum === req.session.nums && Date.now() - req.session.authTimestamp <= 1000 * 60 * 10){
+//         const nonAccount = new NonAccountUser({
+//             username: [lastname, firstname].join(' '),
+//             email,
+//             formContent
+//         });
+//         await nonAccount.save();
+//         await autoSender(nonAccount);
+//         res.render('others/formSent', {nonAccount}); 
+//     } else {
+//         res.render('others/formSent', {nonAccount:false, formContent});
+//     }
+// }
 
 module.exports.createFeedback = async(req, res)=>{
     const {feedbackContent} = req.body;

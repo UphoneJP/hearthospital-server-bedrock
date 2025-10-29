@@ -64,13 +64,11 @@ router.post('/firstLaunch', async (req, res) => {
       return res.status(403).json({ error: "Invalid timestamp" });
     }
   
-    // 正しい署名を作成
+    // 正しい署名を作成し、一致しない場合は403エラー
     const expectedSignature = crypto
       .createHmac("sha256", process.env.API_KEY_INI)
       .update(`${deviceId}:${timestamp}`)
       .digest("hex");
-  
-    // 署名が一致しない場合は403エラー
     if (signature.trim() !== expectedSignature.trim()) {
       return res.status(403).json({ error: "Invalid signature" });
     }
@@ -79,6 +77,7 @@ router.post('/firstLaunch', async (req, res) => {
     const apiKey = crypto.randomBytes(24).toString('hex')
     const JWTSecret = process.env.JWT_SECRET
 
+    // DBにdeviceがあるか確認して、あれば更新、なければ新規保存
     const savedDevice = await Device.findOne({deviceId})
     if(savedDevice){
       savedDevice.apiKey = apiKey

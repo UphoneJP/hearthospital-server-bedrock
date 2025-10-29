@@ -18,10 +18,10 @@ module.exports.form = async (req, res) => {
       content: formContent
     })
     await newMessage.save();
-    return res.status(200).json({newApiKey: req.newApiKey});
+    return res.status(200).json({});
   } catch(err) {
     console.log('フォームを保存できませんでした', err)
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -30,10 +30,10 @@ module.exports.feedback = async(req, res)=>{
     const { feedbackContent } = req.body
     const feedback = new Feedback({feedbackContent})
     await feedback.save()
-    return res.status(200).json({newApiKey: req.newApiKey})
+    return res.status(200).json({})
   } catch (err){
     console.log('フィードバックを保存できませんでした', err)
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -46,7 +46,7 @@ module.exports.chatBox = async(req, res)=>{
   try {
     const { user } = req.body
     if(!user){
-      res.status(400).json({newApiKey: req.newApiKey})
+      res.status(400).json({})
     }
     const sentMessages = await Message.find({sender:user._id}).populate('reciever')
     const recievedPersons = sentMessages.filter(message => !message.reciever.isDeleted).map(messages => messages.reciever)
@@ -71,12 +71,11 @@ module.exports.chatBox = async(req, res)=>{
     
     return res.status(200).json({ 
       contactPersons: contactPersonsData,
-      usersExceptContactPersons,
-      newApiKey: req.newApiKey
+      usersExceptContactPersons      
     })
   } catch(err) {
     console.log('連絡相手を取得できませんでした', err)
-    return res.status(401).json({newApiKey: req.newApiKey})
+    return res.status(401).json({})
   }
 }
 
@@ -86,12 +85,12 @@ module.exports.getMessages = async(req,res)=>{
     const sender = await User.findById(senderId);
     if(!sender || sender.isDeleted){
       console.log('senderが見つかりません')
-      return res.status(404).json({newApiKey: req.newApiKey});
+      return res.status(404).json({});
     }
     const reciever = await User.findById(recieverId);
     if(!reciever || reciever.isDeleted){
       console.log('recieverが見つかりません')
-      return res.status(404).json({newApiKey: req.newApiKey});
+      return res.status(404).json({});
     }
     const senderMessages = await Message.find({sender, reciever}).populate('sender').populate('reciever');
     const recieverMessages = await Message.find({sender:reciever, reciever:sender}).populate('sender').populate('reciever');
@@ -112,12 +111,11 @@ module.exports.getMessages = async(req,res)=>{
     })
     return res.status(200).json({
       messages: messagesData,
-      penName: reciever.penName || reciever.username,
-      newApiKey: req.newApiKey
+      penName: reciever.penName || reciever.username      
     })
   } catch(err) {
     console.log('メッセージを取得できませんでした', err)
-    return res.status(401).json({newApiKey: req.newApiKey})
+    return res.status(401).json({})
   }
 }
 
@@ -126,10 +124,10 @@ module.exports.othersPage = async (req, res) => {
     const { id } = req.body
     const other = await User.findById(id).populate('reviews')
     if(!other){
-      return res.status(404).json({newApiKey: req.newApiKey})
+      return res.status(404).json({})
     }
-    return res.status(200).json({other, newApiKey: req.newApiKey})
+    return res.status(200).json({other})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }

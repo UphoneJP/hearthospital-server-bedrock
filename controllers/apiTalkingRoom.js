@@ -5,9 +5,9 @@ const User = require('../models/user')
 module.exports.talkThemesList = async(req, res)=>{
   try{
     const talkThemes = await TalkTheme.find({})
-    return res.status(200).json({talkThemes, newApiKey: req.newApiKey})
+    return res.status(200).json({talkThemes})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -27,9 +27,9 @@ module.exports.eachTheme = async(req, res)=> {
     }
     talkTheme.accessCount += 1
     await talkTheme.save()
-    return res.status(200).json({talkTheme, newApiKey: req.newApiKey})
+    return res.status(200).json({talkTheme})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -37,11 +37,11 @@ module.exports.createNewTalkTheme = async(req, res)=> {
   try {
     const {title, detailNoSpace, userId} = req.body
     if( !title || !detailNoSpace || !userId ){
-      return res.status(403).json({newApiKey: req.newApiKey})
+      return res.status(403).json({})
     }
     const user = await User.findById(userId)
     if(!user){ 
-      return res.status(404).json({newApiKey: req.newApiKey})
+      return res.status(404).json({})
     }
     const talkTheme = new TalkTheme({
       author: user._id,
@@ -51,9 +51,9 @@ module.exports.createNewTalkTheme = async(req, res)=> {
       touchAt: new Date()
     })
     await talkTheme.save()
-    return res.status(200).json({newApiKey: req.newApiKey})
+    return res.status(200).json({})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -62,15 +62,15 @@ module.exports.createNewTalk = async(req, res)=> {
     const {id} = req.params
     const talkTheme = await TalkTheme.findById(id)
     if(!talkTheme){
-      return res.status(404).json({newApiKey: req.newApiKey})
+      return res.status(404).json({})
     }
     const {reviewText, userId} = req.body
     if(!reviewText || !userId){
-      return res.status(404).json({newApiKey: req.newApiKey})
+      return res.status(404).json({})
     }
     const DBuser = await User.findById(userId)
     if(!DBuser) {
-      return res.status(404).json({newApiKey: req.newApiKey})
+      return res.status(404).json({})
     }
     const newTalk = new Talk({
       loggedInUser: userId,
@@ -94,9 +94,9 @@ module.exports.createNewTalk = async(req, res)=> {
       })
       await DBuser.save()
     }
-    return res.status(200).json({DBuser, newApiKey: req.newApiKey})
+    return res.status(200).json({DBuser})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }
 
@@ -104,16 +104,16 @@ module.exports.editTalkTheme = async(req, res)=> {
   const { id } = req.params
   const {title, detail} = req.body
   if( !title || !detail ){
-    return res.status(404).json({newApiKey: req.newApiKey})
+    return res.status(404).json({})
   }
   const talkTheme = await TalkTheme.findByIdAndUpdate(id, {
     title, 
     detail
   })
   if(!talkTheme){
-    return res.status(404).json({newApiKey: req.newApiKey})
+    return res.status(404).json({})
   }
-  res.status(200).json({newApiKey: req.newApiKey})
+  res.status(200).json({})
 }
 
 module.exports.deleteTalkTheme = async(req, res)=> {
@@ -122,13 +122,13 @@ module.exports.deleteTalkTheme = async(req, res)=> {
   
   const talkTheme = await TalkTheme.findById(id)
   if (!talkTheme) {
-    return res.status(404).json({newApiKey: req.newApiKey})
+    return res.status(404).json({})
   }
   if(!user || !talkTheme.author.equals(user._id)){
-    return res.status(403).json({newApiKey: req.newApiKey})
+    return res.status(403).json({})
   }
   await talkTheme.deleteOne()
-  return res.status(200).json({newApiKey: req.newApiKey})
+  return res.status(200).json({})
 }
 
 module.exports.deleteTalk = async(req, res)=> {
@@ -136,12 +136,12 @@ module.exports.deleteTalk = async(req, res)=> {
     const { talkId, userId } = req.params
     const talk = await Talk.findById(talkId)
     if(!talk.loggedInUser.equals(userId)){
-      return res.status(403).json({newApiKey: req.newApiKey})
+      return res.status(403).json({})
     }
     talk.deleted = true
     await talk.save()
-    return res.status(200).json({newApiKey: req.newApiKey})
+    return res.status(200).json({})
   } catch {
-    return res.status(400).json({newApiKey: req.newApiKey})
+    return res.status(400).json({})
   }
 }

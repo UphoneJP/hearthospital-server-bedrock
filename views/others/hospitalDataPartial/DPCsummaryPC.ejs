@@ -13,23 +13,24 @@
         <select name="selectedYear" class="border-primary form-select form-select-sm DPCSelectedYear" style="max-width:7rem;">
             <option value="R3">令和3年度</option>
             <option value="R4">令和4年度</option>
-            <option value="R5" selected>令和5年度</option>
+            <option value="R5">令和5年度</option>
+            <option value="R6" selected>令和6年度</option>
         </select>
         <select class="form-select form-select-sm sortSelector" aria-label=".form-select-sm">
             <option name="code" value="DPCcodeName" selected>総患者数優先 --順番替え --</option>
-            <option name="code" value='["x10100","x10101","x10110","x10111"]'>
+            <option name="code" value='["x0010","x10100","x10101","x10110","x10111"]'>
                 (1)大血管転位症手術 大血管血流転換術(ジャテーン手術)等
             </option>
             <option name="code" value='["x0020","x0021","x1020"]'>
                 (2)ファロー四徴症手術等
             </option>
-            <option name="code" value='["x1021"]'>
+            <option name="code" value='["x1021","e14029xxx01x0xx"]'>
                 (3)弁形成術等
             </option>
             <option name="code" value='["x0030","x1030","x1031"]'>
                 (4)心室中隔欠損閉鎖術
             </option>
-            <option name="code" value='["x0970"]'>
+            <option name="code" value='["x0970","e50080xx0101xx","e50210xx97000x"]'>
                 (5)その他の手術
             </option>
         </select>
@@ -49,33 +50,33 @@
                 </tr>
             </thead>
             <tbody class="table-group-divider dataSheet">
-                <% sortHospitalDPC(hospitals,DPCcodeName,'R5').forEach((hospital, index)=>{ %>
+                <% sortHospitalDPC(hospitals,DPCcodeName,"R6").forEach((hospital, index)=>{ %>
                     <tr>
                         <th scope="col"><%= index + 1 %></th>
                         <td scope="col"><a href="/hospital/<%=hospital.hospital._id%>"><%= hospital.hospital.hospitalname %></a></td>
                         <!-- 総患者数 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital, DPCcodeName,'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital, DPCcodeName,'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, DPCcodeName,'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital, DPCcodeName,"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital, DPCcodeName,"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, DPCcodeName,"R6") %>
                         </td>
                         <!-- 大血管転位症手術 大血管血流転換術(ジャテーン手術)等 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'],'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'],'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, ['x10100','x10101','x10110','x10111'],'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ["x10100","x10101","x10110","x10111"],"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital.hospital, ["x10100","x10101","x10110","x10111"],"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, ["x10100","x10101","x10110","x10111"],"R6") %>
                         </td>
                         <!-- ファロー四徴症手術等 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'],'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'],'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'],'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ["x0020","x0021","x1020"],"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital.hospital, ["x0020","x0021","x1020"],"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, ["x0020","x0021","x1020"],"R6") %>
                         </td>
                         <!-- 弁形成術等 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'],'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'],'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'],'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ["x1021","e14029xxx01x0xx"],"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital.hospital, ["x1021","e14029xxx01x0xx"],"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, ["x1021","e14029xxx01x0xx"],"R6") %>
                         </td>
                         <!-- 心室中隔欠損閉鎖術 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'],'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'],'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'],'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ["x0030","x1030","x1031"],"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital.hospital, ["x0030","x1030","x1031"],"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, ["x0030","x1030","x1031"],"R6") %>
                         </td>
                         <!-- その他の手術 -->
-                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'],'R5') >= 20 ? 'text-danger':''%> <%=calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'],'R5') >= 30 ? 'fw-bold':''%>">
-                            <%= calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'],'R5') %>
+                        <td scope="col" class="<%=calcPatientsDPC(hospital.hospital, ["x0970","e50080xx0101xx","e50210xx97000x"],"R6") >= 20 ? "text-danger":""%> <%=calcPatientsDPC(hospital.hospital, ["x0970","e50080xx0101xx","e50210xx97000x"],"R6") >= 30 ? "fw-bold":""%>">
+                            <%= calcPatientsDPC(hospital.hospital, ["x0970","e50080xx0101xx","e50210xx97000x"],"R6") %>
                         </td>
                     </tr>
                 <% }) %>

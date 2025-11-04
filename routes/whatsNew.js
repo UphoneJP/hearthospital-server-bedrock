@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router({mergeParams : true});
  
+router.get('/renewalHospitalDataR6', (req, res)=>{
+  res.render('whatsNew/renewalHospitalDataR6');
+})
 router.get('/addHospitalChuukyo', (req, res)=>{
   res.render('whatsNew/addHospitalChuukyo');
 })

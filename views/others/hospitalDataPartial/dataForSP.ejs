@@ -20,8 +20,10 @@
                                     hospital.R4Kcode||
                                     hospital.R4DPCcode||
                                     hospital.R5Kcode||
-                                    hospital.R5DPCcode?'btn-outline-success':
-                                    'd-none'%>" 
+                                    hospital.R5DPCcode||
+                                    hospital.R6Kcode||
+                                    hospital.R6DPCcode
+                                    ?'btn-outline-success':'d-none'%>" 
                                 type="button" 
                                 data-bs-toggle="collapse" 
                                 data-bs-target="#Collapse<%=hospital._id%>" 
@@ -70,7 +72,13 @@
                             </a>
                         </div>
                     <% } %>
-                        
+                    <% if(hospital.R6DPC){ %>
+                        <div class="ms-auto pe-3">
+                            <a href="<%=hospital.R6DPC%>" target="_blank">
+                                <small>R6年度病院指標</small>
+                            </a>
+                        </div>
+                    <% } %>
 
                     <hr>
 

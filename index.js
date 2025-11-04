@@ -192,7 +192,8 @@ app.use(
         connectSrc: [
           "'self'", 
           "https://maps.googleapis.com",
-          "https://maps.gstatic.com"
+          "https://maps.gstatic.com",
+          "https://cdn.jsdelivr.net"
         ],
         frameSrc: ["'self'", "https://www.google.com"],
       },
@@ -270,7 +271,7 @@ app.use(async(err, req, res, next) => {
       accessAt_UTC: [new Date().toLocaleString('ja-JP')]
     })
   }
-  await badUser.save()
+  // await badUser.save()
   const { status = 500, message = 'エラー発生' } = err
   res.status(status).render('error', { message, status , page:'error'})
 })

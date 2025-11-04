@@ -1,32 +1,28 @@
-<% layout('layouts/boilerplate') %>
+<% layout("layouts/boilerplate") %>
 <h4 class="text-center">
     病院指標
-    <span class="badge bg-danger">
-        New
-        <span class="visually-hidden">unread messages</span>
-    </span>
     <small class="text-secondary">独自まとめ</small>
 </h4>
 
-<%- include('hospitalDataPartial/modalOfFilter') %>
-<%- include('hospitalDataPartial/dialog')%>
+<%- include("hospitalDataPartial/modalOfFilter") %>
+<%- include("hospitalDataPartial/dialog")%>
 
 <div class="row flex-grow-1 h-100 position-relative">
-    <%- include('hospitalDataPartial/mask')%>
+    <%- include("hospitalDataPartial/mask")%>
 
     <div class="col-md-3 d-flex flex-column mb-3">
         <!-- ボタンとスマホ用 -->
-        <%- include('hospitalDataPartial/DPCsummarySP')%>
-        <%- include('hospitalDataPartial/KcodesummarySP')%>
-        <%- include('hospitalDataPartial/dataForSP')%>
+        <%- include("hospitalDataPartial/DPCsummarySP")%>
+        <%- include("hospitalDataPartial/KcodesummarySP")%>
+        <%- include("hospitalDataPartial/dataForSP")%>
     </div>
     
     <!-- デスクトップ用 -->
     <div class="col-md-9 d-flex flex-column h-100 d-none d-md-block">
         <div class="h-100 rounded-5" id="startPage">
-            <%- include('hospitalDataPartial/DPCsummaryPC') %>
-            <%- include('hospitalDataPartial/KcodesummaryPC') %>
-            <%- include('hospitalDataPartial/dataForPC') %>
+            <%- include("hospitalDataPartial/DPCsummaryPC") %>
+            <%- include("hospitalDataPartial/KcodesummaryPC") %>
+            <%- include("hospitalDataPartial/dataForPC") %>
         </div>
     </div>
 </div>
@@ -38,10 +34,18 @@
     const DPCcodeName = <%- JSON.stringify(DPCcodeName) %>;
     const KcodeName = <%- JSON.stringify(KcodeName) %>;
 
-    const sortSelectors = document.querySelectorAll('.sortSelector');
-    const dataSheets = document.querySelectorAll('.dataSheet');
-    const DPCSelectedYears = document.querySelectorAll('.DPCSelectedYear');
-    const KcodeSelectedYears = document.querySelectorAll('.KcodeSelectedYear');
+    const sortSelectors = document.querySelectorAll(".sortSelector");
+    const dataSheets = document.querySelectorAll(".dataSheet");
+    const DPCSelectedYears = document.querySelectorAll(".DPCSelectedYear");
+    const KcodeSelectedYears = document.querySelectorAll(".KcodeSelectedYear");
+    const yearsData = ["R3", "R4", "R5", "R6"];
+    const disease1 = ["x0010","x10100","x10101","x10110","x10111"]; // 大血管転位症手術等
+    const disease2 = ["x0020","x0021","x1020"]; // ファロー四徴症手術等
+    const disease3 = ["x1021","e14029xxx01x0xx"]; // 弁形成術等
+    const disease4 = ["x0030","x1030","x1031"]; //  心室中隔欠損閉鎖術
+    const disease5 = ["x0970","e50080xx0101xx","e50210xx97000x"]; // その他の手術
+    const diseases = [disease1, disease2, disease3, disease4, disease5];
+
     function sortHospitalDPC(hospitals, codes, year) {
         let arrays = [];
         let name = `${year}DPCcode`;
@@ -82,18 +86,40 @@
         }
         return sum;
     }
+    function coloringOrBold(hospital, disease, year){
+      if(calcPatientsDPC(hospital, disease, year) >= 30){
+        return "text-danger fw-bold"
+      } else if (calcPatientsDPC(hospital, disease, year) >= 20) {
+        return "text-danger"
+      } else {
+        return ""
+      }
+    }
+    function check0orNot(hospital,disease){
+        for(let year of yearsData){
+            if(calcPatientsDPC(hospital,disease, year)!==0) return true
+        }
+        return false
+    }
+    function calcNumber(hospital,disease){
+        const number = [];
+        for(let year of yearsData){
+            number.push(calcPatientsDPC(hospital,disease, year))
+        }
+        return number
+    }
 
 //病院情報を開いている場合にボタンをアクティブにする
-    const btns = document.querySelectorAll('.btn');
+    const btns = document.querySelectorAll(".btn");
     btns.forEach(btn => {
         // MutationObserver のコールバック関数
         const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
-                if (mutation.attributeName === 'aria-expanded') {
-                    if (btn.getAttribute('aria-expanded') === 'true') {
-                        btn.classList.add('active');
+                if (mutation.attributeName === "aria-expanded") {
+                    if (btn.getAttribute("aria-expanded") === "true") {
+                        btn.classList.add("active");
                     } else {
-                        btn.classList.remove('active'); 
+                        btn.classList.remove("active"); 
                     }
                 }
             });
@@ -104,63 +130,45 @@
 // セレクターでDPCsummary表を操作する
     // 年度をセレクト
     DPCSelectedYears.forEach(selectedYear=>{
-        selectedYear.addEventListener('change', ()=>{
+        selectedYear.addEventListener("change", ()=>{
             sortSelectors.forEach(sortSelector=>{
                 sortSelector.value = "DPCcodeName"; // ソートをリセット
             })
             dataSheets.forEach(dataSheet=>{
-                dataSheet.innerHTML = ''; // 既存のテーブル内容をクリア
+                dataSheet.innerHTML = ""; // 既存のテーブル内容をクリア
                 sortHospitalDPC(hospitals,DPCcodeName,selectedYear.value).forEach((hospital, index)=>{
-                    const row = `
-                        <tr>
-                            <th scope="col">
-                                ${index + 1}
-                            </th>
-                            <td scope="col">
-                                <a href="/hospital/${hospital.hospital._id}">
-                                    ${hospital.hospital.hospitalname}
-                                </a>
-                            </td>
-                            
-                            <!-- 総患者数 -->
-                            <td scope="col">
-                                ${calcPatientsDPC(hospital.hospital, DPCcodeName, selectedYear.value)}
-                            </td>
-            
-                            <!-- 大血管転位症手術 大血管血流転換術(ジャテーン手術)等 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''}">
-                                ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value)}
-                            </td>
-            
-                            <!-- ファロー四徴症手術等 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value) >= 30 ? 'fw-bold':''}">
-                                ${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value)}
-                            </td>
-            
-                            <!-- 弁形成術等 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx' ], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'], selectedYear.value) >= 30 ? 'fw-bold':''}">
-                                ${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'], selectedYear.value)}
-                            </td>
-            
-                            <!-- 心室中隔欠損閉鎖術 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value) >= 30 ? 'fw-bold':''} ">
-                                ${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value)}
-                            </td>
-            
-                            <!-- その他の手術 -->
-                            <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value) >= 30 ? 'fw-bold':''} ">
-                                ${ calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value)}
-                            </td>
-                        </tr>
-                    `;
-                    dataSheet.insertAdjacentHTML('beforeend', row);
+                    const rowParts = [];
+                    rowParts.push(`
+                      <tr>
+                        <th scope="col">${index + 1}</th>
+                        <td scope="col">
+                          <a href="/hospital/${hospital.hospital._id}">
+                            ${hospital.hospital.hospitalname}
+                          </a>
+                        </td>
+                        <td scope="col">
+                          ${calcPatientsDPC(hospital.hospital, DPCcodeName, selectedYear.value)}
+                        </td>
+                    `);
+
+                    for (let disease of diseases) {
+                      rowParts.push(`
+                        <td scope="col" class="${coloringOrBold(hospital.hospital, disease, selectedYear.value)}">
+                          ${calcPatientsDPC(hospital.hospital, disease, selectedYear.value)}
+                        </td>
+                      `);
+                    }
+
+                    rowParts.push(`</tr>`);
+                    const row = rowParts.join("");
+                    dataSheet.insertAdjacentHTML("beforeend", row);
                 });
             });
         })
 
         // sortをかけて順番入れ替え
         sortSelectors.forEach(sortSelector => {
-            sortSelector.addEventListener('change', function(){
+            sortSelector.addEventListener("change", function(){
                 const value = this.value;
                 let codes;
                 try{
@@ -169,51 +177,33 @@
                     codes = DPCcodeName;
                 }
                 dataSheets.forEach(dataSheet=>{
-                    dataSheet.innerHTML = ''; // 既存のテーブル内容をクリア
+                    dataSheet.innerHTML = ""; // 既存のテーブル内容をクリア
                     sortHospitalDPC(hospitals,codes,selectedYear.value).forEach((hospital, index)=>{
-                        const row = `
-                            <tr>
-                                <th scope="col">
-                                    ${index + 1}
-                                </th>
-                                <td scope="col">
-                                    <a href="/hospital/${hospital.hospital._id}">
-                                        ${hospital.hospital.hospitalname}
-                                    </a>
-                                </td>
-                                
-                                <!-- 総患者数 -->
-                                <td scope="col">
-                                    ${calcPatientsDPC(hospital.hospital, DPCcodeName, selectedYear.value)}
-                                </td>
-                
-                                <!-- 大血管転位症手術 大血管血流転換術(ジャテーン手術)等 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x10100', 'x10101', 'x10110','x10111'])?'table-active':''}">
-                                    ${calcPatientsDPC(hospital.hospital, ['x0010','x10100','x10101','x10110','x10111'], selectedYear.value)}
-                                </td>
-                
-                                <!-- ファロー四徴症手術等 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x0020','x0021','x1020'], selectedYear.value)?'table-active':''}">
-                                    ${calcPatientsDPC(hospital.hospital, ['x0020','x0021','x1020'], selectedYear.value)}
-                                </td>
-                
-                                <!-- 弁形成術等 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x1021','e14029xxx01x0xx'], selectedYear.value)?'table-active':''}">
-                                    ${calcPatientsDPC(hospital.hospital, ['x1021','e14029xxx01x0xx'], selectedYear.value)}
-                                </td>
-                
-                                <!-- 心室中隔欠損閉鎖術 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x0030','x1030','x1031'], selectedYear.value)?'table-active':''}">
-                                    ${calcPatientsDPC(hospital.hospital, ['x0030','x1030','x1031'], selectedYear.value)}
-                                </td>
-                
-                                <!-- その他の手術 -->
-                                <td scope="col" class="${calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value) >= 20 ? 'text-danger':''} ${calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value) >= 30 ? 'fw-bold':''} ${JSON.stringify(codes)===JSON.stringify(['x0970','e50210xx97000x'], selectedYear.value)?'table-active':''}">
-                                    ${ calcPatientsDPC(hospital.hospital, ['x0970','e50210xx97000x'], selectedYear.value)}
-                                </td>
-                            </tr>
-                        `;
-                        dataSheet.insertAdjacentHTML('beforeend', row);
+                        const rowParts = [];
+                        rowParts.push(`
+                          <tr>
+                            <th scope="col">${index + 1}</th>
+                            <td scope="col">
+                              <a href="/hospital/${hospital.hospital._id}">
+                                ${hospital.hospital.hospitalname}
+                              </a>
+                            </td>
+                            <td scope="col">
+                              ${calcPatientsDPC(hospital.hospital, DPCcodeName, selectedYear.value)}
+                            </td>
+                        `);
+
+                        for (let disease of diseases) {
+                          rowParts.push(`
+                            <td scope="col" class="${coloringOrBold(hospital.hospital, disease, selectedYear.value)}">
+                              ${calcPatientsDPC(hospital.hospital, disease, selectedYear.value)}
+                            </td>
+                          `);
+                        }
+
+                        rowParts.push(`</tr>`);
+                        const row = rowParts.join("");
+                        dataSheet.insertAdjacentHTML("beforeend", row);
                     });
                 });
             });
@@ -221,19 +211,19 @@
     })
     
 // セレクターでKcodeSummaryグラフを操作する
-    const ctxSP = document.querySelector('#KcodeSummarySP').getContext('2d');
-    const ctxPC = document.querySelector('#KcodeSummaryPC').getContext('2d');
-    let year = 'R5';
-    let labelName = sortHospitalKcode(hospitals, KcodeName, 'R5').map(hospital=>hospital.hospital.hospitalname);
+    const ctxSP = document.querySelector("#KcodeSummarySP").getContext("2d");
+    const ctxPC = document.querySelector("#KcodeSummaryPC").getContext("2d");
+    let year = "R6";
+    let labelName = sortHospitalKcode(hospitals, KcodeName, "R6").map(hospital=>hospital.hospital.hospitalname);
     let datas = [];
     for(let Kcode in KcodeName){
         const d = [];
-        sortHospitalKcode(hospitals, KcodeName, 'R5').forEach(hospital=>{
+        sortHospitalKcode(hospitals, KcodeName, "R6").forEach(hospital=>{
             if(
-                hospital.hospital.R5Kcode&&
-                hospital.hospital.R5Kcode[Kcode]
+                hospital.hospital.R6Kcode&&
+                hospital.hospital.R6Kcode[Kcode]
             ){
-                d.push(hospital.hospital.R5Kcode[Kcode][0])
+                d.push(hospital.hospital.R6Kcode[Kcode][0])
             } else {
                 d.push(0)
             }
@@ -247,8 +237,9 @@
             datas.push(data)
         }
     }
-    let myChartSP = new Chart(ctxSP, {
-        type: 'bar',
+
+    const options = {
+        type: "bar",
         data: {
             labels: labelName,
             datasets: datas
@@ -270,53 +261,22 @@
             },
             plugins: {
                 legend: {
-                    position: 'top',
-                    align: 'start',
+                    position: "top",
+                    align: "start",
                     labels: {
                         boxWidth: 10,
-                        textAlign: 'left',
+                        textAlign: "left",
                     }
                 }
             }
         }
-    });  
-    let myChartPC = new Chart(ctxPC, {
-        type: 'bar',
-        data: {
-            labels: labelName,
-            datasets: datas
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    stacked: true,
-                    ticks: {
-                        autoSkip: false,
-                        maxRotation: 90,
-                        minRotation: 90
-                    }
-                },
-                y: {
-                    stacked: true,
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'start',
-                    labels: {
-                        boxWidth: 10,
-                        textAlign: 'left',
-                    }
-                }
-            }
-        }
-    });  
-    
+    }
+    let myChartSP = new Chart(ctxSP, options);  
+    let myChartPC = new Chart(ctxPC, options);  
+
     // 年度の変更
     KcodeSelectedYears.forEach(KcodeSelectedYear=>{
-        KcodeSelectedYear.addEventListener('change', ()=>{
+        KcodeSelectedYear.addEventListener("change", ()=>{
             year =  KcodeSelectedYear.value;
             datas = [];
             const yearName = `${year}Kcode`;
@@ -345,15 +305,11 @@
             }
             labelName = sortedHospitals.map(hospital=>hospital.hospital.hospitalname);
 
-            if (myChartSP) {
-                myChartSP.destroy();
-            }
-            if (myChartPC) {
-                myChartPC.destroy();
-            }
-    
-            myChartSP = new Chart(ctxSP, {
-                type: 'bar',
+            if (myChartSP) myChartSP.destroy();
+            if (myChartPC) myChartPC.destroy();
+
+            const options = {
+                type: "bar",
                 data: {
                     labels: labelName,
                     datasets: datas
@@ -375,123 +331,76 @@
                     },
                     plugins: {
                         legend: {
-                            position: 'top',
-                            align: 'start',
+                            position: "top",
+                            align: "start",
                             labels: {
                                 boxWidth: 10,
-                                textAlign: 'left',
+                                textAlign: "left",
                             }
                         }
                     }
                 }
-            }); 
-            myChartPC = new Chart(ctxPC, {
-                type: 'bar',
-                data: {
-                    labels: labelName,
-                    datasets: datas
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            stacked: true,
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            align: 'start',
-                            labels: {
-                                boxWidth: 10,
-                                textAlign: 'left',
-                            }
-                        }
-                    }
-                }
-            }); 
+            }
+            myChartSP = new Chart(ctxSP, options); 
+            myChartPC = new Chart(ctxPC, options); 
         });
     });
     
 
 // 各病院のDPCcodeグラフ
     hospitals.forEach(hospital=>{
-        const ctxSP = document.getElementById(`DPCcodeChartSP${hospital._id}`).getContext('2d');
-        const ctxPC = document.getElementById(`DPCcodeChartPC${hospital._id}`).getContext('2d');
+        const canvasSP = document.getElementById(`DPCcodeChartSP${hospital._id}`);
+        const canvasPC = document.getElementById(`DPCcodeChartPC${hospital._id}`);
+        if (!canvasSP || !canvasPC) return;
+
+        const ctxSP = canvasSP.getContext("2d");
+        const ctxPC = canvasPC.getContext("2d");
         const data = [];
 
-        if(calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R3')!==0||calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R4')!==0||calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R5')!==0){
+        if(check0orNot(hospital,disease1)){
             const d = {
-                label: '大血管転位症手術 大血管血流転換術(ジャテーン手術)等',
-                data: [
-                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R3'),
-                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R4'),
-                    calcPatientsDPC(hospital, ['x0010','x10100','x10101','x10110','x10111'], 'R5'),
-                ],
+                label: "大血管転位症手術 大血管血流転換術(ジャテーン手術)等",
+                data: calcNumber(hospital,disease1),
             }
             data.push(d);
         }
 
-        if(calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R3')!==0||calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R4')!==0||calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R5')!==0){
+        if(check0orNot(hospital,disease2)){
             const d = {
-                label: 'ファロー四徴症手術等',
-                data: [
-                calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R3'),
-                calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R4'),
-                calcPatientsDPC(hospital, ['x0020','x0021','x1020'], 'R5'),
-                ],
+                label: "ファロー四徴症手術等",
+                data: calcNumber(hospital,disease2),
             };
             data.push(d);
         }
             
-        if(calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R3')!==0||calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R4')!==0||calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R5')!==0){
+        if(check0orNot(hospital,disease3)){
             const d =  {
-                label: '弁形成術',
-                data: [
-                    calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R3'),
-                    calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R4'),
-                    calcPatientsDPC(hospital, ['x1021','e14029xxx01x0xx'], 'R5'),
-                ],
+                label: "弁形成術",
+                data: calcNumber(hospital,disease3),
+            };
+            data.push(d);
+        }
+
+        if(check0orNot(hospital,disease4)){
+            const d = {
+                label: "心室中隔欠損閉鎖術",
+                data: calcNumber(hospital,disease4),
             };
             data.push(d);
         }
         
-        if(calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R3')!==0||calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R4')!==0||calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R5')!==0){
+        if(check0orNot(hospital,disease5)){
             const d = {
-                label: '心室中隔欠損閉鎖術',
-                data: [
-                    calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R3'),
-                    calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R4'),
-                    calcPatientsDPC(hospital, ['x0030','x1030','x1031'], 'R5'),
-                ],
-            };
-            data.push(d);
-        }
-        
-        if(calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R3')!==0||calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R4')!==0||calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R5')!==0){
-            const d = {
-                label: 'その他の手術',
-                data: [
-                    calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R3'),
-                    calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R4'),
-                    calcPatientsDPC(hospital, ['x0970','e50210xx97000x'], 'R5'),
-                ],
+                label: "その他の手術",
+                data: calcNumber(hospital,disease5),
             };
             data.push(d)
         }
 
-        new Chart(ctxSP, {
-            type: 'bar',
+        const options = {
+            type: "bar",
             data: {
-                labels: ['R3', 'R4', 'R5'],
+                labels: yearsData,
                 datasets: data
             },
             options: {
@@ -506,56 +415,32 @@
                 },
                 plugins: {
                     legend: {
-                        position: 'top',
-                        align: 'start',
+                        position: "top",
+                        align: "start",
                         labels: {
                             boxWidth: 10,
-                            textAlign: 'left',
+                            textAlign: "left",
                         }
                     }
                 }
             }
-        });
-        new Chart(ctxPC, {
-            type: 'bar',
-            data: {
-                labels: ['R3', 'R4', 'R5'],
-                datasets: data
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        stacked: true,
-                    },
-                    y: {
-                        stacked: true,
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'start',
-                        labels: {
-                            boxWidth: 10,
-                            textAlign: 'left',
-                        }
-                    }
-                }
-            }
-        });
-    })
+        };
+        new Chart(ctxSP, options);
+        new Chart(ctxPC, options);
+    });
+    console.log("hospitalData.ejs loaded");
 
 // 各病院のKcodeグラフ
     hospitals.forEach(hospital=>{
-        const ctxSP = document.getElementById(`KcodeChartSP${hospital._id}`).getContext('2d');
-        const ctxPC = document.getElementById(`KcodeChartPC${hospital._id}`).getContext('2d');
+        const ctxSP = document.getElementById(`KcodeChartSP${hospital._id}`).getContext("2d");
+        const ctxPC = document.getElementById(`KcodeChartPC${hospital._id}`).getContext("2d");
         const data = [];
         for(let Kcode in KcodeName){
             if(
                 hospital.R3Kcode&&hospital.R3Kcode[Kcode]&&hospital.R3Kcode[Kcode][0]!==0||
                 hospital.R4Kcode&&hospital.R4Kcode[Kcode]&&hospital.R4Kcode[Kcode][0]!==0||
-                hospital.R5Kcode&&hospital.R5Kcode[Kcode]&&hospital.R5Kcode[Kcode][0]!==0
+                hospital.R5Kcode&&hospital.R5Kcode[Kcode]&&hospital.R5Kcode[Kcode][0]!==0||
+                hospital.R6Kcode&&hospital.R6Kcode[Kcode]&&hospital.R6Kcode[Kcode][0]!==0
             ) {
                 const d = {
                     label: KcodeName[Kcode],
@@ -565,17 +450,18 @@
                         hospital.R4Kcode&&hospital.R4Kcode[Kcode]?
                         hospital.R4Kcode[Kcode][0]:0,
                         hospital.R5Kcode&&hospital.R5Kcode[Kcode]?
-                        hospital.R5Kcode[Kcode][0]:0
+                        hospital.R5Kcode[Kcode][0]:0,
+                        hospital.R6Kcode&&hospital.R6Kcode[Kcode]?
+                        hospital.R6Kcode[Kcode][0]:0
                     ],
                 };
                 data.push(d);
             }
-        }        
-        
-        new Chart(ctxSP, {
-            type: 'bar',
+        }
+        const options = {
+            type: "bar",
             data: {
-                labels: ['R3', 'R4', 'R5'],
+                labels: yearsData,
                 datasets: data
             },
             options: {
@@ -590,44 +476,18 @@
                 },
                 plugins: {
                     legend: {
-                        position: 'top',
-                        align: 'start',
+                        position: "top",
+                        align: "start",
                         labels: {
                             boxWidth: 10,
-                            textAlign: 'left',
+                            textAlign: "left",
                         }
                     }
                 }
             }
-        });
-        new Chart(ctxPC, {
-            type: 'bar',
-            data: {
-                labels: ['R3', 'R4', 'R5'],
-                datasets: data
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        stacked: true,
-                    },
-                    y: {
-                        stacked: true,
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'start',
-                        labels: {
-                            boxWidth: 10,
-                            textAlign: 'left',
-                        }
-                    }
-                }
-            }
-        });
+        };
+        if (ctxSP && data.length > 0) new Chart(ctxSP, options);
+if (ctxPC && data.length > 0) new Chart(ctxPC, options);
     })
 
 </script>

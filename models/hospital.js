@@ -25,6 +25,9 @@ const hospitalSchema = new Schema({
   R5DPC: String,
   R5Kcode: Object,
   R5DPCcode: Object,
+  R6DPC: String,
+  R6Kcode: Object,
+  R6DPCcode: Object,
   reviews : [{
     type : Schema.Types.ObjectId,
     ref : 'Review'

@@ -29,8 +29,7 @@ module.exports.emailSchema = Joi.object({
 module.exports.userRegisterSchema = Joi.object({
   penName: Joi.string().required().escapeHTML(),
   email: Joi.string().required().escapeHTML(),
-  password: Joi.string().required().escapeHTML(),
-  authNum: Joi.string().required().escapeHTML(),
+  password: Joi.string().required().escapeHTML()
 }).required()
 module.exports.userLoginSchema = Joi.object({
     email: Joi.string().required().escapeHTML(),

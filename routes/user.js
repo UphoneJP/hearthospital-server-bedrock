@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const catchAsync = require('../utils/catchAsync');
 const user = require('../controllers/user');
-const {isLoggedIn, saveReturnTo, intoMyPage, validateEmail, validateUserRegister, validateUserLogin, validateResetPassword, validatePenName, validatePromotion} = require('../utils/middleware');
+const {isLoggedIn, intoMyPage, validateUserRegister, validateUserLogin, validatePenName, validatePromotion} = require('../utils/middleware');
 
 // localユーザー登録
 router.get('/register', user.registerPage);

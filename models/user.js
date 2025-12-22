@@ -49,7 +49,7 @@ const userSchema = new Schema({
   timeOfGotPoint: Date
 })
 
-userSchema.plugin(passportLocalMongoose,{
+userSchema.plugin(passportLocalMongoose.default,{
   errorMessages : {
     UserExistsError : '入力されたE-mailアドレスはすでに使われています',
     MissingPasswordError : 'パスワードを入力してください',

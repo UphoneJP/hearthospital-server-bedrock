@@ -58,22 +58,17 @@ module.exports.registerPage = (req, res)=>{
     res.render('users/register', {page});
 }
 module.exports.register = async(req, res)=>{
-    const {penName, password, email, authNum} = req.body;
-    if(authNum === req.session.nums && Date.now() <= req.session.authTimestamp){
-        delete req.session.nums;
-        const user = new User({
-            penName,
-            email
-        });
-        const newUser = await User.register(user, password);
-        req.login(newUser, err=>{
-            if(err)return next(err);
-            req.flash('success', 'ユーザー登録しログインしました');
-            res.redirect(`/myPage/${newUser._id}`);
-        });
-    } else {
-        throw new AppError('正規手順で時間内に登録してください。', 400)
-    }
+    const {penName, password, email} = req.body;
+    const user = new User({
+        penName,
+        email
+    });
+    const newUser = await User.register(user, password);
+    req.login(newUser, err=>{
+        if(err)return next(err);
+        req.flash('success', 'ユーザー登録しログインしました');
+        res.redirect(`/myPage/${newUser._id}`);
+    });
 }
 
 // 認証番号通知

@@ -5,8 +5,7 @@ if(process.env.NODE_ENV !== 'production'){
 const express = require('express')
 const {createServer} = require('http')
 const mongoose = require("mongoose")
-const MongoStore = require('connect-mongo')
-const mongoSanitize = require('express-mongo-sanitize')
+const MongoStore = require('connect-mongo').default
 const passport = require("passport")
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const rateLimit = require('express-rate-limit')
@@ -22,9 +21,7 @@ const helmet = require("helmet")
 // custom module
 const User = require('./models/user')
 const Message = require('./models/message')
-const BadUser = require('./models/badUser')
-const { originalSecurity, checkIntegrity } = require('./utils/apiMiddleware')
-const catchAsync = require('./utils/catchAsync')
+const { originalSecurity } = require('./utils/apiMiddleware')
 const AppError = require('./utils/AppError')
 const customSocket = require('./controllers/customSocket')
 const FilterOfHeaderAndIP = require('./utils/FilterOfHeaderAndIP')
@@ -38,21 +35,17 @@ const PORT = process.env.PORT || 5131
 const app = express()
 const server = createServer(app)
 mongoose.connect(URL)
-.then(()=>console.log('mongoDB接続中'))
-.catch((e)=>console.log('エラー発生', e))
-const store = MongoStore.create({
-  mongoUrl: URL,
-  crypto: { secret },
-  touchAfter: 24 * 3600
-})
-store.on('error', e =>console.log('セッションストアエラー', e))
+  .then(()=>console.log('mongoDB接続中'))
+  .catch((e)=>console.log('エラー発生', e))
+customSocket(server)
+
+// additional setting
+let page = 'initial'
 let viewCount = 0
-app.use('*', (req, res, next)=>{
+app.use((req, res, next)=>{
     viewCount++
     next()
 })
-let page = 'initial'
-customSocket(server)
 app.use("/app-ads.txt", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "app-ads.txt"))
 })
@@ -73,13 +66,13 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }))
 app.use(express.urlencoded({extended : true}))
 app.use(express.json())
 app.use(methodOverride('_method'))
-app.use(mongoSanitize())
-app.use(rateLimit({
-  windowMs: 1000 * 60,
-  max: 10,
-  message: "Too many requests from this IP."
-}))
-app.use((req, res, next) => FilterOfHeaderAndIP(req, res, next))
+
+// session
+const store = MongoStore.create({
+  mongoUrl: URL,
+  crypto: { secret },
+  touchAfter: 24 * 3600
+})
 app.use(session({
   store,
   name: 'session',
@@ -96,39 +89,36 @@ app.use(session({
 app.use(flash())
 app.use(passport.initialize())
 app.use(passport.session())
-app.use((req, res, next)=>{
-  passport.use(new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_OAUTH_CLIANT_ID,
-      clientSecret: process.env.GOOGLE_OAUTH_CLIANT_SECRET,
-      callbackURL: process.env.NODE_ENV === 'production'?
-        `https://${req.headers.host}/login/callback`  //product用
-        :'/login/callback' //local開発用
-    },
-    async function(accessToken, refreshToken, profile, done) {
-      try {
-        let user = await User.findOne({googleId: profile.id})
-        if (!user) {
-          user = new User({
-            googleId: profile.id,
-            username: profile.displayName,
-            email: profile.emails[0].value,
-          })
-          await user.save()
-        } else {
-          user = await User.findOneAndUpdate({googleId: profile.id}, {
-            googleId: profile.id,
-            email: profile.emails[0].value,
-          })
-        }
-        done(null, user)
-      } catch (error) {
-        done(error)
+passport.use(new GoogleStrategy(
+  {
+    clientID: process.env.GOOGLE_OAUTH_CLIANT_ID,
+    clientSecret: process.env.GOOGLE_OAUTH_CLIANT_SECRET,
+    callbackURL: process.env.NODE_ENV === 'production'?
+      `https://www.hearthospital.jp/login/callback`  //product用
+      :'/login/callback' //local開発用
+  },
+  async function(accessToken, refreshToken, profile, done) {
+    try {
+      let user = await User.findOne({googleId: profile.id})
+      if (!user) {
+        user = new User({
+          googleId: profile.id,
+          username: profile.displayName,
+          email: profile.emails[0].value,
+        })
+        await user.save()
+      } else {
+        user = await User.findOneAndUpdate({googleId: profile.id}, {
+          googleId: profile.id,
+          email: profile.emails[0].value,
+        })
       }
+      done(null, user)
+    } catch (error) {
+      done(error)
     }
-  ))
-  next()
-})
+  }
+))
 passport.serializeUser((user, done) => {
   done(null, user._id)
 })
@@ -143,7 +133,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(User.createStrategy())
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
-app.use(catchAsync(async(req, res, next)=>{
+app.use(async(req, res, next)=>{
   res.locals.success = req.flash('success')
   res.locals.error = req.flash('error')
   res.locals.currentUser = req.user
@@ -162,8 +152,15 @@ app.use(catchAsync(async(req, res, next)=>{
     res.locals.unreadCount = 0
   }
   next()
-}))
+})
 
+// security
+app.use(rateLimit({
+  windowMs: 1000 * 60,
+  max: 10,
+  message: "Too many requests from this IP."
+}))
+app.use((req, res, next) => FilterOfHeaderAndIP(req, res, next))
 app.use(helmet())
 app.use(
   helmet({
@@ -217,10 +214,13 @@ if (process.env.NODE_ENV === "production") {
 app.use("/api", helmet({ contentSecurityPolicy: false, frameguard: false }))
 
 
-// app.all('*', (req, res)=>{
-//     throw new AppError('現在メンテナンス中です。しばらくお待ちください。', 503)
+// ■Maintenance mode
+// app.use((req, res, next)=>{
+//   throw new AppError('現在メンテナンス中です。しばらくお待ちください。', 503)
 // })
 
+
+// API routes
 const apiUserRoutes = require('./routes/apiUser')
 const apiHospitalRoutes = require('./routes/apiHospital')
 const apiTalkingRoomRoutes = require('./routes/apiTalkingRoom')
@@ -230,6 +230,7 @@ app.use('/api/hospital', originalSecurity, apiHospitalRoutes)
 app.use('/api/talkingRoom', originalSecurity, apiTalkingRoomRoutes)
 app.use('/api/others', originalSecurity, apiOtherRoutes)
 
+// web routes
 const userRoutes = require('./routes/user')
 const hospitalRoutes = require('./routes/hospital')
 const reviewRoutes = require('./routes/review')
@@ -245,33 +246,24 @@ app.use('/whatsNew', whatsNewRoutes)
 app.use('/talkingRoom', talkingRoomRoutes)
 app.use('/', othersRoutes)
 
-
 app.get('/',  (req, res)=>{
   page = 'home'
   return res.render('main/home', {page})
 })
 
 // Errorハンドリング $npm i serve-favicon
-app.all('*', (req, res)=>{
+app.use((req, res)=>{
   throw new AppError('不正なリクエストです', 400)
 })
 app.use(async(err, req, res, next) => {
-  const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
-  console.log(`【Errorメッセージ】: ${err.message}`)
-  console.log(`【Statusコード】: ${err.status}`)
-  console.log(`【Stack trace】: ${err.stack}`)
-  console.log(`【Request URL】: ${req.originalUrl}`)
-  console.log(`【Bad User】IP: ${realIp}, Time: ${new Date().toISOString()}`)
-  let badUser = await BadUser.findOne({ip: realIp})
-  if(badUser){
-    badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
-  } else {
-    badUser = new BadUser({
-      ip: realIp,
-      accessAt_UTC: [new Date().toLocaleString('ja-JP')]
-    })
+  if(err.status !== 503){
+    const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddres
+    console.log(`【1.Errorメッセージ】: ${err.message}`)
+    console.log(`【2.Statusコード】: ${err.status}`)
+    console.log(`【3.Stack trace】: ${err.stack}`)
+    console.log(`【4.Request URL】: ${req.originalUrl}`)
+    console.log(`【5.Bad User】IP: ${realIp}, Time: ${new Date().toISOString()}`)
   }
-  // await badUser.save()
   const { status = 500, message = 'エラー発生' } = err
   res.status(status).render('error', { message, status , page:'error'})
 })

@@ -221,14 +221,16 @@ app.use("/api", helmet({ contentSecurityPolicy: false, frameguard: false }))
 
 
 // API routes
-const apiUserRoutes = require('./routes/apiUser')
-const apiHospitalRoutes = require('./routes/apiHospital')
-const apiTalkingRoomRoutes = require('./routes/apiTalkingRoom')
-const apiOtherRoutes = require('./routes/apiOthers')
-app.use('/api/user', originalSecurity, apiUserRoutes)
-app.use('/api/hospital', originalSecurity, apiHospitalRoutes)
-app.use('/api/talkingRoom', originalSecurity, apiTalkingRoomRoutes)
-app.use('/api/others', originalSecurity, apiOtherRoutes)
+// const apiUserRoutes = require('./routes/apiUser')
+// const apiHospitalRoutes = require('./routes/apiHospital')
+// const apiTalkingRoomRoutes = require('./routes/apiTalkingRoom')
+// const apiOtherRoutes = require('./routes/apiOthers')
+const apiAllRoutes = require('./routes/apiAllRoutes')
+// app.use('/api/user', originalSecurity, apiUserRoutes)
+// app.use('/api/hospital', originalSecurity, apiHospitalRoutes)
+// app.use('/api/talkingRoom', originalSecurity, apiTalkingRoomRoutes)
+// app.use('/api/others', originalSecurity, apiOtherRoutes)
+app.use('/api', originalSecurity, apiAllRoutes)
 
 // web routes
 const userRoutes = require('./routes/user')

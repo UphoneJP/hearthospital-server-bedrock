@@ -7,32 +7,20 @@ const TalkTheme = require('../models/talkTheme')
 const { validateReviews, validateTalkTheme, validateEditTalkTheme, validateTalk, validateUserRegister, validateUserLogin, validatePenName, validatePromotion, validateForms, validateFeedbackForms } = require('../utils/apiMiddleware')
 
 router.get('/allInfo', async ()=>{
-  const areas = [
-    '北海道・東北地方',
-    '関東地方',
-    '中部地方',
-    '近畿地方',
-    '中国・四国地方',
-    '九州・沖縄地方'
-  ]
-  const hospitals = await Hospital.find({})
-      .populate({
-        path: 'reviews',
-        populate: { path: 'author' }
-      })
-
-  const reviews = await Review.find({ownerCheck:true})
-      .populate('hospital')
-      .populate('author')
-
-  const talkThemes = await TalkTheme.find({})
-      .populate({
-          path: 'talks',
-          populate: {
-            path: 'loggedInUser',
-            model: 'User'
-          }
-      })
+  const [hospitals, reviews, talkThemes] = await Promise.all([
+    Hospital.find({}).populate({
+      path: 'reviews',
+      populate: { path: 'author' }
+    }),
+    Review.find({ ownerCheck: true }).populate('hospital author'),
+    TalkTheme.find({}).populate({
+      path: 'talks',
+      populate: {
+        path: 'loggedInUser',
+        model: 'User'
+      }
+    })
+  ]);
 
   return res.status(200).json({areas, hospitals, reviews, talkThemes})
 })

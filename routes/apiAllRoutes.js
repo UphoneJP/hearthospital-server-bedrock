@@ -6,7 +6,7 @@ const Review = require('../models/review')
 const TalkTheme = require('../models/talkTheme')
 const { validateReviews, validateTalkTheme, validateEditTalkTheme, validateTalk, validateUserRegister, validateUserLogin, validatePenName, validatePromotion, validateForms, validateFeedbackForms } = require('../utils/apiMiddleware')
 
-router.get('/allInfo', async ()=>{
+router.get('/allInfo', async (req, res)=>{
   const [hospitals, reviews, talkThemes] = await Promise.all([
     Hospital.find({}).populate({
       path: 'reviews',

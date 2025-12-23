@@ -8,14 +8,7 @@ const { validateReviews, validateTalkTheme, validateEditTalkTheme, validateTalk,
 
 router.get('/allInfo', async (req, res)=>{
   const [hospitals, reviews, talkThemes] = await Promise.all([
-    Hospital.find({}).populate({
-      path: 'reviews',
-      populate: { 
-        path: 'author',
-        model: 'User',
-        select: 'username penName'
-      }
-    }),
+    Hospital.find({}),
     Review.find({ ownerCheck: true }).populate([
       { 
         path: 'hospital',
@@ -25,7 +18,7 @@ router.get('/allInfo', async (req, res)=>{
       { 
         path: 'author', 
         model: 'User', 
-        select: 'username penName' 
+        select: 'username penName isDeleted num' 
       }
     ]),
     TalkTheme.find({}).populate({

@@ -22,7 +22,7 @@ router.get('/allInfo', async ()=>{
     })
   ]);
 
-  return res.status(200).json({areas, hospitals, reviews, talkThemes})
+  return res.status(200).json({ hospitals, reviews, talkThemes})
 })
 
 

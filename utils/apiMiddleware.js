@@ -64,27 +64,29 @@ module.exports.validateTalk = (req, res, next) => {
 }
 
 module.exports.originalSecurity = async (req, res, next) => {
-  async function saveBadUser() {
-    const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress
-    let badUser = await BadUser.findOne({ip: realIp})
-    if(badUser){
-      badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
-    } else {
-      badUser = new BadUser({
-        ip: realIp,
-        accessAt_UTC: [new Date().toLocaleString('ja-JP')]
-      })
-    }
-    await badUser.save()
-    console.log("bad user detected")
-    return res.status(403).json({ message: "Access denied. Saved your Info." })
-  }
+  // async function saveBadUser() {
+  //   const realIp = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+  //   let badUser = await BadUser.findOne({ip: realIp})
+  //   if(badUser){
+  //     badUser.accessAt_UTC.push(new Date().toLocaleString('ja-JP'))
+  //   } else {
+  //     badUser = new BadUser({
+  //       ip: realIp,
+  //       accessAt_UTC: [new Date().toLocaleString('ja-JP')]
+  //     })
+  //   }
+  //   await badUser.save()
+  //   console.log("bad user detected")
+  //   return res.status(403).json({ message: "Access denied. Saved your Info." })
+  // }
 
   try {
     const deviceId = req.headers["deviceid"]
     const apiKeyNeeded = req.headers["api-key-needed"]
     if (!apiKeyNeeded || apiKeyNeeded.trim() === 'Bearer' || !deviceId){
-      return await saveBadUser()
+      // return await saveBadUser()
+      console.log("originalSecurity: missing headers")
+      return res.status(403).json({ message: "Access denied." })
     }
     const token = apiKeyNeeded.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -92,14 +94,17 @@ module.exports.originalSecurity = async (req, res, next) => {
       !decoded 
       || !decoded.timestamp 
       || !decoded.apiKey 
-      || decoded.timestamp + 1000 * 60 * 3 < Date.now()
+      || decoded.timestamp + 1000 * 60 * 5 < Date.now()
     ) {
-      return await saveBadUser()
+      // return await saveBadUser()
+      console.log("originalSecurity: apiKey verification failed")
+      return res.status(403).json({ message: "Access denied." })
     }
 
     const savedDevice = await Device.findOne({deviceId, apiKey:decoded.apiKey})
     if( savedDevice && savedDevice.timestamp ){
       if( Date.now() > savedDevice.timestamp + 1000 * 60 * 15 ){
+        console.log("originalSecurity: apiKey expired")
         return res.status(400).json({ message: "Error Occured" })
       } else {
         savedDevice.timestamp = Date.now();
@@ -107,11 +112,14 @@ module.exports.originalSecurity = async (req, res, next) => {
       }
       return next()
     } else {
-      return await saveBadUser()
+      // return await saveBadUser()
+      console.log("originalSecurity: device not found")
+      return res.status(403).json({ message: "Access denied." })
     }
   } catch (error) {
+    // return await saveBadUser()
     console.error("originalSecurity error:", error);
-    return await saveBadUser()
+    return res.status(403).json({ message: "Access denied." })
   }
 }
 

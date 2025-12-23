@@ -10,9 +10,24 @@ router.get('/allInfo', async (req, res)=>{
   const [hospitals, reviews, talkThemes] = await Promise.all([
     Hospital.find({}).populate({
       path: 'reviews',
-      populate: { path: 'author' }
+      populate: { 
+        path: 'author',
+        model: 'User',
+        select: 'username penName'
+      }
     }),
-    Review.find({ ownerCheck: true }).populate('hospital author'),
+    Review.find({ ownerCheck: true }).populate([
+      { 
+        path: 'hospital',
+        model: 'Hospital',
+        select: 'hospitalname location area'
+      },
+      { 
+        path: 'author', 
+        model: 'User', 
+        select: 'username penName' 
+      }
+    ]),
     TalkTheme.find({}).populate({
       path: 'talks',
       populate: {

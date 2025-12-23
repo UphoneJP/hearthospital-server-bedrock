@@ -18,7 +18,7 @@ router.get('/allInfo', async (req, res)=>{
       { 
         path: 'author', 
         model: 'User', 
-        select: 'username penName isDeleted num' 
+        select: 'username penName isDeleted' 
       }
     ]),
     TalkTheme.find({}).populate({
@@ -26,7 +26,7 @@ router.get('/allInfo', async (req, res)=>{
       populate: {
         path: 'loggedInUser',
         model: 'User',
-        select: 'username penName'
+        select: 'username penName num'
       }
     })
   ]);

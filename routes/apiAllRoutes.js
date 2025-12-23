@@ -17,7 +17,8 @@ router.get('/allInfo', async (req, res)=>{
       path: 'talks',
       populate: {
         path: 'loggedInUser',
-        model: 'User'
+        model: 'User',
+        select: 'username penName'
       }
     })
   ]);

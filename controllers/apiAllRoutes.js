@@ -144,7 +144,8 @@ module.exports.createNewTalkTheme = async(req, res)=> {
     })
     await talkTheme.save()
     return res.status(200).json({})
-  } catch {
+  } catch(error) {
+    console.log('createNewTalkThemeのエラー:', error)
     return res.status(400).json({})
   }
 }

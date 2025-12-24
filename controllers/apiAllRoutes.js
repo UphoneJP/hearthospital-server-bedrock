@@ -127,8 +127,8 @@ module.exports.deleteReview = async(req, res)=>{
 // talkingRoom
 module.exports.createNewTalkTheme = async(req, res)=> {
   try {
-    const {title, detailNoSpace, userId} = req.body
-    if( !title || !detailNoSpace || !userId ){
+    const {title, detail, userId} = req.body
+    if( !title || !detail || !userId ){
       return res.status(403).json({})
     }
     const user = await User.findById(userId)
@@ -138,7 +138,7 @@ module.exports.createNewTalkTheme = async(req, res)=> {
     const talkTheme = new TalkTheme({
       author: user._id,
       title,
-      detail: detailNoSpace,
+      detail,
       colorNum: Math.floor(Math.random()*12),
       touchAt: new Date()
     })

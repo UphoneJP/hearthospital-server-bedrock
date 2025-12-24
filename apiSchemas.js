@@ -70,7 +70,7 @@ module.exports.feedbackSchema = Joi.object({
 // talkingRoom
 module.exports.talkThemeSchema = Joi.object({
   title: Joi.string().required().escapeHTML(),
-  detailNoSpace: Joi.string().required().escapeHTML(),
+  detail: Joi.string().required().escapeHTML(),
   userId: Joi.string().required()
 }).required()
 module.exports.editTalkThemeSchema = Joi.object({
